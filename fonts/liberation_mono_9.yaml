@@ -1,0 +1,14 @@
+# Use make_var_font.py
+output_type: SharpMemoryFont
+
+# Height is in pixels and applies to every character
+height: 9
+
+# The rest is a concatenated set of sections.  If any section
+# overlaps a previous section, an error will be raised.
+sections:
+  - type: ttf
+    path: LiberationMono-Regular.ttf
+    col_width: 7
+    y_offset: -1
+    font_size: 9 
