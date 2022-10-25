@@ -2,6 +2,26 @@
 A Raspberry PI Pico library for driving a Sharp Memory Module, such as the
 LS013B4DN04 or LS027B7DH01.  Includes low, mid and high level functions.
 
+What is a Sharp Memory Display?
+
+I consider it an evolution of LCD displays - higher contrast and 60FPS animations
+with just a bit of ghosting.  Due to it's high contrast, it is also compared to
+e-paper (or eink) displays.  Here is a quick comparison:
+
+EPaper Advanatages
+
+  * Zero power needed to display a static image (around 80 uA for the Sharp)
+  * Available in more sizes
+  * Color versions are available
+  * Potentially cheaper
+
+Sharp LCD Advantages
+
+  * Much less energy needed to *update* an image (around 2,000 times less energy)
+  * Much faster updates makes animations practical
+
+So, like all things, it ultimately comes down to your usecase.
+
 # Summary
 
 This library is build on the pico-sdk SPI libraries.  It provides an API with
@@ -25,6 +45,21 @@ three conceptual layers:
 ## Hardware Connections
 
 ![hello world](images/hello_world.jpg)
+
+Hardware connections are inline with a standard PI Pico SPI device.  The pin
+assignments are not fixed and can be changed within the limitations of
+the hardware (see [this pinout](https://datasheets.raspberrypi.com/pico/Pico-R3-A4-Pinout.pdf)
+for an overview and [the design documentation](https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html) for details)
+
+Here they are:
+
+| PI Pin Name | PI Pin # | LCD Pin Name | LCD Pin # | Notes                        |
+|-------------|----------|--------------|-----------|------------------------------|
+| VSYS        | 39       | VIN          | 1         | VBUS (40) coudl also be used |
+| GND         | 38       | GND          | 3         | Any PI GND can be used       |
+| SPI0 SCK    | 24       | CLK          | 4         |                              |
+| SPI0 TX     | 25       | DIN          | 5         | Also called MOSI             |
+| SPI0 CSn    | 22       | CS           | 6         |                              |
 
 ## Building firmware
 
