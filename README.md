@@ -20,7 +20,13 @@ three conceptual layers:
      concering yourself with all of the setup otherwise needed to get it
      working.
 
-# Getting Started - Mid Level
+# Getting Started - Hello World
+
+## Hardware Connections
+
+![hello world](images/hello_world.jpg)
+
+## Building firmware
 
 The mid level API is probably where you want to start.  From the parent
 directory:
