@@ -95,17 +95,19 @@ int main() {
 
 Breaking it down.  We first need to initialize data structures:
 
-    uint8_t disp_buffer[BITMAP_SIZE(WIDTH, HEIGHT)];
+```c
+uint8_t disp_buffer[BITMAP_SIZE(WIDTH, HEIGHT)];
 
-    int main() {
-      ...
-      // Initailize
-      struct SharpDisp sd;
-      sharpdisp_init_default(&sd, disp_buffer, WIDTH, HEIGHT, 0x00);
-      struct BitmapText text;
-      text_init(&text, liberation_sans_36, &sd.bitmap);
-      ...
-    }
+int main() {
+  ...
+  // Initailize
+  struct SharpDisp sd;
+  sharpdisp_init_default(&sd, disp_buffer, WIDTH, HEIGHT, 0x00);
+  struct BitmapText text;
+  text_init(&text, liberation_sans_36, &sd.bitmap);
+  ...
+}
+```
 
 ## SharpDisp Initilization
 
@@ -127,32 +129,36 @@ to do this.
 
 Let's look at the `SharpDisp` and `Bitmap` structures a bit:
 
-    sharpdisp/sharpdisp.h
-    
-    struct SharpDisp {
-      spi_inst_t *spi;  // choice of SPI hardware
-      struct Bitmap bitmap;
-      uint8_t cs_pin;  // pin choice for CS
-      uint8_t vcom;  // internal state
-    };
+```c
+sharpdisp/sharpdisp.h
+
+struct SharpDisp {
+  spi_inst_t *spi;  // choice of SPI hardware
+  struct Bitmap bitmap;
+  uint8_t cs_pin;  // pin choice for CS
+  uint8_t vcom;  // internal state
+};
+```
 
 Not much in this structure of interest outside of `bitmap` which you will often
 need to pass to drawing functions (as `bitmap_rect()` is doing above).
 
-    sharpdisp/bitmap.h
-    
-    #define BITMAP_WHITE   0x01
-    #define BITMAP_BLACK   0x02
-    #define BITMAP_INVERSE 0x03
+```c
+sharpdisp/bitmap.h
 
-    struct Bitmap {
-      uint16_t width;
-      uint16_t width_bytes;
-      uint16_t height;
-      uint8_t  mode;
-      uint8_t  clear_byte;
-      uint8_t* data;
-    };
+#define BITMAP_WHITE   0x01
+#define BITMAP_BLACK   0x02
+#define BITMAP_INVERSE 0x03
+
+struct Bitmap {
+  uint16_t width;
+  uint16_t width_bytes;
+  uint16_t height;
+  uint8_t  mode;
+  uint8_t  clear_byte;
+  uint8_t* data;
+};
+```
 
 The `width` and `height` fields are the dimensions of `data` in pixels.  The
 `width_bytes` field is the width in bytes.  In most cases it will be `width/8`
@@ -172,16 +178,18 @@ such as `console.h`.
 
 Here is the `BitmapText` structure:
 
-    sharpdisp/bitmaptext.h
+```c
+sharpdisp/bitmaptext.h
 
 
-    struct BitmapText {
-        const uint8_t* font;    // Pointer to some font data
-        struct Bitmap* bitmap;  // Pointer to the bitmap to update
-        uint16_t x;
-        uint16_t y;
-        uint8_t error;
-    };
+struct BitmapText {
+    const uint8_t* font;    // Pointer to some font data
+    struct Bitmap* bitmap;  // Pointer to the bitmap to update
+    uint16_t x;
+    uint16_t y;
+    uint8_t error;
+};
+```
 
 The `font` pointer points to a compiled object in the `fonts/` directory.  It
 is purposefully left typeless so that different font formats can be supported.
@@ -203,14 +211,16 @@ check this field for non-zero values and compare those to the codes listed in
 
 ## Print Hello World
 
-    int main() {
-      ...
-      const char* hello = "Hello World!";
-      text.x = (WIDTH - text_str_width(&text, hello)) / 2;  // center the string
-      text.y = (HEIGHT - text_height(&text)) / 2;
-      text_str(&text, hello);
-      ...
-    }
+```c
+int main() {
+  ...
+  const char* hello = "Hello World!";
+  text.x = (WIDTH - text_str_width(&text, hello)) / 2;  // center the string
+  text.y = (HEIGHT - text_height(&text)) / 2;
+  text_str(&text, hello);
+  ...
+}
+```
 
 Most of the complexity here comes from centering the text on the display, you could
 go a simple route and just say:
@@ -222,24 +232,28 @@ to zero).
 
 ## Draw a rectangle
 
-    int main() {
-      ...
-      const uint16_t border = 15;
-      bitmap_rect(
-          &sd.bitmap, border, border, WIDTH - border * 2, HEIGHT - border * 2);
-      ...
-    }
+```c
+int main() {
+  ...
+  const uint16_t border = 15;
+  bitmap_rect(
+      &sd.bitmap, border, border, WIDTH - border * 2, HEIGHT - border * 2);
+  ...
+}
+```
 
 A straight-forward task.  The format is:
 
-    sharpdisp/bitmapshapes.h
-    
-    void bitmap_rect(
-        struct Bitmap* bitmap,
-        uint16_t x,
-        uint16_t y,
-        uint16_t w,
-        uint16_t h);
+```c
+sharpdisp/bitmapshapes.h
+
+void bitmap_rect(
+    struct Bitmap* bitmap,
+    uint16_t x,
+    uint16_t y,
+    uint16_t w,
+    uint16_t h);
+```
 
 The same header file provides function for drawing lines, ovals, and flood fills.
 The base `bitmap.h` file contains function for setting/getting individual pixels
@@ -247,11 +261,13 @@ The base `bitmap.h` file contains function for setting/getting individual pixels
 
 ## Update the hardware
 
-    int main() {
-      ...
-      sharpdisp_refresh(&sd);
-      ...
-    }
+```c
+int main() {
+  ...
+  sharpdisp_refresh(&sd);
+  ...
+}
+```
 
 Everything before this point was just changing the `disp_buffer[]` array in memory.
 The `sharpdisp_refresh()` function is what sends this buffer to the hardware.
