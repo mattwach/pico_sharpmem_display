@@ -44,3 +44,10 @@ target_link_libraries(CONSOLE  INTERFACE BITMAPCONSOLE SHARPDISP)
 target_sources(CONSOLE  INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/console.c
 )
+
+add_library(SHARPMETRICS INTERFACE)
+target_include_directories(SHARPMETRICS  INTERFACE ${CMAKE_CURRENT_LIST_DIR}/../include)
+target_link_libraries(SHARPMETRICS  INTERFACE SHARPDISP)
+target_sources(SHARPMETRICS  INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/metrics.c
+)

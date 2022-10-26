@@ -18,6 +18,9 @@ struct BitmapText {
     // Set to non-zero if any error occurs.  Most text functions
     // will do nothing if this is non-zero.
     uint8_t error;
+    // an optional user-provided bufer that you need to fill in if
+    // you call text_printf
+    char* printf_buffer;
 };
 
 struct SharpMemoryFont {
@@ -73,6 +76,10 @@ static inline void text_str(struct BitmapText* text, const char* str) {
     text_char(text, *str);
   }
 }
+
+// Used to support printf-style calling.  IMPORTANT: you MUST set BitmapText.printf_buffer
+// before calling this.  If it is null, then calling this function is a NOOP
+void text_printf(struct BitmapText* text, const char* fmt, ...);
 
 // returns the pixel height of the current font
 static inline uint8_t text_height(struct BitmapText* text) {

@@ -6,7 +6,6 @@ void bitmap_console_init(struct BitmapConsole* c, struct BitmapText* text) {
   c->text = text;
   c->vscroll = 0;
   c->is_scrolling = 0;
-  c->printf_buffer = 0;
   bitmap_console_clear(c);
 }
 
@@ -60,14 +59,14 @@ void bitmap_console_char(struct BitmapConsole* c, char ch) {
 }
 
 void bitmap_console_printf(struct BitmapConsole* c, const char* fmt, ...) {
-  if (!c->printf_buffer) {
+  if (!c->text->printf_buffer) {
     // User never set this up
     return;
   }
   va_list args;
   va_start(args, fmt);
-  vsprintf(c->printf_buffer, fmt, args);
+  vsprintf(c->text->printf_buffer, fmt, args);
   va_end(args);
-  bitmap_console_str(c, c->printf_buffer);
+  bitmap_console_str(c, c->text->printf_buffer);
 }
 

@@ -1,4 +1,6 @@
 #include "sharpdisp/bitmaptext.h"
+#include <stdarg.h>
+#include <stdio.h>
 
 struct RLETracker {
   const uint8_t* pgm_data;  // address of next byte
@@ -180,6 +182,18 @@ void text_init(struct BitmapText* text, const void* font, struct Bitmap* bitmap)
   text->x = 0;
   text->y = 0;
   text->error = 0;
+  text->printf_buffer = NULL;
   text_verify_font(text);
 }
 
+void text_printf(struct BitmapText* text, const char* fmt, ...) {
+  if (!text->printf_buffer) {
+    // User never set this up
+    return;
+  }
+  va_list args;
+  va_start(args, fmt);
+  vsprintf(text->printf_buffer, fmt, args);
+  va_end(args);
+  text_str(text, text->printf_buffer);
+}

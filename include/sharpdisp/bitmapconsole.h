@@ -37,9 +37,6 @@ struct BitmapConsole {
   uint16_t vscroll;
   // a flag used by the logic to tell if the console is in a scrolling state
   uint8_t is_scrolling;
-  // an optional user-provided bufer that you need to fill in if
-  // you call bitmap_console_printf
-  char* printf_buffer;
 };
 
 void bitmap_console_init(
@@ -68,7 +65,7 @@ static inline void bitmap_console_str(struct BitmapConsole* c, const char* str) 
   }
 }
 
-// Used to support printf-style calling.  IMPORTANT: you MUST set BitmapConsole.printf_buffer
+// Used to support printf-style calling.  IMPORTANT: you MUST set BitmapText.printf_buffer
 // before calling this.  If it is null, then calling this function is a NOOP
 void bitmap_console_printf(struct BitmapConsole* c, const char* fmt, ...);
 
