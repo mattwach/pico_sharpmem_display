@@ -56,14 +56,25 @@ struct DoubleBuffer {
   queue_t frame_is_rendered;
 };
 
+// This is the easy version of init that takes care starting the rendering
+// thread on CPU1 for you.  The downside is that you can't really use CPU1
+// for anything else when going this path but in many cases it's not a problem.
+// Look to doublebuffer_init_nostart() if you need to share CPU1 between
+// rendering and other tasks.
+void doublebuffer_init(
+    struct DoubleBuffer* db,
+    struct SharpDisp* disp,
+    uint8_t* buff2,
+    uint32_t frame_period_ms);
+
 // The _nostart version is used when you want to start up and control cpu1
 // yourself so that you can use it for more things than just pushing frames.
 // When using this method, your CPU1 thread will need to call
-// doublebuffer_core1_render() oftten enough to achieve the desired FPS.
+// doublebuffer_core1_render() often enough to achieve the desired FPS.
 // Also note that doublebuffer_core1_render() can block up to frame_period_ms
 // or even longer (if cpu0 is not clearing the freame for rendering).  Thus
 // you will probably want to do all of your other CPU1 work first, then
-// cann dobulebuffer_core1_render() at the end to wrap up the frame.
+// call dobulebuffer_core1_render() at the end to wrap up the frame.
 // Alternatively, set frame_period_ms to 0 and handle the FPS management your
 // own way.
 void doublebuffer_init_nostart(
@@ -72,18 +83,17 @@ void doublebuffer_init_nostart(
     uint8_t* buff2,
     uint32_t frame_period_ms);
 
-void doublebuffer_init(
-    struct DoubleBuffer* db,
-    struct SharpDisp* disp,
-    uint8_t* buff2,
-    uint32_t frame_period_ms);
-
+// Your code will call this instead of sharpdisp_refresh().  The function 
+// waits-as-needed for the outgoing buffer to be sent, swaps the buffer
+// pointers and finally signals the frame renderer (running on CPU 1)
+// that there is another frame to send to the hardware.  This scheme frees
+// CPU0 to work on whatever it wants while CPU1 is busy sending the frame
+// data to the hardware.
 void doublebuffer_swap(struct DoubleBuffer* db);
 
 // Only call this function if you used doublebuffer_init_nostart().  It is
-// called in the case where you are setting up CPU1 yourself.  When calling
-// doublebuffer_init(), all of the CPU1 setup is handled for you in trade for
-// not being able to use CPU1 for anything outside of rendering frames.
+// called in the case where you are setting up CPU1 yourself.  See the init function
+// above for more details on what to do.
 void doublebuffer_core1_render(void);
 
 #endif
