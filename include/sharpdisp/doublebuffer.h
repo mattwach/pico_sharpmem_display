@@ -33,7 +33,6 @@
 //   sharpdisp_init_default(&sd, disp_buffer, WIDTH, HEIGHT, 0x00);
 //   struct DoubleBuffer db;
 //   doublebuffer_init(&db, &sd, disp_buffer2);
-//   doublebuffer_start(&db, 16);
 //   while (1) {
 //     // db.bitmap will point to disp_buffer1 or disp_buffer2
 //     draw_something(&db.bitmap);
@@ -57,11 +56,34 @@ struct DoubleBuffer {
   queue_t frame_is_rendered;
 };
 
-void doublebuffer_init(
-  struct DoubleBuffer* db, struct SharpDisp* disp, uint8_t* buff2);
+// The _nostart version is used when you want to start up and control cpu1
+// yourself so that you can use it for more things than just pushing frames.
+// When using this method, your CPU1 thread will need to call
+// doublebuffer_core1_render() oftten enough to achieve the desired FPS.
+// Also note that doublebuffer_core1_render() can block up to frame_period_ms
+// or even longer (if cpu0 is not clearing the freame for rendering).  Thus
+// you will probably want to do all of your other CPU1 work first, then
+// cann dobulebuffer_core1_render() at the end to wrap up the frame.
+// Alternatively, set frame_period_ms to 0 and handle the FPS management your
+// own way.
+void doublebuffer_init_nostart(
+    struct DoubleBuffer* db,
+    struct SharpDisp* disp,
+    uint8_t* buff2,
+    uint32_t frame_period_ms);
 
-void doublebuffer_start(struct DoubleBuffer* db, uint32_t frame_period_ms);
+void doublebuffer_init(
+    struct DoubleBuffer* db,
+    struct SharpDisp* disp,
+    uint8_t* buff2,
+    uint32_t frame_period_ms);
 
 void doublebuffer_swap(struct DoubleBuffer* db);
+
+// Only call this function if you used doublebuffer_init_nostart().  It is
+// called in the case where you are setting up CPU1 yourself.  When calling
+// doublebuffer_init(), all of the CPU1 setup is handled for you in trade for
+// not being able to use CPU1 for anything outside of rendering frames.
+void doublebuffer_core1_render(void);
 
 #endif

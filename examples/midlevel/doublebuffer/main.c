@@ -27,8 +27,7 @@ int main() {
     0xFF,
     SPI_FREQ_HZ);
   struct DoubleBuffer db;
-  doublebuffer_init(&db, &sd, disp_buffer2);
-  doublebuffer_start(&db, SLEEP_MS);
+  doublebuffer_init(&db, &sd, disp_buffer2, SLEEP_MS);
   struct SharpMetrics m;
   metrics_init(&m);
   struct BitmapText text;
