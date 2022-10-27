@@ -22,7 +22,7 @@ void metrics_refresh(
   ++m->frame_index;
   m->end_refresh_ms = uptime_ms();
 
-  const uint32_t total_ms = m->finish_ms - m->start_ms;
+  const uint32_t total_ms = m->end_refresh_ms - m->start_ms;
   if (total_ms < frame_ms) {
       sleep_ms(frame_ms - total_ms);
   }

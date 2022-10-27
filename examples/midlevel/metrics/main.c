@@ -9,9 +9,10 @@
 #define HEIGHT 240
 #define RADIUS 10
 #define SPI_FREQ_HZ 10000000
-#define SLEEP_MS 17
+#define SLEEP_MS 16
 
 uint8_t disp_buffer[BITMAP_SIZE(WIDTH, HEIGHT)];
+char printf_buffer[256];
 
 int main() {
   sleep_ms(100);  // allow voltage to stabilize
@@ -27,6 +28,7 @@ int main() {
   metrics_init(&m);
   struct BitmapText text;
   text_init(&text, liberation_sans_18, &sd.bitmap);
+  text.printf_buffer = printf_buffer;
 
   int16_t x = 50;
   int16_t y = 50;
@@ -52,12 +54,12 @@ int main() {
     }
 
     x += x_vel;
-    if ((x < 0) || (x > max_x)) {
+    if ((x < RADIUS) || (x > max_x)) {
       x_vel = -x_vel;
       x += x_vel;
     }
     y += y_vel;
-    if ((y < 0) || (y > max_y)) {
+    if ((y < RADIUS) || (y > max_y)) {
       y_vel = -y_vel;
       y += y_vel;
     }
