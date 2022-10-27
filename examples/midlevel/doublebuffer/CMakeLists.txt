@@ -1,4 +1,5 @@
 add_executable(sharpdisp_doublebuffer
+        ball.c
         main.c
         )
 
