@@ -409,7 +409,7 @@ int main() {
     for (uint16_t x=1; x <= 10; ++x) {
       disp_buffer[y * (WIDTH / 8) + x] = 0xFF;  // Writes a 8x1 pixel slice
       // note, this would do the same thing
-      // sd.bitmap.data[y * sd.bitmap.width_bytes + x] = 0xFF;
+      // sd.bitmap.data[y * sd.bitmap.width_bytes + x] = 0x00;
     }
   }
 
