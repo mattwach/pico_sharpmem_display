@@ -45,6 +45,13 @@ target_sources(CONSOLE  INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/console.c
 )
 
+add_library(SHARPDOUBLEBUFFER INTERFACE)
+target_include_directories(SHARPDOUBLEBUFFER  INTERFACE ${CMAKE_CURRENT_LIST_DIR}/../include)
+target_link_libraries(SHARPDOUBLEBUFFER  INTERFACE SHARPDISP pico_multicore)
+target_sources(SHARPDOUBLEBUFFER  INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/doublebuffer.c
+)
+
 add_library(SHARPMETRICS INTERFACE)
 target_include_directories(SHARPMETRICS  INTERFACE ${CMAKE_CURRENT_LIST_DIR}/../include)
 target_link_libraries(SHARPMETRICS  INTERFACE SHARPDISP)

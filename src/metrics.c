@@ -14,11 +14,12 @@ void metrics_start(struct SharpMetrics* m) {
   m->next_start_ms = uptime_ms();
 }
 
-void metrics_refresh(
-    struct SharpMetrics* m, struct SharpDisp* sd, uint32_t frame_ms) {
+void metrics_prerefresh(struct SharpMetrics* m) {
   m->start_ms = m->next_start_ms;
   m->start_refresh_ms = uptime_ms();
-  sharpdisp_refresh(sd);
+}
+
+void metrics_postrefresh(struct SharpMetrics* m, uint32_t frame_ms) {
   ++m->frame_index;
   m->end_refresh_ms = uptime_ms();
 
@@ -27,4 +28,11 @@ void metrics_refresh(
       sleep_ms(frame_ms - total_ms);
   }
   m->finish_ms = uptime_ms();
+}
+
+void metrics_refresh(
+    struct SharpMetrics* m, struct SharpDisp* sd, uint32_t frame_ms) {
+  metrics_prerefresh(m);
+  sharpdisp_refresh(sd);
+  metrics_postrefresh(m, frame_ms);
 }

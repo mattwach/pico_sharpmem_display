@@ -51,6 +51,16 @@ void metrics_start(struct SharpMetrics* m);
 void metrics_refresh(
     struct SharpMetrics* m, struct SharpDisp* sd, uint32_t frame_ms);
 
+// If you are using doublebuffer.h or some other special refresh approach,
+// metrics_refresh() will be too high level to be usable.  In that case,
+// you can use the two functions below in the following way:
+//
+// metrics_prerefresh(&m);
+// doublebuffer_swap(&db);
+// metrics_postrefresh(&m, 0);  // zero becuase doublebuffer_swap handles the delay.
+void metrics_prerefresh(struct SharpMetrics* m);
+void metrics_postrefresh(struct SharpMetrics* m, uint32_t frame_ms);
+
 // All of these are for the previous frame
 static inline uint32_t metrics_draw_ms(struct SharpMetrics* m) {
     return m->start_refresh_ms - m->start_ms;
