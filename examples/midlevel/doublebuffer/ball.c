@@ -10,12 +10,12 @@
 // the same.  If you are trying to understand the double buffering API,
 // see main.c
 
-#define BALL_COUNT 100
+#define BALL_COUNT 5
 
 // If xv and yv were pixel integers, we would have some limitations on
 // possible ball angles.  Thus we shift everything up by 4 (<< 4)
 // to allow 4 bits of fractional value.  The final draw shifts those
-// back back out to convert to real pixels.
+// back out to convert to real pixels.
 //
 // As a reminder that these values are shifted, relevant variables have
 // a "4" in them.  e.g the "x" coordinate is "x4" which suggests
@@ -59,11 +59,7 @@ static bool balls_are_touching(struct Ball* b1, struct Ball* b2) {
     return false;
   }
   // pythagorean theorem
-  if (((dx4 * dx4) + (dy4 * dy4)) > diameter4sq) {
-    // too far away
-    return false;
-  }
-  return true;
+  return ((dx4 * dx4) + (dy4 * dy4)) <= diameter4sq;
 }
 
 static void init_a_ball(struct Ball* b) {
@@ -177,8 +173,8 @@ static void bounce_a_ball_off_a_ball(struct Ball* b1, struct Ball* b2) {
   const float b2xv = b2->xv4;
   const float b2yv = b2->yv4;
 
-  const float dx = b1->x4 - b2->x4;
-  const float dy = b1->y4 - b2->y4;
+  const float dx = b2->x4 - b1->x4;
+  const float dy = b2->y4 - b1->y4;
   const float length = sqrtf(dx*dx + dy*dy);
   // normalize the vectors
   const float nx = dx / length;
