@@ -10,7 +10,7 @@
 // the same.  If you are trying to understand the double buffering API,
 // see main.c
 
-#define BALL_COUNT 5
+#define BALL_COUNT 50
 
 // If xv and yv were pixel integers, we would have some limitations on
 // possible ball angles.  Thus we shift everything up by 4 (<< 4)
@@ -26,6 +26,7 @@ static const int16_t diameter4 = (RADIUS * 2) << 4;
 static const int32_t diameter4sq = diameter4 * diameter4;
 static const int16_t max4x = (WIDTH - RADIUS) << 4;
 static const int16_t max4y = (HEIGHT - RADIUS - 18) << 4;
+float energy_gain = 1.00f; // used to add energyor remove energy from the system
 
 // some good-enough random generation
 static int16_t rand16(int16_t min, int16_t max) {
@@ -92,10 +93,30 @@ void init_balls(void) {
 }
 
 static void move_balls(void) {
+  bool a_ball_is_stopped = false;
+  bool a_ball_is_fast = false;
   for (int i=0; i < BALL_COUNT; ++i) {
     struct Ball* b = ball + i;
     b->x4 += b->xv4;
     b->y4 += b->yv4;
+    // if things are stopping completly, then add some energy in
+    if ((b->xv4 == 0) && (b->yv4 == 0)) {
+      a_ball_is_stopped = true;
+    }
+    // make sure the velocity is not  getting out of control
+    if (b->xv4 > 32) {
+      b->xv4 = 32;
+      a_ball_is_fast = true;
+    } else if (b->xv4 < -32) {
+      b->xv4 = -32;
+      a_ball_is_fast = false;
+    }
+  }
+  if (a_ball_is_stopped && (energy_gain < 1.05)) {
+    energy_gain += 0.002;
+  }
+  if (a_ball_is_fast && (energy_gain > 0.95)) {
+    energy_gain -= 0.002;
   }
 }
 
@@ -105,21 +126,17 @@ static void bounce_a_ball_off_walls(struct Ball* b) {
     // reverse the direction and back off the previous change
     b->xv4 = -b->xv4;
     b->x4 += b->xv4;
-    // make sure the velocity is not  getting out of control
-    if (b->xv4 > 32) {
-      b->xv4 = 32;
-    } else if (b->xv4 < -32) {
-      b->xv4 = -32;
-    }
     // sometimes we are still off the screen.  This can happen
     // when a ball collides with another one and is off the
     // screen at the same time.  For these cases, we simply pull
     // things back onto the screen.
     if (b->x4 < radius4) {
       b->x4 = radius4;
+      energy_gain -= 0.01;
     }
     if (b->x4 > max4x) {
       b->x4 = max4x;
+      energy_gain -= 0.01;
     }
   }
   // now everything that was done for x should be done for y
@@ -162,7 +179,7 @@ static void bounce_a_ball_off_a_ball(struct Ball* b1, struct Ball* b2) {
   // can happen when multiple balls collide at the same time or if a wall
   // is involved.  This logic will allow the situation to eventually
   // resolve itself, although it may not look pretty.
-  while (balls_are_touching(b1, b2)) {
+  if (balls_are_touching(b1, b2)) {
     b2->x4 -= b2->xv4;
     b2->y4 -= b2->yv4;
   }
@@ -188,10 +205,10 @@ static void bounce_a_ball_off_a_ball(struct Ball* b1, struct Ball* b2) {
   const float v2nx = nx * v2mag;
   const float v2ny = ny * v2mag;
   // Adjust the velocities
-  b1->xv4 = (int16_t)(b1xv + v2nx - v1nx);
-  b1->yv4 = (int16_t)(b1yv + v2ny - v1ny);
-  b2->xv4 = (int16_t)(b2xv + v1nx - v2nx);
-  b2->yv4 = (int16_t)(b2yv + v1ny - v2ny);
+  b1->xv4 = (int16_t)((b1xv + v2nx - v1nx) * energy_gain);
+  b1->yv4 = (int16_t)((b1yv + v2ny - v1ny) * energy_gain);
+  b2->xv4 = (int16_t)((b2xv + v1nx - v2nx) * energy_gain);
+  b2->yv4 = (int16_t)((b2yv + v1ny - v2ny) * energy_gain);
 }
 
 static void maybe_bounce_a_ball_off_a_ball(struct Ball* b1, struct Ball* b2) {
