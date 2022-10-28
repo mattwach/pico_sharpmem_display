@@ -3,8 +3,6 @@
 #include <sharpdisp/bitmapshapes.h>
 #include "hardware/structs/rosc.h"
 
-#define BALL_COUNT 200
-
 const int16_t min_x = RADIUS << 4;
 const int16_t min_y = min_x;
 const int16_t max_x = (WIDTH - RADIUS) << 4;
