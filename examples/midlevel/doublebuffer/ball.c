@@ -2,13 +2,30 @@
 #include "common.h"
 #include <sharpdisp/bitmapshapes.h>
 #include "hardware/structs/rosc.h"
+#include <float.h>
+#include <math.h>
 
-#define BALL_COUNT 200
+// Note: This file has nothing all to do with double buffering.  If we
+// were not double buffering, the code in this file would be exactly
+// the same.  If you are trying to understand the double buffering API,
+// see main.c
 
-const int16_t min_x = RADIUS << 4;
-const int16_t min_y = min_x;
-const int16_t max_x = (WIDTH - RADIUS) << 4;
-const int16_t max_y = (HEIGHT - RADIUS - 18) << 4;
+#define BALL_COUNT 100
+
+// If xv and yv were pixel integers, we would have some limitations on
+// possible ball angles.  Thus we shift everything up by 4 (<< 4)
+// to allow 4 bits of fractional value.  The final draw shifts those
+// back back out to convert to real pixels.
+//
+// As a reminder that these values are shifted, relevant variables have
+// a "4" in them.  e.g the "x" coordinate is "x4" which suggests
+// "pixel_x_coordinate << 4"
+
+static const int16_t radius4 = RADIUS << 4;
+static const int16_t diameter4 = (RADIUS * 2) << 4;
+static const int32_t diameter4sq = diameter4 * diameter4;
+static const int16_t max4x = (WIDTH - RADIUS) << 4;
+static const int16_t max4y = (HEIGHT - RADIUS - 18) << 4;
 
 // some good-enough random generation
 static int16_t rand16(int16_t min, int16_t max) {
@@ -22,65 +39,187 @@ static int16_t rand16(int16_t min, int16_t max) {
 }
 
 struct Ball {
-  // all values are pixel x 16 for some subpixel allowances 
-  int16_t x;
-  int16_t y;
-  int8_t xv;
-  int8_t yv;
+  int16_t x4;
+  int16_t y4;
+  int8_t xv4;
+  int8_t yv4;
 };
 
 struct Ball ball[BALL_COUNT];
 
+static bool balls_are_touching(struct Ball* b1, struct Ball* b2) {
+  const int32_t dx4 = b1->x4 - b2->x4;
+  if ((dx4 > diameter4) || (dx4 < -diameter4)) {
+    // optimization early exit on far-away balls
+    return false;
+  }
+  const int32_t dy4 = b1->y4 - b2->y4;
+  if ((dy4 > diameter4) || (dy4 < -diameter4)) {
+    // optimization early exit on far-away balls
+    return false;
+  }
+  // pythagorean theorem
+  if (((dx4 * dx4) + (dy4 * dy4)) > diameter4sq) {
+    // too far away
+    return false;
+  }
+  return true;
+}
+
 static void init_a_ball(struct Ball* b) {
-  b->x = rand16(min_x, max_x);
-  b->y = rand16(min_y, max_y);
-  b->xv = rand16(-32, 32);
-  b->yv = rand16(-32, 32);
+  b->x4 = rand16(radius4, max4x);
+  b->y4 = rand16(radius4, max4y);
+  b->xv4 = rand16(-32, 32);
+  b->yv4 = rand16(-32, 32);
+}
+
+static bool ball_touching_anything(struct Ball* b, int num_added) {
+  for (int i=0; i<num_added; ++i) {
+    if (balls_are_touching(b, ball + i)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 void init_balls(void) {
   for (int i=0; i<BALL_COUNT; ++i) {
-    init_a_ball(ball + i);
+    struct Ball* b = ball + i;
+    // try to place the ball in a new location
+    for (int attempt=0; attempt < 10000; ++attempt) {
+      init_a_ball(b);
+      if (!ball_touching_anything(b, i)) {
+        break;
+      }
+    }
   }
 }
 
-static void draw_a_ball(struct Bitmap* bitmap, struct Ball* b) {
-  bitmap_filled_circle(bitmap, b->x >> 4, b->y >> 4, RADIUS);
-  b->x += b->xv;
-  if ((b->x < min_x) || (b->x > max_x)) {
-    b->xv = -b->xv;
-    if (b->xv > 32) {
-      b->xv = 32;
-    } else if (b->xv < -32) {
-      b->xv = -32;
+static void move_balls(void) {
+  for (int i=0; i < BALL_COUNT; ++i) {
+    struct Ball* b = ball + i;
+    b->x4 += b->xv4;
+    b->y4 += b->yv4;
+  }
+}
+
+static void bounce_a_ball_off_walls(struct Ball* b) {
+  if ((b->x4 < radius4) || (b->x4 > max4x)) {
+    // off the edge of the screen in the x dimension
+    // reverse the direction and back off the previous change
+    b->xv4 = -b->xv4;
+    b->x4 += b->xv4;
+    // make sure the velocity is not  getting out of control
+    if (b->xv4 > 32) {
+      b->xv4 = 32;
+    } else if (b->xv4 < -32) {
+      b->xv4 = -32;
     }
-    if (b->x < min_x) {
-      b->x = min_x;
+    // sometimes we are still off the screen.  This can happen
+    // when a ball collides with another one and is off the
+    // screen at the same time.  For these cases, we simply pull
+    // things back onto the screen.
+    if (b->x4 < radius4) {
+      b->x4 = radius4;
     }
-    if (b->x > max_x) {
-      b->x = max_x;
+    if (b->x4 > max4x) {
+      b->x4 = max4x;
     }
   }
-  b->y += b->yv;
-  if ((b->y < min_y) || (b->y > max_y)) {
-    b->yv = -b->yv;
-    b->y += b->yv;
-    if (b->yv > 32) {
-      b->yv = 32;
-    } else if (b->yv < -32) {
-      b->yv = -32;
+  // now everything that was done for x should be done for y
+  // maybe this could be factored out but the number of parms
+  // to inject is high so maybe harder to read than it already is.
+  if ((b->y4 < radius4) || (b->y4 > max4y)) {
+    b->yv4 = -b->yv4;
+    b->y4 += b->yv4;
+    if (b->yv4 > 32) {
+      b->yv4 = 32;
+    } else if (b->yv4 < -32) {
+      b->yv4 = -32;
     }
-    if (b->y < min_y) {
-      b->y = min_y;
+    if (b->y4 < radius4) {
+      b->y4 = radius4;
     }
-    if (b->y > max_y) {
-      b->y = max_y;
+    if (b->y4 > max4y) {
+      b->y4 = max4y;
+    }
+  }
+}
+
+static void bounce_balls_off_walls(void) {
+  for (int i=0; i < BALL_COUNT; ++i) {
+    bounce_a_ball_off_walls(ball + i);
+  }
+}
+
+// This function assumes the the balls are definitely touching
+// or overlapping and applies the dense/nasty vector math to
+// execute the bounce.
+static void bounce_a_ball_off_a_ball(struct Ball* b1, struct Ball* b2) {
+  // Assume that move_balls() got us in this situation and undo the
+  // operation
+  b1->x4 -= b1->xv4;
+  b1->y4 -= b1->yv4;
+  b2->x4 -= b2->xv4;
+  b2->y4 -= b2->yv4;
+  // There is a slight chance that the balls are still overlapping.  This
+  // can happen when multiple balls collide at the same time or if a wall
+  // is involved.  This logic will allow the situation to eventually
+  // resolve itself, although it may not look pretty.
+  while (balls_are_touching(b1, b2)) {
+    b2->x4 -= b2->xv4;
+    b2->y4 -= b2->yv4;
+  }
+  // may as well use (slower) floats here since a bunch of pruning was already
+  // done to get to this point
+  const float b1xv = b1->xv4;
+  const float b1yv = b1->yv4;
+  const float b2xv = b2->xv4;
+  const float b2yv = b2->yv4;
+
+  const float dx = b1->x4 - b2->x4;
+  const float dy = b1->y4 - b2->y4;
+  const float length = sqrtf(dx*dx + dy*dy);
+  // normalize the vectors
+  const float nx = dx / length;
+  const float ny = dy / length;
+  // normalize the velocities
+  const float v1mag = nx * b1xv + ny * b1yv;
+  const float v1nx = nx * v1mag;
+  const float v1ny = ny * v1mag;
+
+  const float v2mag = nx * b2xv + ny * b2yv;
+  const float v2nx = nx * v2mag;
+  const float v2ny = ny * v2mag;
+  // Adjust the velocities
+  b1->xv4 = (int16_t)(b1xv + v2nx - v1nx);
+  b1->yv4 = (int16_t)(b1yv + v2ny - v1ny);
+  b2->xv4 = (int16_t)(b2xv + v1nx - v2nx);
+  b2->yv4 = (int16_t)(b2yv + v1ny - v2ny);
+}
+
+static void maybe_bounce_a_ball_off_a_ball(struct Ball* b1, struct Ball* b2) {
+  if (balls_are_touching(b1, b2)) {
+    bounce_a_ball_off_a_ball(b1, b2);
+  }
+}
+
+static void bounce_balls_off_balls(void) {
+  // Yeah, this could be optimized but the complexity increase might not
+  // be worth it for a "demo"
+  for (int j=1; j < BALL_COUNT; ++j) {
+    for (int i=0; i<j; ++i) {
+      maybe_bounce_a_ball_off_a_ball(ball + i, ball + j);
     }
   }
 }
 
 void draw_balls(struct Bitmap* bitmap) {
   for (int i=0; i < BALL_COUNT; ++i) {
-    draw_a_ball(bitmap, ball + i);
+    struct Ball* b = ball + i;
+    bitmap_filled_circle(bitmap, b->x4 >> 4, b->y4 >> 4, RADIUS);
   }
+  move_balls();
+  bounce_balls_off_balls();
+  bounce_balls_off_walls();
 }
