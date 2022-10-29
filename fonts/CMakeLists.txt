@@ -19,6 +19,13 @@ target_sources(LIBERATION_MONO_12  INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/liberation_mono_12.c
 )
 
+add_library(LIBERATION_MONO_14 INTERFACE)
+target_include_directories(LIBERATION_MONO_14  INTERFACE ${CMAKE_CURRENT_LIST_DIR}/..)
+target_link_libraries(LIBERATION_MONO_14  INTERFACE)
+target_sources(LIBERATION_MONO_14  INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/liberation_mono_14.c
+)
+
 add_library(LIBERATION_MONO_24 INTERFACE)
 target_include_directories(LIBERATION_MONO_24  INTERFACE ${CMAKE_CURRENT_LIST_DIR}/..)
 target_link_libraries(LIBERATION_MONO_24  INTERFACE)

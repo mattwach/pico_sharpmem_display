@@ -1,7 +1,9 @@
 #include "ball.h"
 #include "common.h"
 #include <sharpdisp/bitmapshapes.h>
+#include <sharpdisp/bitmaptext.h>
 #include "hardware/structs/rosc.h"
+#include <fonts/liberation_mono_14.h>
 #include <float.h>
 #include <math.h>
 
@@ -26,6 +28,7 @@ static const int16_t diameter4 = (RADIUS * 2) << 4;
 static const int32_t diameter4sq = diameter4 * diameter4;
 static const int16_t max4x = (WIDTH - RADIUS) << 4;
 static const int16_t max4y = (HEIGHT - RADIUS - 18) << 4;
+static struct BitmapText text;
 float energy_gain = 1.00f; // used to add energyor remove energy from the system
 
 // some good-enough random generation
@@ -44,6 +47,7 @@ struct Ball {
   int16_t y4;
   int8_t xv4;
   int8_t yv4;
+  char letter;
 };
 
 struct Ball ball[BALL_COUNT];
@@ -68,6 +72,7 @@ static void init_a_ball(struct Ball* b) {
   b->y4 = rand16(radius4, max4y);
   b->xv4 = rand16(-32, 32);
   b->yv4 = rand16(-32, 32);
+  b->letter = (char)(rand16('A', 'Z' + 1));
 }
 
 static bool ball_touching_anything(struct Ball* b, int num_added) {
@@ -80,6 +85,7 @@ static bool ball_touching_anything(struct Ball* b, int num_added) {
 }
 
 void init_balls(void) {
+  text_init(&text, liberation_mono_14, NULL); 
   for (int i=0; i<BALL_COUNT; ++i) {
     struct Ball* b = ball + i;
     // try to place the ball in a new location
@@ -230,7 +236,15 @@ static void bounce_balls_off_balls(void) {
 void draw_balls(struct Bitmap* bitmap) {
   for (int i=0; i < BALL_COUNT; ++i) {
     struct Ball* b = ball + i;
-    bitmap_filled_circle(bitmap, b->x4 >> 4, b->y4 >> 4, RADIUS);
+    const uint16_t x = b->x4 >> 4;
+    const uint16_t y = b->y4 >> 4;
+    bitmap_filled_circle(bitmap, x, y, RADIUS);
+    bitmap->mode = BITMAP_WHITE;
+    text.bitmap = bitmap;
+    text.x = x - 5;
+    text.y = y - 6;
+    text_char(&text, b->letter);
+    bitmap->mode = BITMAP_BLACK;
   }
   move_balls();
   bounce_balls_off_balls();

@@ -13,6 +13,7 @@ target_link_libraries(sharpdisp_doublebuffer
     BITMAPTEXT
     BITMAPSHAPES
     LIBERATION_SANS_18
+    LIBERATION_MONO_14
 )
 
 # enable usb output, disable uart output
