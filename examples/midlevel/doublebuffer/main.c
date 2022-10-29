@@ -61,12 +61,12 @@ int main() {
     SPI_FREQ_HZ);
   doublebuffer_init(&dub_buff, &display, disp_buffer2, SLEEP_MS);
   init_metrics();
-  init_balls();
+  init_balls(&dub_buff.bitmap);
 
   while (1) {
     metrics_start(&metrics);
     bitmap_clear(&dub_buff.bitmap);
-    draw_balls(&dub_buff.bitmap);
+    draw_balls();
     draw_metrics();
     metrics_prerefresh(&metrics);
     doublebuffer_swap(&dub_buff);  // This instead of sharpdisp_refresh()

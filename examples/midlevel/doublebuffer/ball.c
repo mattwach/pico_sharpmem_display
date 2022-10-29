@@ -84,8 +84,8 @@ static bool ball_touching_anything(struct Ball* b, int num_added) {
   return false;
 }
 
-void init_balls(void) {
-  text_init(&text, liberation_mono_14, NULL); 
+void init_balls(struct Bitmap* bitmap) {
+  text_init(&text, liberation_mono_14, bitmap); 
   for (int i=0; i<BALL_COUNT; ++i) {
     struct Ball* b = ball + i;
     // try to place the ball in a new location
@@ -233,18 +233,17 @@ static void bounce_balls_off_balls(void) {
   }
 }
 
-void draw_balls(struct Bitmap* bitmap) {
+void draw_balls(void) {
   for (int i=0; i < BALL_COUNT; ++i) {
     struct Ball* b = ball + i;
     const uint16_t x = b->x4 >> 4;
     const uint16_t y = b->y4 >> 4;
-    bitmap_filled_circle(bitmap, x, y, RADIUS);
-    bitmap->mode = BITMAP_WHITE;
-    text.bitmap = bitmap;
+    bitmap_filled_circle(text.bitmap, x, y, RADIUS);
+    text.bitmap->mode = BITMAP_WHITE;
     text.x = x - 5;
     text.y = y - 6;
     text_char(&text, b->letter);
-    bitmap->mode = BITMAP_BLACK;
+    text.bitmap->mode = BITMAP_BLACK;
   }
   move_balls();
   bounce_balls_off_balls();

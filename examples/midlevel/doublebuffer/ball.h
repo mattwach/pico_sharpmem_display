@@ -3,9 +3,9 @@
 
 #include <sharpdisp/bitmap.h>
 
-void init_balls(void);
+void init_balls(struct Bitmap* bitmap);
 
-void draw_balls(struct Bitmap* bitmap);
+void draw_balls(void);
 
 #endif
 
