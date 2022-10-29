@@ -16,7 +16,7 @@ struct SharpDisp display;
 struct DoubleBuffer dbl_buff;
 struct BitmapText text;
 
-#define FILL_BUFF_SIZE 128
+#define FILL_BUFF_SIZE 1024
 uint32_t fill_buff[FILL_BUFF_SIZE];
 
 #define FRAMES 400
@@ -33,17 +33,17 @@ static void title(const char* str) {
   const uint8_t ypad = 40;
   const uint16_t x = WIDTH - text_str_width(&text, str) - xpad;
   const uint16_t y = HEIGHT - text_height(&text) - ypad;
-  const uint8_t old_mode = display.bitmap.mode;
+  const uint8_t old_mode = dbl_buff.bitmap.mode;
 
   text.x = x + shadow;
   text.y = y + shadow;
-  display.bitmap.mode = display.bitmap.clear_byte ? BITMAP_WHITE : BITMAP_BLACK;
+  dbl_buff.bitmap.mode = dbl_buff.bitmap.clear_byte ? BITMAP_WHITE : BITMAP_BLACK;
   text_str(&text, str);
   text.x = x;
   text.y = y;
-  display.bitmap.mode = display.bitmap.clear_byte ? BITMAP_BLACK : BITMAP_WHITE;
+  dbl_buff.bitmap.mode = dbl_buff.bitmap.clear_byte ? BITMAP_BLACK : BITMAP_WHITE;
   text_str(&text, str);
-  display.bitmap.mode = old_mode;
+  dbl_buff.bitmap.mode = old_mode;
 }
 
 void points(void) {
@@ -51,13 +51,13 @@ void points(void) {
   uint8_t j = 5;
   uint16_t i=0;
   for (; i <FRAMES; ++i) {
-    bitmap_clear(&display.bitmap);
+    bitmap_clear(&dbl_buff.bitmap);
 
     uint16_t y = 0;
     for (; y < HEIGHT; y += j) {
       uint16_t x = 0;
       for (; x < WIDTH; x += j) {
-        bitmap_point(&display.bitmap, x, y);
+        bitmap_point(&dbl_buff.bitmap, x, y);
       }
     }
 
@@ -76,16 +76,16 @@ void lines(void) {
   uint8_t j = 5;
   uint16_t i=0;
   for (; i < FRAMES; ++i) {
-    bitmap_clear(&display.bitmap);
+    bitmap_clear(&dbl_buff.bitmap);
 
     uint16_t y = 0;
     for (; y < HEIGHT; y += j) {
-      bitmap_hline(&display.bitmap, 0, y, WIDTH); 
+      bitmap_hline(&dbl_buff.bitmap, 0, y, WIDTH); 
     }
 
     uint16_t x = 0;
     for (; x < WIDTH; x += j) {
-      bitmap_vline(&display.bitmap, x, 0, HEIGHT); 
+      bitmap_vline(&dbl_buff.bitmap, x, 0, HEIGHT); 
     }
 
     j+=j_dir;
@@ -101,13 +101,13 @@ void lines(void) {
 void lines2(void) {
   uint16_t i=0;
   for (; i < FRAMES; ++i) {
-    bitmap_clear(&display.bitmap);
+    bitmap_clear(&dbl_buff.bitmap);
 
     const uint8_t offset = i & 0xF;
     uint16_t x = offset;
     for (; x < WIDTH; x += 16) {
       bitmap_line(
-          &display.bitmap,
+          &dbl_buff.bitmap,
           x,
           0,
           WIDTH - x - 1,
@@ -117,7 +117,7 @@ void lines2(void) {
     uint16_t y = x - WIDTH;
     for (; y < HEIGHT; y += 16) {
       bitmap_line(
-          &display.bitmap,
+          &dbl_buff.bitmap,
           WIDTH - 1,
           y,
           0,
@@ -134,9 +134,9 @@ void text_array(void) {
   uint8_t j = 5;
   uint16_t i=0;
   struct BitmapText t;
-  text_init(&t, liberation_mono_12, &display.bitmap);
+  text_init(&t, liberation_mono_12, &dbl_buff.bitmap);
   for (; i < FRAMES; ++i) {
-    bitmap_clear(&display.bitmap);
+    bitmap_clear(&dbl_buff.bitmap);
 
     t.y = 0;
     uint8_t base = 'A';
@@ -165,12 +165,12 @@ void rect(void) {
   uint8_t j = 5;
 
   for (; i < FRAMES; ++i) {
-    bitmap_clear(&display.bitmap);
+    bitmap_clear(&dbl_buff.bitmap);
 
     uint16_t offset = 0;
     for (; HEIGHT > (offset * 2); offset += 5) {
       bitmap_rect(
-          &display.bitmap,
+          &dbl_buff.bitmap,
           j + offset,
           j + offset,
           WIDTH - offset * 2,
@@ -193,12 +193,12 @@ void filled_rect(void) {
   uint8_t j = 5;
 
   for (; i < FRAMES; ++i) {
-    bitmap_clear(&display.bitmap);
+    bitmap_clear(&dbl_buff.bitmap);
 
     uint16_t offset = 0;
     for (; HEIGHT > (offset * 2); offset += 5) {
       bitmap_filled_rect(
-          &display.bitmap,
+          &dbl_buff.bitmap,
           j + offset,
           j + offset,
           WIDTH - offset * 2,
@@ -219,12 +219,12 @@ void oval(void) {
   uint16_t i=0;
 
   for (; i < FRAMES; ++i) {
-    bitmap_clear(&display.bitmap);
+    bitmap_clear(&dbl_buff.bitmap);
 
     const uint8_t f = i & 0x3f;
     const uint16_t cx = WIDTH >> 1;
     const uint16_t cy = HEIGHT >> 1;
-    bitmap_oval(&display.bitmap, cx, cy, f, 0x3f - f);
+    bitmap_oval(&dbl_buff.bitmap, cx, cy, f, 0x3f - f);
 
     title("Ovals");
     doublebuffer_swap(&dbl_buff);
@@ -235,12 +235,12 @@ void filled_oval(void) {
   uint16_t i=0;
 
   for (; i < FRAMES; ++i) {
-    bitmap_clear(&display.bitmap);
+    bitmap_clear(&dbl_buff.bitmap);
 
     const uint8_t f = i & 0x3f;
     const uint16_t cx = WIDTH >> 1;
     const uint16_t cy = HEIGHT >> 1;
-    bitmap_filled_oval(&display.bitmap, cx, cy, f, 0x3f - f);
+    bitmap_filled_oval(&dbl_buff.bitmap, cx, cy, f, 0x3f - f);
 
     title("Filled Ovals");
     doublebuffer_swap(&dbl_buff);
@@ -284,7 +284,7 @@ void flood_fill(void) {
   uint16_t i=0;
 
   for (; i < FRAMES; ++i) {
-    bitmap_clear(&display.bitmap);
+    bitmap_clear(&dbl_buff.bitmap);
 
     // Three triangular points that trace around the screen
     uint16_t p0 = i;
@@ -300,9 +300,9 @@ void flood_fill(void) {
     map_point(p0, &x0, &y0);
     map_point(p1, &x1, &y1);
     map_point(p2, &x2, &y2);
-    bitmap_line(&display.bitmap, x0, y0, x1, y1);
-    bitmap_line(&display.bitmap, x1, y1, x2, y2);
-    bitmap_line(&display.bitmap, x2, y2, x0, y0);
+    bitmap_line(&dbl_buff.bitmap, x0, y0, x1, y1);
+    bitmap_line(&dbl_buff.bitmap, x1, y1, x2, y2);
+    bitmap_line(&dbl_buff.bitmap, x2, y2, x0, y0);
 
     // find the center of the triangle
     const uint16_t x01 = (x0 + x1) >> 1;
@@ -312,7 +312,7 @@ void flood_fill(void) {
     const uint16_t cx = (x01 + x02) >> 1;
     const uint16_t cy = (y01 + y02) >> 1;
 
-    bitmap_flood_fill(&display.bitmap, cx, cy, fill_buff, FILL_BUFF_SIZE);
+    bitmap_flood_fill(&dbl_buff.bitmap, cx, cy, fill_buff, FILL_BUFF_SIZE);
 
     title("Flood Fill");
     doublebuffer_swap(&dbl_buff);
@@ -343,13 +343,13 @@ int main(void) {
   sleep_ms(100);  // allow voltage to stabilize
   sharpdisp_init_default(&display, disp_buffer, WIDTH, HEIGHT, 0x00);
   doublebuffer_init(&dbl_buff, &display, disp_buffer2, 16);
-  text_init(&text, liberation_sans_24, NULL);
+  text_init(&text, liberation_sans_24, &dbl_buff.bitmap);
   while (1) {
     int i=0;
     for (; i < (sizeof(demos) / sizeof(demos[0])); ++i) {
       struct Demo* demo = demos + i;
-      display.bitmap.clear_byte = demo->clear_byte;
-      display.bitmap.mode = demo->mode;
+      dbl_buff.bitmap.clear_byte = demo->clear_byte;
+      dbl_buff.bitmap.mode = demo->mode;
       demo->fn();
     }
   }
