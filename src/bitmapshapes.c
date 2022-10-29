@@ -216,15 +216,15 @@ static void _symmetric_point(
     uint16_t dx,
     uint16_t dy) {
 
-  const uint16_t left = cx - dx;
-  const uint16_t top = cy - dy;
-  const uint16_t right = cx + dx;
-  const uint16_t bottom = cy + dy;
+  const uint16_t left = dx <= cx ? cx - dx : 0;
+  const uint16_t top = dy <= cy ? cy - dy : 0;
   const uint16_t bm_width = bitmap->width;
   const uint16_t bm_height = bitmap->height;
+  uint16_t right = cx + dx;
+  uint16_t bottom = cy + dy;
 
   if (dx > 0) {
-    if ((cy >= dy) && (cx >= dx)) {
+    if ((cy >= dy) && (cx >= dx) && (top < bm_height)) {
       bitmap_point_nocheck(bitmap, left, top);  // Top left
     }
     if ((bottom < bm_height) && (right < bm_width)) {
@@ -233,7 +233,7 @@ static void _symmetric_point(
   }
   
   if (dy > 0) {
-    if ((cy >= dy) && (right < bm_width)) {
+    if ((cy >= dy) && (right < bm_width) & (top < bm_height)) {
       bitmap_point_nocheck(bitmap, right, top);  // Top right
     }
     if ((bottom < bm_height) && (cx >= dx)) {
@@ -253,6 +253,9 @@ static void _symmetric_hfill(
 
   uint8_t drawn = 0;
   const uint16_t top = cy - dy;
+  if (top >= bitmap->height) {
+    return;
+  }
   if (dy <= cy) {
     _bitmap_hline_nocheck(bitmap, left, top, right - left + 1);
     drawn = 1;
