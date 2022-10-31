@@ -99,15 +99,27 @@ void bitmap_vline(
 
 static void bitmap_rect_common(
     struct Bitmap* bitmap,
-    uint16_t x,
-    uint16_t y,
+    int16_t x,
+    int16_t y,
     uint16_t w,
     uint16_t h,
     uint8_t filled) {
-  if (x >= bitmap->width) {
+  if (x < 0) {
+    if ((-x) >= w) {
+      return;
+    }
+    w += x;
+    x = 0;
+  } else if (x >= bitmap->width) {
     return;
   }
-  if (y >= bitmap->height) {
+  if (y < 0) {
+    if ((-y) >= h) {
+      return;
+    }
+    h += y;
+    y = 0;
+  } else if (y >= bitmap->height) {
     return;
   }
   uint8_t draw_bottom = 1;
@@ -147,8 +159,8 @@ static void bitmap_rect_common(
    
 void bitmap_rect(
     struct Bitmap* bitmap,
-    uint16_t x,
-    uint16_t y,
+    int16_t x,
+    int16_t y,
     uint16_t w,
     uint16_t h) {
   bitmap_rect_common(bitmap, x, y, w, h, 0);
@@ -156,8 +168,8 @@ void bitmap_rect(
 
 void bitmap_filled_rect(
     struct Bitmap* bitmap,
-    uint16_t x,
-    uint16_t y,
+    int16_t x,
+    int16_t y,
     uint16_t w,
     uint16_t h) {
   bitmap_rect_common(bitmap, x, y, w, h, 1);

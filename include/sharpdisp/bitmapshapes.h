@@ -41,14 +41,14 @@ void bitmap_line(
 //   bit_op: Bit operator.  e.g. bitmap_OR
 void bitmap_rect(
     struct Bitmap* bitmap,
-    uint16_t x,
-    uint16_t y,
+    int16_t x,
+    int16_t y,
     uint16_t w,
     uint16_t h);
 void bitmap_filled_rect(
     struct Bitmap* bitmap,
-    uint16_t x,
-    uint16_t y,
+    int16_t x,
+    int16_t y,
     uint16_t w,
     uint16_t h);
 

@@ -191,12 +191,12 @@ void text_array(void) {
 void rect(void) {
   uint16_t i=0;
   int8_t j_dir = 1;
-  uint8_t j = 5;
+  int8_t j = -50;
 
   for (; i < FRAMES; ++i) {
     bitmap_clear(&dbl_buff.bitmap);
 
-    uint16_t offset = 0;
+    int16_t offset = 0;
     for (; HEIGHT > (offset * 2); offset += 5) {
       bitmap_rect(
           &dbl_buff.bitmap,
@@ -207,7 +207,7 @@ void rect(void) {
     }
 
     j+=j_dir;
-    if (j == HEIGHT || j == 0) {
+    if (j == HEIGHT || j == -50) {
       j_dir = -j_dir;
     }
 
@@ -219,7 +219,7 @@ void rect(void) {
 void filled_rect(void) {
   uint16_t i=0;
   int8_t j_dir = 1;
-  uint8_t j = 5;
+  int8_t j = -50;
 
   for (; i < FRAMES; ++i) {
     bitmap_clear(&dbl_buff.bitmap);
@@ -235,7 +235,7 @@ void filled_rect(void) {
     }
 
     j+=j_dir;
-    if (j == HEIGHT || j == 0) {
+    if (j == HEIGHT || j == -50) {
       j_dir = -j_dir;
     }
 
