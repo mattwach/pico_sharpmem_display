@@ -27,10 +27,10 @@ void bitmap_vline(struct Bitmap* bitmap, int16_t x, int16_t y, uint16_t h);
 //   bit_op: Bit operator.  e.g. bitmap_OR
 void bitmap_line(
     struct Bitmap* bitmap,
-    uint16_t x0,
-    uint16_t y0,
-    uint16_t x1,
-    uint16_t y1);
+    int16_t x0,
+    int16_t y0,
+    int16_t x1,
+    int16_t y1);
 
 // Draws a rectangle
 //   bitmap: The bitmap to draw to

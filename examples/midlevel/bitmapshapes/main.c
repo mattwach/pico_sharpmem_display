@@ -1,4 +1,5 @@
 #include "pico/stdlib.h"
+#include "hardware/structs/rosc.h"
 #include <sharpdisp/sharpdisp.h>
 #include <sharpdisp/doublebuffer.h>
 #include <sharpdisp/bitmapshapes.h>
@@ -20,6 +21,17 @@ struct BitmapText text;
 uint32_t fill_buff[FILL_BUFF_SIZE];
 
 #define FRAMES 400
+
+// some good-enough random generation
+static int16_t rand16(int16_t min, int16_t max) {
+  uint16_t v = 0x0000;
+  for (int i=0; i<16; ++i, v<<=1) {
+    if (rosc_hw->randombit) {
+      v |= 0x0001;
+    }
+  }
+  return min + (v % (max - min));
+}
 
 struct Demo {
   uint8_t clear_byte;
@@ -127,6 +139,21 @@ void lines2(void) {
     }
 
     title("More Lines");
+    doublebuffer_swap(&dbl_buff);
+  }
+}
+
+void lines3(void) {
+  bitmap_clear(&dbl_buff.bitmap);
+  for (uint16_t i=0; i<FRAMES; ++i) {
+    memcpy(dbl_buff.bitmap.data, display.bitmap.data, sizeof(disp_buffer));
+    bitmap_line(
+        &dbl_buff.bitmap,
+        rand16(-50, WIDTH + 50),
+        rand16(-50, HEIGHT + 50),
+        rand16(-50, WIDTH + 50),
+        rand16(-60, HEIGHT+ 50));
+    title("Random Lines");
     doublebuffer_swap(&dbl_buff);
   }
 }
@@ -328,6 +355,8 @@ struct Demo demos[] = {
   {0xFF, BITMAP_BLACK, lines},
   {0x00, BITMAP_WHITE, lines2},
   {0xFF, BITMAP_BLACK, lines2},
+  {0x00, BITMAP_WHITE, lines3},
+  {0xFF, BITMAP_BLACK, lines3},
   {0x00, BITMAP_WHITE, text_array},
   {0xFF, BITMAP_BLACK, text_array},
   {0x00, BITMAP_WHITE, rect},

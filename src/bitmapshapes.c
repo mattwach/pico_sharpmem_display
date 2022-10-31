@@ -165,10 +165,10 @@ void bitmap_filled_rect(
 
 void bitmap_line(
     struct Bitmap* bitmap,
-    uint16_t x0,
-    uint16_t y0,
-    uint16_t x1,
-    uint16_t y1) {
+    int16_t x0,
+    int16_t y0,
+    int16_t x1,
+    int16_t y1) {
   if (x0 == x1) {
     if (y1 > y0) {
       bitmap_vline(bitmap, x0, y0, y1 - y0);
@@ -197,7 +197,7 @@ void bitmap_line(
   uint16_t x = x0;
   uint16_t y = y0;
 
-  if (x < width && y < height) {
+  if ((x >= 0) && (y >= 0) && (x < width) && (y < height)) {
     bitmap_point_nocheck(bitmap, x, y);
   }
 
@@ -212,12 +212,9 @@ void bitmap_line(
       D += 2 * dy;
     }
 
-    if (x >= width || y >= height) {
-      // off the edge
-      break;
+    if ((x >= 0) && (x < width) && (y >= 0) && (y < height)) {
+      bitmap_point_nocheck(bitmap, x, y);
     }
-
-    bitmap_point_nocheck(bitmap, x, y);
   }
 }
 
