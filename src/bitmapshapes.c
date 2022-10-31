@@ -163,7 +163,19 @@ void bitmap_rect(
     int16_t y,
     uint16_t w,
     uint16_t h) {
-  bitmap_rect_common(bitmap, x, y, w, h, 0);
+  if ((w == 0) || (h == 0)) {
+    return;
+  }
+  bitmap_hline(bitmap, x, y, w);
+  if (h > 2) {
+    bitmap_vline(bitmap, x, y + 1, h - 2);
+    if (w > 1) {
+      bitmap_vline(bitmap, x + w - 1, y + 1, h - 2);
+    }
+  }
+  if (h > 1) {
+    bitmap_hline(bitmap, x, y + h - 1, w);
+  }
 }
 
 void bitmap_filled_rect(

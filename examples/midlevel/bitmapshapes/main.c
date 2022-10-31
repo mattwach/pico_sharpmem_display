@@ -190,8 +190,8 @@ void text_array(void) {
 
 static void rect_common(bool filled, const char* titlestr) {
   uint16_t i=0;
-  int8_t j_dir = 1;
-  int8_t j = -50;
+  int16_t j_dir = 1;
+  int16_t j = -50;
 
   for (; i < FRAMES; ++i) {
     bitmap_clear(&dbl_buff.bitmap);
@@ -216,8 +216,9 @@ static void rect_common(bool filled, const char* titlestr) {
     }
 
     j+=j_dir;
-    if (j == HEIGHT || j == -50) {
+    if (i == (FRAMES / 2)) {
       j_dir = -j_dir;
+      j+=j_dir;
     }
 
     title(titlestr);
@@ -342,12 +343,12 @@ struct Demo demos[] = {
 //  {0xFF, BITMAP_BLACK, lines},
 //  {0x00, BITMAP_WHITE, lines2},
 //  {0xFF, BITMAP_BLACK, lines2},
-    {0x00, BITMAP_WHITE, lines3},
-    {0xFF, BITMAP_BLACK, lines3},
+//  {0x00, BITMAP_WHITE, lines3},
+//  {0xFF, BITMAP_BLACK, lines3},
 //  {0x00, BITMAP_WHITE, text_array},
 //  {0xFF, BITMAP_BLACK, text_array},
-//  {0x00, BITMAP_WHITE, rect},
-//  {0xFF, BITMAP_BLACK, rect},
+    {0x00, BITMAP_WHITE, rect},
+    {0xFF, BITMAP_BLACK, rect},
 //  {0x00, BITMAP_INVERSE, filled_rect},
 //  {0xFF, BITMAP_INVERSE, filled_rect},
 //  {0x00, BITMAP_WHITE, oval},
