@@ -1,4 +1,4 @@
-// Generated font data for console_default_font
+// Generated font data for liberation_mono_12
 
 #include <inttypes.h>
 #include <pico/platform.h>

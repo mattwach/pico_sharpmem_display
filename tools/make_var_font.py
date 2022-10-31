@@ -60,14 +60,24 @@ class ConfigSection:
     self.config_keys = (
         ('chars', 'Characters to include.  If omitted, characters 32-127 will be used'),
         ('col_width', 'Fix the column width in pixels.  If omitted, the characters reported column with will be used'),
+        ('first_char', 'Used with the image_grid type.  Defines the number for the first character to use.'),
+        ('font_size', 'The font size to use'),
+        ('left_trim', 'Removes x pixels from the left side of each character.  Default is 0'),
+        ('path', 'Path to the font / image grid'),
+        ('right_trim', 'Removes x pixels from the right side of each character.  Default is 0'),
+        ('type', 'Choose between ttf and image types.'),
+        ('x_offset', 'Change the base coordinate of where the character is drawn.  0 is the default.'),
+        ('x_pad', 'Change the padding to put around each character (both sides).  Default is 1'),
+        ('x_scale', 'Can be used to scale a character up or down.  Normally you would change the font size if possible.'),
+        ('y_offset', 'Change the base coordinate of where the character is drawn.  0 is the default.'),
     )
 
     known_keys = set(c[0] for c in self.config_keys)
-    unknown_keys = known_keys.intersection(self.config_keys)
+    unknown_keys = set(section_data).difference(known_keys)
     if unknown_keys:
       raise UnknownKeyError(
           'Unknown keys in config: %s.  Valid keys include: %s' % (
-            sorted(unknown_keys), sorted(section_data)))
+            sorted(unknown_keys), sorted(known_keys)))
 
     self.data = section_data
 

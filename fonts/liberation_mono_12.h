@@ -1,10 +1,10 @@
-#ifndef CONSOLE_DEFAULT_FONT_H
-#define CONSOLE_DEFAULT_FONT_H
-// Generated font data for console_default_font.yaml
+#ifndef LIBERATION_MONO_12_H
+#define LIBERATION_MONO_12_H
+// Generated font data for liberation_mono_12.yaml
 
 #include <inttypes.h>
 #include <pico/platform.h>
 
 extern const uint8_t liberation_mono_12[] __in_flash();
 
-#endif  // CONSOLE_DEFAULT_FONT_H
+#endif  // LIBERATION_MONO_12_H
