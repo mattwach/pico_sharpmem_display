@@ -8,7 +8,7 @@ target_link_libraries(sharpdisp_scroll_text
     pico_stdlib
     SHARPDISP
     BITMAPTEXT
-    LIBERATION_SANS_36
+    LIBERATION_SANS_80
 )
 
 # enable usb output, disable uart output

@@ -1,12 +1,12 @@
 #include "pico/stdlib.h"
-#include <fonts/liberation_sans_36.h>
+#include <fonts/liberation_sans_80.h>
 #include <sharpdisp/sharpdisp.h>
 #include <sharpdisp/bitmaptext.h>
 
 #define WIDTH 400
 #define HEIGHT 240
 
-#define MINXY -36
+#define MINXY -80
 #define MAXXY HEIGHT
 
 #define FRAME_MS 16
@@ -23,13 +23,14 @@ int main() {
   struct SharpDisp sd;
   sharpdisp_init_default(&sd, disp_buffer, WIDTH, HEIGHT, 0x00);
   struct BitmapText text;
-  text_init(&text, liberation_sans_36, &sd.bitmap);
+  text_init(&text, liberation_sans_80, &sd.bitmap);
 
   int16_t xy = MINXY;
   int16_t delta = 1;
 
   while (1) {
     const uint32_t t1 = uptime_ms(); 
+    bitmap_clear(&sd.bitmap);
     text.x = xy;
     text.y = xy;
     text_str(&text, "Hello World!");
