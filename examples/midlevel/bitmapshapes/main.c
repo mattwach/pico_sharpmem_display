@@ -241,6 +241,7 @@ void oval_common(bool filled, const char* titlestr) {
     bitmap_clear(&dbl_buff.bitmap);
 
     const uint8_t f = i & 0x3f;
+    /*
     for (int16_t y=-25; y < (HEIGHT + 100); y += 100) {
       for (int16_t x=-25; i < (WIDTH + 100); x += 100) {
         if (filled) {
@@ -250,6 +251,8 @@ void oval_common(bool filled, const char* titlestr) {
         }
       }
     }
+    */
+    bitmap_oval(&dbl_buff.bitmap, -10, 0, f, 0x3f - f);
 
     title(titlestr);
     doublebuffer_swap(&dbl_buff);
@@ -349,10 +352,10 @@ struct Demo demos[] = {
 //  {0xFF, BITMAP_BLACK, text_array},
 //  {0x00, BITMAP_WHITE, rect},
 //  {0xFF, BITMAP_BLACK, rect},
-    {0x00, BITMAP_INVERSE, filled_rect},
-    {0xFF, BITMAP_INVERSE, filled_rect},
-//  {0x00, BITMAP_WHITE, oval},
-//  {0xFF, BITMAP_BLACK, oval},
+//  {0x00, BITMAP_INVERSE, filled_rect},
+//  {0xFF, BITMAP_INVERSE, filled_rect},
+    {0x00, BITMAP_WHITE, oval},
+    {0xFF, BITMAP_BLACK, oval},
 //  {0x00, BITMAP_INVERSE, filled_oval},
 //  {0xFF, BITMAP_INVERSE, filled_oval},
 //  {0x00, BITMAP_WHITE, flood_fill},
