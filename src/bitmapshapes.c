@@ -232,20 +232,20 @@ void bitmap_line(
 
 static void _symmetric_point(
     struct Bitmap* bitmap,
-    uint16_t cx,
-    uint16_t cy,
+    int16_t cx,
+    int16_t cy,
     uint16_t dx,
     uint16_t dy) {
 
-  const uint16_t left = dx <= cx ? cx - dx : 0;
-  const uint16_t top = dy <= cy ? cy - dy : 0;
+  const int16_t left = dx <= cx ? cx - dx : 0;
+  const int16_t top = dy <= cy ? cy - dy : 0;
+  const int16_t right = cx + dx;
+  const int16_t bottom = cy + dy;
   const uint16_t bm_width = bitmap->width;
   const uint16_t bm_height = bitmap->height;
-  uint16_t right = cx + dx;
-  uint16_t bottom = cy + dy;
 
   if (dx > 0) {
-    if ((cy >= dy) && (cx >= dx) && (top < bm_height)) {
+    if ((cy >= dy) && (cx >= dx) && (top < bm_height) && (left >= 0)) {
       bitmap_point_nocheck(bitmap, left, top);  // Top left
     }
     if ((bottom < bm_height) && (right < bm_width)) {
@@ -254,7 +254,7 @@ static void _symmetric_point(
   }
   
   if (dy > 0) {
-    if ((cy >= dy) && (right < bm_width) & (top < bm_height)) {
+    if ((cy >= dy) && (right < bm_width) && (top < bm_height) && (top >= 0)) {
       bitmap_point_nocheck(bitmap, right, top);  // Top right
     }
     if ((bottom < bm_height) && (cx >= dx)) {
@@ -265,25 +265,25 @@ static void _symmetric_point(
 
 static void _symmetric_hfill(
     struct Bitmap* bitmap,
-    uint16_t cx,
-    uint16_t cy,
+    int16_t cx,
+    int16_t cy,
     uint16_t dx,
     uint16_t dy) {
-  const uint16_t left = dx > cx ? 0 : cx - dx;
-  const uint16_t right = cx + dx >= bitmap->width ? bitmap->width - 1 : cx + dx;
+  const int16_t left = dx > cx ? 0 : cx - dx;
+  const int16_t right = cx + dx >= bitmap->width ? bitmap->width - 1 : cx + dx;
 
   uint8_t drawn = 0;
-  const uint16_t top = cy - dy;
+  const int16_t top = cy - dy;
   if (top >= bitmap->height) {
     return;
   }
-  if (dy <= cy) {
+  if ((top >= 0) && (dy <= cy)) {
     _bitmap_hline_nocheck(bitmap, left, top, right - left + 1);
     drawn = 1;
   }
 
-  const uint16_t bottom = cy + dy;
-  if (bottom < bitmap->height && ((top != bottom) || !drawn)) {
+  const int16_t bottom = cy + dy;
+  if ((bottom >= 0) && (bottom < bitmap->height) && ((top != bottom) || !drawn)) {
     _bitmap_hline_nocheck(bitmap, left, bottom, right - left + 1);
   }
 }
@@ -331,16 +331,16 @@ static void _next_arc_point(uint32_t rsq, uint16_t* dx, uint16_t* dy) {
   }
 }
 
-void _draw_circle(
+static void _draw_circle(
     struct Bitmap* bitmap,
-    uint16_t cx,
-    uint16_t cy,
+    int16_t cx,
+    int16_t cy,
     uint16_t r,
     uint8_t filled,
     void (*fill_op)(
         struct Bitmap* bitmap,
-        uint16_t cx,
-        uint16_t cy,
+        int16_t cx,
+        int16_t cy,
         uint16_t dx,
         uint16_t dy)) {
   if (r == 0) {
@@ -371,15 +371,15 @@ void _draw_circle(
 
 void _draw_wide_oval(
     struct Bitmap* bitmap,
-    uint16_t cx,
-    uint16_t cy,
+    int16_t cx,
+    int16_t cy,
     uint16_t rx,
     uint16_t ry,
     uint8_t filled,
     void (*fill_op)(
         struct Bitmap* bitmap,
-        uint16_t cx,
-        uint16_t cy,
+        int16_t cx,
+        int16_t cy,
         uint16_t dx,
         uint16_t dy)) {
   if ((rx == 0) || (ry == 0)) {
@@ -411,15 +411,15 @@ void _draw_wide_oval(
 
 void _draw_narrow_oval(
     struct Bitmap* bitmap,
-    uint16_t cx,
-    uint16_t cy,
+    int16_t cx,
+    int16_t cy,
     uint16_t rx,
     uint16_t ry,
     uint8_t filled,
     void (*fill_op)(
         struct Bitmap* bitmap,
-        uint16_t cx,
-        uint16_t cy,
+        int16_t cx,
+        int16_t cy,
         uint16_t dx,
         uint16_t dy)) {
   if ((rx == 0) || (ry == 0)) {
@@ -451,8 +451,8 @@ void _draw_narrow_oval(
 
 void bitmap_oval(
     struct Bitmap* bitmap,
-    uint16_t cx,
-    uint16_t cy,
+    int16_t cx,
+    int16_t cy,
     uint16_t rx,
     uint16_t ry) {
   if (rx == ry) {
@@ -466,8 +466,8 @@ void bitmap_oval(
 
 void bitmap_filled_oval(
     struct Bitmap* bitmap,
-    uint16_t cx,
-    uint16_t cy,
+    int16_t cx,
+    int16_t cy,
     uint16_t rx,
     uint16_t ry) {
   if (rx == ry) {
@@ -481,16 +481,16 @@ void bitmap_filled_oval(
 
 void bitmap_circle(
     struct Bitmap* bitmap,
-    uint16_t cx,
-    uint16_t cy,
+    int16_t cx,
+    int16_t cy,
     uint16_t r) {
   _draw_circle(bitmap, cx, cy, r, 0, _symmetric_point);
 }
 
 void bitmap_filled_circle(
     struct Bitmap* bitmap,
-    uint16_t cx,
-    uint16_t cy,
+    int16_t cx,
+    int16_t cy,
     uint16_t r) {
   _draw_circle(bitmap, cx, cy, r, 1, _symmetric_hfill);
 }

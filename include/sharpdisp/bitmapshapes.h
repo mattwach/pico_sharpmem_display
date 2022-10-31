@@ -63,25 +63,25 @@ void bitmap_filled_rect(
 //   bit_op: Bit operator.  e.g. bitmap_OR
 void bitmap_oval(
     struct Bitmap* bitmap,
-    uint16_t cx,
-    uint16_t cy,
+    int16_t cx,
+    int16_t cy,
     uint16_t rx,
     uint16_t ry);
 void bitmap_filled_oval(
     struct Bitmap* bitmap,
-    uint16_t cx,
-    uint16_t cy,
+    int16_t cx,
+    int16_t cy,
     uint16_t rx,
     uint16_t ry);
 void bitmap_circle(
     struct Bitmap* bitmap,
-    uint16_t cx,
-    uint16_t cy,
+    int16_t cx,
+    int16_t cy,
     uint16_t r);
 void bitmap_filled_circle(
     struct Bitmap* bitmap,
-    uint16_t cx,
-    uint16_t cy,
+    int16_t cx,
+    int16_t cy,
     uint16_t r);
 
 // Sets or clears a given region using a "flood fill" algorithm.

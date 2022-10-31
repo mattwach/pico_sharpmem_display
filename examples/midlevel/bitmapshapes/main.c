@@ -167,12 +167,12 @@ void text_array(void) {
   for (; i < FRAMES; ++i) {
     bitmap_clear(&dbl_buff.bitmap);
 
-    t.y = 0;
+    t.y = -10;
     uint8_t base = 'A';
-    for (; t.y < HEIGHT; t.y += j, ++base) {
-      t.x = 0;
+    for (; t.y < (HEIGHT + 10); t.y += j, ++base) {
+      t.x = -10;
       char c = base;
-      for (; t.x < WIDTH; t.x += j) {
+      for (; t.x < (WIDTH + 10); t.x += j) {
         text_char(&t, c);
         ++c;
       }
@@ -188,7 +188,7 @@ void text_array(void) {
   }
 }
 
-void rect(void) {
+static void rect_common(bool filled, const char* titlestr) {
   uint16_t i=0;
   int8_t j_dir = 1;
   int8_t j = -50;
@@ -198,12 +198,21 @@ void rect(void) {
 
     int16_t offset = 0;
     for (; HEIGHT > (offset * 2); offset += 5) {
-      bitmap_rect(
-          &dbl_buff.bitmap,
-          j + offset,
-          j + offset,
-          WIDTH - offset * 2,
-          HEIGHT - offset * 2);
+      if (filled) {
+        bitmap_filled_rect(
+            &dbl_buff.bitmap,
+            j + offset,
+            j + offset,
+            WIDTH - offset * 2,
+            HEIGHT - offset * 2);
+      } else {
+        bitmap_rect(
+            &dbl_buff.bitmap,
+            j + offset,
+            j + offset,
+            WIDTH - offset * 2,
+            HEIGHT - offset * 2);
+      }
     }
 
     j+=j_dir;
@@ -211,69 +220,47 @@ void rect(void) {
       j_dir = -j_dir;
     }
 
-    title("Rectangles");
+    title(titlestr);
     doublebuffer_swap(&dbl_buff);
   }
 }
 
+void rect(void) {
+  rect_common(false, "Rectangles");
+}
+
 void filled_rect(void) {
+  rect_common(true, "Filled Rectangles");
+}
+
+void oval_common(bool filled, const char* titlestr) {
   uint16_t i=0;
-  int8_t j_dir = 1;
-  int8_t j = -50;
 
   for (; i < FRAMES; ++i) {
     bitmap_clear(&dbl_buff.bitmap);
 
-    uint16_t offset = 0;
-    for (; HEIGHT > (offset * 2); offset += 5) {
-      bitmap_filled_rect(
-          &dbl_buff.bitmap,
-          j + offset,
-          j + offset,
-          WIDTH - offset * 2,
-          HEIGHT - offset * 2);
+    const uint8_t f = i & 0x3f;
+    for (int16_t y=-25; y < (HEIGHT + 100); y += 100) {
+      for (int16_t x=-25; i < (WIDTH + 100); x += 100) {
+        if (filled) {
+          bitmap_oval(&dbl_buff.bitmap, x, y, f, 0x3f - f);
+        } else {
+          bitmap_filled_oval(&dbl_buff.bitmap, x, y, f, 0x3f - f);
+        }
+      }
     }
 
-    j+=j_dir;
-    if (j == HEIGHT || j == -50) {
-      j_dir = -j_dir;
-    }
-
-    title("Filled Rectangles");
+    title(titlestr);
     doublebuffer_swap(&dbl_buff);
   }
 }
 
 void oval(void) {
-  uint16_t i=0;
-
-  for (; i < FRAMES; ++i) {
-    bitmap_clear(&dbl_buff.bitmap);
-
-    const uint8_t f = i & 0x3f;
-    const uint16_t cx = WIDTH >> 1;
-    const uint16_t cy = HEIGHT >> 1;
-    bitmap_oval(&dbl_buff.bitmap, cx, cy, f, 0x3f - f);
-
-    title("Ovals");
-    doublebuffer_swap(&dbl_buff);
-  }
+  oval_common(false, "Ovals");
 }
 
 void filled_oval(void) {
-  uint16_t i=0;
-
-  for (; i < FRAMES; ++i) {
-    bitmap_clear(&dbl_buff.bitmap);
-
-    const uint8_t f = i & 0x3f;
-    const uint16_t cx = WIDTH >> 1;
-    const uint16_t cy = HEIGHT >> 1;
-    bitmap_filled_oval(&dbl_buff.bitmap, cx, cy, f, 0x3f - f);
-
-    title("Filled Ovals");
-    doublebuffer_swap(&dbl_buff);
-  }
+  oval_common(true, "Filled Ovals");
 }
 
 void map_point(uint16_t p, uint16_t* x, uint16_t* y) {
