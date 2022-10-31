@@ -78,14 +78,16 @@ void lines(void) {
   for (; i < FRAMES; ++i) {
     bitmap_clear(&dbl_buff.bitmap);
 
+    // We purposefully go out of bounds to further exercise the
+    // logic
     uint16_t y = 0;
-    for (; y < HEIGHT; y += j) {
-      bitmap_hline(&dbl_buff.bitmap, 0, y, WIDTH); 
+    for (; y < (HEIGHT + 10); y += j) {
+      bitmap_hline(&dbl_buff.bitmap, -10, y, WIDTH + 10); 
     }
 
     uint16_t x = 0;
-    for (; x < WIDTH; x += j) {
-      bitmap_vline(&dbl_buff.bitmap, x, 0, HEIGHT); 
+    for (; x < (WIDTH + 10); x += j) {
+      bitmap_vline(&dbl_buff.bitmap, x, -10, HEIGHT + 10); 
     }
 
     j+=j_dir;

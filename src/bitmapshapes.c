@@ -40,11 +40,17 @@ static void _bitmap_hline_nocheck(
   }
 }
 
-void bitmap_hline(struct Bitmap* bitmap, uint16_t x, uint16_t y, uint16_t w) {
-  if (x >= bitmap->width) {
+void bitmap_hline(struct Bitmap* bitmap, int16_t x, int16_t y, uint16_t w) {
+  if (x < 0) {
+    if ((-x) >= w) {
+      return;
+    }
+    w += x;
+    x = 0;
+  } else if (x >= bitmap->width) {
     return;
   }
-  if (y >= bitmap->height) {
+  if (y < 0 || (y >= bitmap->height)) {
     return;
   }
   if ((x + w) > bitmap->width) {
@@ -67,13 +73,19 @@ void _bitmap_vline_nocheck(struct Bitmap* bitmap, uint16_t x, uint16_t y, uint16
 
 void bitmap_vline(
     struct Bitmap* bitmap,
-    uint16_t x,
-    uint16_t y,
+    int16_t x,
+    int16_t y,
     uint16_t h) {
-  if (x >= bitmap->width) {
+  if ((x < 0) || (x >= bitmap->width)) {
     return;
   }
-  if (y >= bitmap->height) {
+  if (y < 0) {
+    if ((-y) >= h) {
+      return;
+    }
+    h += y;
+    y = 0;
+  } else if (y >= bitmap->height) {
     return;
   }
   if ((y + h) >= bitmap->height) {

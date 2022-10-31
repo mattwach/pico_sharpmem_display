@@ -9,7 +9,7 @@
 //   y: y coordicate
 //   w: Width (line draws to the right)
 //   bit_op: Bit operator.  e.g. bitmap_OR
-void bitmap_hline(struct Bitmap* bitmap, uint16_t x, uint16_t y, uint16_t w);
+void bitmap_hline(struct Bitmap* bitmap, int16_t x, int16_t y, uint16_t w);
 
 // Draws a vertical line
 //   bitmap: The bitmap to draw to
@@ -17,7 +17,7 @@ void bitmap_hline(struct Bitmap* bitmap, uint16_t x, uint16_t y, uint16_t w);
 //   y: starting y coordinate
 //   h: height
 //   bit_op: Bit operator.  e.g. bitmap_OR
-void bitmap_vline(struct Bitmap* bitmap, uint16_t x, uint16_t y, uint16_t h);
+void bitmap_vline(struct Bitmap* bitmap, int16_t x, int16_t y, uint16_t h);
 
 // Draws a line.  Prefer bitmap_hline and bitmap_vline
 // for best performance.
