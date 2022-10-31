@@ -49,22 +49,48 @@ class InvalidSectionTypeError(Error):
 class NotAMultipleError(Error):
   pass
 
-def make_chars(section: Dict[str, Any]) -> Set[str]:
-  if 'chars' in section:
-    return set(section['chars'])
-  return set('%c' % x for x in range(32, 127))
+class UnknownKeyError(Error):
+  pass
+
+
+class ConfigSection:
+  """Used to document and present keys"""
+
+  def __init__(self, section_data: Dict[str, Any]) -> None:
+    self.config_keys = (
+        ('chars', 'Characters to include.  If omitted, characters 32-127 will be used'),
+        ('col_width', 'Fix the column width in pixels.  If omitted, the characters reported column with will be used'),
+    )
+
+    known_keys = set(c[0] for c in self.config_keys)
+    unknown_keys = known_keys.intersection(self.config_keys)
+    if unknown_keys:
+      raise UnknownKeyError(
+          'Unknown keys in config: %s.  Valid keys include: %s' % (
+            sorted(unknown_keys), sorted(section_data)))
+
+    self.data = section_data
+
+  def get(self, key: str, default: Any = None) -> Any:
+    if default is None:
+      return self.data[key]
+    return self.data.get(key, default)
+
+
+def make_chars(section: ConfigSection) -> Set[str]:
+  return set(section.get('chars', ('%c' % x for x in range(32, 127))))
 
 def process_ttf_section(
     char_to_img: Dict[str, Image.Image],
     height: int,
-    section: Dict[str, Any]) -> None:
+    section: ConfigSection) -> None:
   """Processes a yaml sectin of type ttf."""
   width = section.get('col_width', 0)
   x_offset = section.get('x_offset', 0)
   y_offset = section.get('y_offset', 0)
   x_pad = section.get('x_pad', 1)
   chars = make_chars(section)
-  fnt = ImageFont.truetype(section['path'], int(section['font_size']))
+  fnt = ImageFont.truetype(section.get('path'), int(section.get('font_size')))
 
   def make_char(c):
     if width == 0:
@@ -74,19 +100,19 @@ def process_ttf_section(
     img = Image.new("1", (cwidth, height))
     d = ImageDraw.Draw(img)
     d.text((x_offset + x_pad, y_offset), c, font=fnt, fill=1)
-    if 'x_scale' in section:
+    if section.get('x_scale', 0):
       # post scale the image
-      new_width = int(img.width * section['x_scale'])
+      new_width = int(img.width * section.get('x_scale'))
       img = img.resize((new_width, img.height))
 
-    if 'right_trim' in section:
+    if section.get('right_trim', 0):
       # trim a litle off the right
-      new_right = img.width - section['right_trim']
+      new_right = img.width - section.get('right_trim')
       img = img.crop((0, 0, new_right, img.height))
 
-    if 'left_trim' in section:
+    if section.get('left_trim', 0):
       # trim a litle off the right
-      img = img.crop((section['left_trim'], 0, img.width, img.height))
+      img = img.crop((section.get('left_trim'), 0, img.width, img.height))
 
     return img
 
@@ -99,11 +125,11 @@ def process_ttf_section(
 def process_image_grid_section(
     char_to_img: Dict[str, Image.Image],
     height: int,
-    section: Dict[str, Any]) -> None:
+    section: ConfigSection) -> None:
   """Processes a yaml sectin of type image_grid."""
-  width = section['col_width']
+  width = section.get('col_width')
 
-  with Image.open(section['path']) as img:
+  with Image.open(section.get('path')) as img:
     if img.height % height:
       raise NotAMultipleError(
           'grid height %d is not a multiple of image height %d' % (
@@ -114,7 +140,7 @@ def process_image_grid_section(
             width, img.width))
 
     num_columns = img.width // width
-    c = '%c' % section['first_char']
+    c = '%c' % section.get('first_char')
     for y in range(img.height // height):
       for x in range(num_columns):
         if c in char_to_img:
@@ -130,13 +156,13 @@ def process_image_grid_section(
 def process_section(
     char_to_img: Dict[str, Image.Image],
     height: int,
-    section: Dict[str, Any]) -> None:
-  if section['type'] == 'ttf':
+    section: ConfigSection) -> None:
+  if section.get('type') == 'ttf':
     process_ttf_section(char_to_img, height, section)
-  elif section['type'] == 'image_grid':
+  elif section.get('type') == 'image_grid':
     process_image_grid_section(char_to_img, height, section)
   else:
-    raise InvalidSectionTypeError('Invalid section type: %s' % section['type'])
+    raise InvalidSectionTypeError('Invalid section type: %s' % section.get('type'))
 
 
 def debug_dump(char_to_img: Dict[str, Image.Image]) -> None:
@@ -346,7 +372,7 @@ def main():
 
   height = int(cfg['height'])
   for section in cfg['sections']:
-    process_section(char_to_img, height, section)
+    process_section(char_to_img, height, ConfigSection(section))
 
   if cfg['output_type'] == 'debug':
     debug_dump(char_to_img)
