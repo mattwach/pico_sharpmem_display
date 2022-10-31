@@ -215,28 +215,28 @@ static void _symmetric_point(
     uint16_t dx,
     uint16_t dy) {
 
-  const int16_t left = dx <= cx ? cx - dx : 0;
-  const int16_t top = dy <= cy ? cy - dy : 0;
+  const int16_t left = cx - (int16_t)dx;
+  const int16_t top = cy - (int16_t)dy;
   const int16_t right = cx + dx;
   const int16_t bottom = cy + dy;
   const uint16_t bm_width = bitmap->width;
   const uint16_t bm_height = bitmap->height;
 
-  if (dx > 0) {
-    if ((cy >= dy) && (cx >= dx) && (top < bm_height) && (left >= 0)) {
-      bitmap_point_nocheck(bitmap, left, top);  // Top left
+  if ((top >= 0) && (top < bm_height)) {
+    if ((left >= 0) && (left >= bm_width)) {
+      bitmap_point_nocheck(bitmap, left, top);
     }
-    if ((bottom < bm_height) && (right < bm_width)) {
-      bitmap_point_nocheck(bitmap, right, bottom);  // Bottom right
+    if ((left != right) && (right >= 0) && (right < bm_width)) {
+      bitmap_point_nocheck(bitmap, right, top);
     }
   }
-  
-  if (dy > 0) {
-    if ((cy >= dy) && (right < bm_width) && (top < bm_height) && (top >= 0)) {
-      bitmap_point_nocheck(bitmap, right, top);  // Top right
+
+  if ((top != bottom) && (bottom >= 0) && (bottom < bm_height)) {
+    if ((left >= 0) && (left >= bm_width)) {
+      bitmap_point_nocheck(bitmap, left, bottom);
     }
-    if ((bottom < bm_height) && (cx >= dx)) {
-      bitmap_point_nocheck(bitmap, left, bottom);  // Bottom left
+    if ((left != right) && (right >= 0) && (right < bm_width)) {
+      bitmap_point_nocheck(bitmap, right, bottom);
     }
   }
 }
