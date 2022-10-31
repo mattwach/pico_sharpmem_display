@@ -85,25 +85,25 @@ void points(void) {
 
 void lines(void) {
   int8_t j_dir = 1;
-  uint8_t j = 5;
+  uint8_t j = 10;
   uint16_t i=0;
   for (; i < FRAMES; ++i) {
     bitmap_clear(&dbl_buff.bitmap);
 
     // We purposefully go out of bounds to further exercise the
     // logic
-    uint16_t y = 0;
-    for (; y < (HEIGHT + 10); y += j) {
-      bitmap_hline(&dbl_buff.bitmap, -10, y, WIDTH + 10); 
+    int16_t y = -20;
+    for (; y < (HEIGHT + 20); y += j) {
+      bitmap_hline(&dbl_buff.bitmap, -20, y, WIDTH + 20); 
     }
 
-    uint16_t x = 0;
-    for (; x < (WIDTH + 10); x += j) {
-      bitmap_vline(&dbl_buff.bitmap, x, -10, HEIGHT + 10); 
+    int16_t x = -20;
+    for (; x < (WIDTH + 20); x += j) {
+      bitmap_vline(&dbl_buff.bitmap, x, -20, HEIGHT + 20); 
     }
 
     j+=j_dir;
-    if (j == 32 || j == 5) {
+    if (j == 64 || j == 10) {
       j_dir = -j_dir;
     }
 
@@ -152,7 +152,7 @@ void lines3(void) {
         rand16(-50, WIDTH + 50),
         rand16(-50, HEIGHT + 50),
         rand16(-50, WIDTH + 50),
-        rand16(-60, HEIGHT+ 50));
+        rand16(-50, HEIGHT+ 50));
     title("Random Lines");
     doublebuffer_swap(&dbl_buff);
   }
@@ -336,25 +336,25 @@ void flood_fill(void) {
 }
 
 struct Demo demos[] = {
-  {0x00, BITMAP_WHITE, points},
-  {0xFF, BITMAP_BLACK, points},
-  {0x00, BITMAP_WHITE, lines},
-  {0xFF, BITMAP_BLACK, lines},
-  {0x00, BITMAP_WHITE, lines2},
-  {0xFF, BITMAP_BLACK, lines2},
-  {0x00, BITMAP_WHITE, lines3},
-  {0xFF, BITMAP_BLACK, lines3},
-  {0x00, BITMAP_WHITE, text_array},
-  {0xFF, BITMAP_BLACK, text_array},
-  {0x00, BITMAP_WHITE, rect},
-  {0xFF, BITMAP_BLACK, rect},
-  {0x00, BITMAP_INVERSE, filled_rect},
-  {0xFF, BITMAP_INVERSE, filled_rect},
-  {0x00, BITMAP_WHITE, oval},
-  {0xFF, BITMAP_BLACK, oval},
-  {0x00, BITMAP_INVERSE, filled_oval},
-  {0xFF, BITMAP_INVERSE, filled_oval},
-  {0x00, BITMAP_WHITE, flood_fill},
+//  {0x00, BITMAP_WHITE, points},
+//  {0xFF, BITMAP_BLACK, points},
+//  {0x00, BITMAP_WHITE, lines},
+//  {0xFF, BITMAP_BLACK, lines},
+//  {0x00, BITMAP_WHITE, lines2},
+//  {0xFF, BITMAP_BLACK, lines2},
+    {0x00, BITMAP_WHITE, lines3},
+    {0xFF, BITMAP_BLACK, lines3},
+//  {0x00, BITMAP_WHITE, text_array},
+//  {0xFF, BITMAP_BLACK, text_array},
+//  {0x00, BITMAP_WHITE, rect},
+//  {0xFF, BITMAP_BLACK, rect},
+//  {0x00, BITMAP_INVERSE, filled_rect},
+//  {0xFF, BITMAP_INVERSE, filled_rect},
+//  {0x00, BITMAP_WHITE, oval},
+//  {0xFF, BITMAP_BLACK, oval},
+//  {0x00, BITMAP_INVERSE, filled_oval},
+//  {0xFF, BITMAP_INVERSE, filled_oval},
+//  {0x00, BITMAP_WHITE, flood_fill},
 };
 
 int main(void) {

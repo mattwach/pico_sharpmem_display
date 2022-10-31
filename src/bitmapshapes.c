@@ -206,8 +206,8 @@ void bitmap_line(
   const uint16_t height = bitmap->height;
 
   int16_t D = 2 * dy - dx;
-  uint16_t x = x0;
-  uint16_t y = y0;
+  int16_t x = x0;
+  int16_t y = y0;
 
   if ((x >= 0) && (y >= 0) && (x < width) && (y < height)) {
     bitmap_point_nocheck(bitmap, x, y);
