@@ -4,4 +4,4 @@ TARGETS := $(foreach F,$(FONTS),$(subst .yaml,.c,$F))
 fonts: $(TARGETS)
 
 %.c: %.yaml
-	./make_var_font.py $*.yaml
+	../tools/make_var_font.py $*.yaml
