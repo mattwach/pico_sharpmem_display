@@ -97,66 +97,6 @@ void bitmap_vline(
   _bitmap_vline_nocheck(bitmap, x, y, h);
 }
 
-static void bitmap_rect_common(
-    struct Bitmap* bitmap,
-    int16_t x,
-    int16_t y,
-    uint16_t w,
-    uint16_t h,
-    uint8_t filled) {
-  if (x < 0) {
-    if ((-x) >= w) {
-      return;
-    }
-    w += x;
-    x = 0;
-  } else if (x >= bitmap->width) {
-    return;
-  }
-  if (y < 0) {
-    if ((-y) >= h) {
-      return;
-    }
-    h += y;
-    y = 0;
-  } else if (y >= bitmap->height) {
-    return;
-  }
-  uint8_t draw_bottom = 1;
-  uint8_t draw_right = 1;
-  if ((x + w) >= bitmap->width) {
-    w = bitmap->width - x;
-    draw_right = 0;
-  }
-  if (w == 0) {
-    return;
-  }
-  if ((y + h) >= bitmap->height) {
-    h = bitmap->height - y;
-    draw_bottom = 0;
-  }
-  if (h == 0) {
-    return;
-  }
-  if (filled) {
-    const uint16_t yend = y + h;
-    for (; y < yend; ++y) {
-      _bitmap_hline_nocheck(bitmap, x, y, w);
-    }
-  } else {
-    _bitmap_hline_nocheck(bitmap, x, y, w);
-    if (h > 2) {
-      _bitmap_vline_nocheck(bitmap, x, y + 1, h - 2);
-      if (draw_right && (w > 1)) {
-        _bitmap_vline_nocheck(bitmap, x + w - 1, y + 1, h - 2);
-      }
-    }
-    if (draw_bottom && (h > 1)) {
-      _bitmap_hline_nocheck(bitmap, x, y + h - 1, w);
-    }
-  }
-}
-   
 void bitmap_rect(
     struct Bitmap* bitmap,
     int16_t x,
@@ -184,7 +124,33 @@ void bitmap_filled_rect(
     int16_t y,
     uint16_t w,
     uint16_t h) {
-  bitmap_rect_common(bitmap, x, y, w, h, 1);
+  if (x < 0) {
+    if ((-x) >= w) {
+      return;
+    }
+    w += x;
+    x = 0;
+  }
+  if (y < 0) {
+    if ((-y) >= h) {
+      return;
+    }
+    h += y;
+    y = 0;
+  }
+  if ((x+w) > bitmap->width) {
+    w = bitmap->width - x;
+  }
+  if ((y+h) > bitmap->height) {
+    h = bitmap->height - y;
+  }
+  if ((w == 0) || (h == 0)) {
+    return;
+  }
+  const int16_t maxy = y+h;
+  for (; y<maxy; ++y) {
+    _bitmap_hline_nocheck(bitmap, x, y, w);
+  }
 }
 
 void bitmap_line(
