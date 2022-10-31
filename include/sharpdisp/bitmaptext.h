@@ -13,8 +13,8 @@ struct BitmapText {
     struct Bitmap* bitmap;  // Pointer to the bitmap to update
     // Coordinates of next character to print (upper left corner).  X will automatically
     // advance after printing, unless if is already past the end of the buffer
-    uint16_t x;
-    uint16_t y;
+    int16_t x;
+    int16_t y;
     // Set to non-zero if any error occurs.  Most text functions
     // will do nothing if this is non-zero.
     uint8_t error;

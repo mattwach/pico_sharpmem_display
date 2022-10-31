@@ -94,15 +94,25 @@ static const uint8_t* find_character_data(
 
 static void map_char_data(
     struct Bitmap* b,
-    uint16_t x,
-    uint16_t y,
+    int16_t x,
+    int16_t y,
     uint8_t data) {
   if (!data) {
     return;
   }
-  if (y >= b->height) {
-    // off the bottom
+  if ((y < 0) || (y >= b->height)) {
+    // off the top or bottom
     return;
+  }
+  if (x < 0) {
+    if (x <= -8) {
+      // the entire byte is off-screen
+      return;
+    } else {
+      // part of the byte is off-screen.  Thus we need to shift bits up.
+      data <<= -x;
+      x = 0;
+    }
   }
 
   const uint8_t bit_offset = x & 0x07;
@@ -144,8 +154,8 @@ void text_char(struct BitmapText* text, char c) {
 
   const uint8_t num_cols = (width + 7) >> 3;
   struct Bitmap* bitmap = text->bitmap;
-  const uint16_t x = text->x;
-  const uint16_t y = text->y;
+  const int16_t x = text->x;
+  const int16_t y = text->y;
   uint8_t* error = &(text->error);
 
   // vertical stripes

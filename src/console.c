@@ -22,7 +22,7 @@ void console_init(
   sharpdisp_init_freq_hz(&(c->display), buff, width, height, clear_byte, spi_freq_hz);
   text_init(&(c->text), font, &(c->display.bitmap));
   bitmap_console_init(&(c->console), &(c->text));
-  c->console.printf_buffer = printf_buffer;
+  c->text.printf_buffer = printf_buffer;
   c->refresh_period_ms = refresh_period_ms;
   c->next_refresh_ms = 0;
   console_flush(c);
