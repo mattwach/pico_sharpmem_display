@@ -223,7 +223,7 @@ static void _symmetric_point(
   const uint16_t bm_height = bitmap->height;
 
   if ((top >= 0) && (top < bm_height)) {
-    if ((left >= 0) && (left >= bm_width)) {
+    if ((left >= 0) && (left < bm_width)) {
       bitmap_point_nocheck(bitmap, left, top);
     }
     if ((left != right) && (right >= 0) && (right < bm_width)) {
@@ -232,7 +232,7 @@ static void _symmetric_point(
   }
 
   if ((top != bottom) && (bottom >= 0) && (bottom < bm_height)) {
-    if ((left >= 0) && (left >= bm_width)) {
+    if ((left >= 0) && (left < bm_width)) {
       bitmap_point_nocheck(bitmap, left, bottom);
     }
     if ((left != right) && (right >= 0) && (right < bm_width)) {

@@ -241,18 +241,15 @@ void oval_common(bool filled, const char* titlestr) {
     bitmap_clear(&dbl_buff.bitmap);
 
     const uint8_t f = i & 0x3f;
-    /*
-    for (int16_t y=-25; y < (HEIGHT + 100); y += 100) {
-      for (int16_t x=-25; i < (WIDTH + 100); x += 100) {
+    for (int16_t y=-10; y < (HEIGHT + 128); y += 128) {
+      for (int16_t x=-25; x < (WIDTH + 128); x += 128) {
         if (filled) {
-          bitmap_oval(&dbl_buff.bitmap, x, y, f, 0x3f - f);
-        } else {
           bitmap_filled_oval(&dbl_buff.bitmap, x, y, f, 0x3f - f);
+        } else {
+          bitmap_oval(&dbl_buff.bitmap, x, y, f, 0x3f - f);
         }
       }
     }
-    */
-    bitmap_oval(&dbl_buff.bitmap, -10, 0, f, 0x3f - f);
 
     title(titlestr);
     doublebuffer_swap(&dbl_buff);
