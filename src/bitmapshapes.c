@@ -247,22 +247,24 @@ static void _symmetric_hfill(
     int16_t cy,
     uint16_t dx,
     uint16_t dy) {
-  const int16_t left = dx > cx ? 0 : cx - dx;
-  const int16_t right = cx + dx >= bitmap->width ? bitmap->width - 1 : cx + dx;
-
-  uint8_t drawn = 0;
-  const int16_t top = cy - dy;
-  if (top >= bitmap->height) {
+  const uint16_t bm_width = bitmap->width;
+  const int16_t left = ((cx - dx) >= 0) ? (cx - dx) : 0;
+  if (left >= bm_width) {
     return;
   }
-  if ((top >= 0) && (dy <= cy)) {
-    _bitmap_hline_nocheck(bitmap, left, top, right - left + 1);
-    drawn = 1;
+  const int16_t top = cy - dy;
+  const int16_t right = ((cx + dx) < bm_width) ? (cx + dx) : bm_width - 1;
+  if (right <= left) {
+    return;
   }
-
   const int16_t bottom = cy + dy;
-  if ((bottom >= 0) && (bottom < bitmap->height) && ((top != bottom) || !drawn)) {
-    _bitmap_hline_nocheck(bitmap, left, bottom, right - left + 1);
+
+  const uint16_t bm_height = bitmap->height;
+  if ((top >= 0) && (top < bm_height)) {
+    _bitmap_hline_nocheck(bitmap, left, top, right - left);
+  }
+  if ((bottom >= 0) && (bottom < bm_height) && bottom > top) {
+    _bitmap_hline_nocheck(bitmap, left, bottom, right - left);
   }
 }
 

@@ -351,10 +351,10 @@ struct Demo demos[] = {
 //  {0xFF, BITMAP_BLACK, rect},
 //  {0x00, BITMAP_INVERSE, filled_rect},
 //  {0xFF, BITMAP_INVERSE, filled_rect},
-    {0x00, BITMAP_WHITE, oval},
-    {0xFF, BITMAP_BLACK, oval},
-//  {0x00, BITMAP_INVERSE, filled_oval},
-//  {0xFF, BITMAP_INVERSE, filled_oval},
+//  {0x00, BITMAP_WHITE, oval},
+//  {0xFF, BITMAP_BLACK, oval},
+    {0x00, BITMAP_INVERSE, filled_oval},
+    {0xFF, BITMAP_INVERSE, filled_oval},
 //  {0x00, BITMAP_WHITE, flood_fill},
 };
 
