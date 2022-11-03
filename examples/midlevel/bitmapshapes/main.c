@@ -60,21 +60,21 @@ static void title(const char* str) {
 
 void points(void) {
   int8_t j_dir = 1;
-  uint8_t j = 5;
+  uint8_t j = 10;
   uint16_t i=0;
   for (; i <FRAMES; ++i) {
     bitmap_clear(&dbl_buff.bitmap);
 
     uint16_t y = 0;
-    for (; y < HEIGHT; y += j) {
+    for (; y < HEIGHT; y += (j / 2)) {
       uint16_t x = 0;
-      for (; x < WIDTH; x += j) {
+      for (; x < WIDTH; x += (j / 2)) {
         bitmap_point(&dbl_buff.bitmap, x, y);
       }
     }
 
     j+=j_dir;
-    if (j == 32 || j == 5) {
+    if (j == 64 || j == 10) {
       j_dir = -j_dir;
     }
 
@@ -337,25 +337,25 @@ void flood_fill(void) {
 }
 
 struct Demo demos[] = {
-//  {0x00, BITMAP_WHITE, points},
-//  {0xFF, BITMAP_BLACK, points},
-//  {0x00, BITMAP_WHITE, lines},
-//  {0xFF, BITMAP_BLACK, lines},
-//  {0x00, BITMAP_WHITE, lines2},
-//  {0xFF, BITMAP_BLACK, lines2},
-//  {0x00, BITMAP_WHITE, lines3},
-//  {0xFF, BITMAP_BLACK, lines3},
-//  {0x00, BITMAP_WHITE, text_array},
-//  {0xFF, BITMAP_BLACK, text_array},
-//  {0x00, BITMAP_WHITE, rect},
-//  {0xFF, BITMAP_BLACK, rect},
-//  {0x00, BITMAP_INVERSE, filled_rect},
-//  {0xFF, BITMAP_INVERSE, filled_rect},
-//  {0x00, BITMAP_WHITE, oval},
-//  {0xFF, BITMAP_BLACK, oval},
+    {0x00, BITMAP_WHITE, points},
+    {0xFF, BITMAP_BLACK, points},
+    {0x00, BITMAP_WHITE, lines},
+    {0xFF, BITMAP_BLACK, lines},
+    {0x00, BITMAP_WHITE, lines2},
+    {0xFF, BITMAP_BLACK, lines2},
+    {0x00, BITMAP_WHITE, lines3},
+    {0xFF, BITMAP_BLACK, lines3},
+    {0x00, BITMAP_WHITE, text_array},
+    {0xFF, BITMAP_BLACK, text_array},
+    {0x00, BITMAP_WHITE, rect},
+    {0xFF, BITMAP_BLACK, rect},
+    {0x00, BITMAP_INVERSE, filled_rect},
+    {0xFF, BITMAP_INVERSE, filled_rect},
+    {0x00, BITMAP_WHITE, oval},
+    {0xFF, BITMAP_BLACK, oval},
     {0x00, BITMAP_INVERSE, filled_oval},
     {0xFF, BITMAP_INVERSE, filled_oval},
-//  {0x00, BITMAP_WHITE, flood_fill},
+    {0x00, BITMAP_WHITE, flood_fill},
 };
 
 int main(void) {
