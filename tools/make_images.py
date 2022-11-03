@@ -25,13 +25,15 @@ the 9 pixel wide image can only be either 0x00 or 0x80 in the second byte
 which leads to favorible compression odds.
 """
 
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, List, Tuple
 
 import os
 import sys
 import yaml
 
 from PIL import Image
+
+from lib import rle, codegen
 
 class Error(Exception):
   pass
@@ -66,18 +68,43 @@ class ConfigSection:
 
 def process_section(section: ConfigSection) -> Tuple[str, Image.Image]:
   name = section.get('Name', '')
+  path = section.get('path')
   if not name:
-    name = os.path.splitext(os.path.split('/home/mattwach/mydog.png')[1])[0].upper()
+    name = os.path.splitext(os.path.split(path)[1])[0].upper()
     first_char = name[0]
     if first_char < 'A' or first_char > 'Z':
       name = 'I' + name
-  with Image.open(section.get('path')) as img:
+  with Image.open(path) as img:
     return (name, img.copy())
 
 
+def u32_to_hexstr(val: int) -> str:
+  return "0x%02X 0x%02X 0x%02X 0x%02X" % (
+    val & 0xFF,
+    (val >> 8) & 0xFF,
+    (val >> 16) & 0xFF,
+    (val >> 24) & 0xFF
+  )
+
 def dump_sources(path: str, image_list: List[Tuple[str, Image.Image]]) -> None:
+  out_path = pathlib.Path(path).with_suffix('.c')
+  var_name = out_path.with_suffix('').name.replace('.', '_').replace('-', '_')
+  codegen.dump_c_header(path, var_name, [name for name, _ in image_list])
+  
+  with out_path.open('w', encoding='utf8') as fout:
+    fout.write('\n'.join((
+        '// Generated image data for %s' % var_name,
+        '',
+        '#include <inttypes.h>',
+        '#include <pico/platform.h>',
+        '',
+        '// Note: all values are little endian per r2040 spec',
+        '',
+        'const uint8_t %s[] __in_flash() = {' % var_name,
+        '    0x53, 0x48, 0x49, 0x31,  // id: SHI1',
+        '    %s, // image count' % u32_to_hexstr(len(image_list)),
+    )))
   # finish this later
-  pass
 
 
 def main():

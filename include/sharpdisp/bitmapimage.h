@@ -17,7 +17,7 @@ struct BitmapImages {
 };
 
 struct SharpMemoryImage {
-  uint8_t id[4];       // Should be set to 'SHIM'
+  uint8_t id[4];       // Should be set to 'SHI1'
   uint32_t num_images;   // number of images
 
   // Now for a lookup table.  Format is
