@@ -81,7 +81,7 @@ def process_section(section: ConfigSection) -> Tuple[str, Image.Image]:
 
 
 def generate_offsets(fout: IO, image_rle_data: List[Tuple[str, Image.Image, List[int]]]) -> None:
-  fout.write('    // Image Offsets')
+  fout.write('    // Image Offsets\n')
   # 2 bytes width, 2 bytes height, 4 bytes offset
   offset = len(image_rle_data) * 8
   index = 0;
@@ -171,6 +171,7 @@ def dump_sources(
         'const uint8_t %s[] __in_flash() = {' % var_name,
         '    0x53, 0x48, 0x49, 0x31,  // id: SHI1',
         '    %s, // image count (%d)' % (u32_to_hexstr(len(image_list)), len(image_list)),
+        ''
     )))
 
     image_rle_data = [
