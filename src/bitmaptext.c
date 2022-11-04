@@ -1,42 +1,7 @@
 #include "sharpdisp/bitmaptext.h"
 #include <stdarg.h>
 #include <stdio.h>
-
-struct RLETracker {
-  const uint8_t* pgm_data;  // address of next byte
-  uint8_t bytes_remaining;  // number of bytes remaining on the current run
-  uint8_t repeat_mode;  // if true, then we are in repeat mode
-};
-
-static uint8_t next_rle_byte(struct RLETracker* self, uint8_t* err) {
-  if (*err) {
-    return 0xFF;
-  }
-  if (self->bytes_remaining == 0) {
-    // prep for the next sequence
-    self->bytes_remaining = self->pgm_data[0];
-    ++self->pgm_data;
-    if (self->bytes_remaining & 0x80) {
-      self->bytes_remaining &= 0x7F;
-      self->repeat_mode = 0;
-    } else {
-      self->repeat_mode = 1;
-    }
-
-    if (self->bytes_remaining == 0) {
-      // data is invalid
-      *err = TEXT_INVALID_RLE_DATA;
-      return 0xFF;
-    }
-  }
-
-  const uint8_t b = self->pgm_data[0];
-  --self->bytes_remaining;
-  if (!self->repeat_mode || (self->bytes_remaining == 0)) {
-    ++self->pgm_data;
-  }
-  return b;
-}
+#include "rle.h"
 
 void text_verify_font(struct BitmapText* text) {
   if (text->error) {
