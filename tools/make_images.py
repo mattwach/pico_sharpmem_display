@@ -25,9 +25,10 @@ the 9 pixel wide image can only be either 0x00 or 0x80 in the second byte
 which leads to favorible compression odds.
 """
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, IO, List, Tuple
 
 import os
+import pathlib
 import sys
 import yaml
 
@@ -78,15 +79,81 @@ def process_section(section: ConfigSection) -> Tuple[str, Image.Image]:
     return (name, img.copy())
 
 
+def generate_offsets(fout: IO, image_rle_data: List[Tuple[str, Image.Image, List[int]]]) -> None:
+  fout.write('    // Image Offsets')
+  # 2 bytes width, 2 bytes height, 4 bytes offset
+  offset = len(image_rle_data) * 8
+  index = 0;
+  for name, img, img_rle in image_rle_data:
+    line = ''.join(
+      '    ',
+      '%s, ' % u16_to_hexstr(img.width),
+      '%s, ' % u16_to_hexstr(img.height),
+      '%s, ' % u32_to_hexstr(offset),
+      f'// {index}: {name} w={img.width}, h={img.height}, off={offset}\n'
+    )
+    fout.write(line)
+    offset += len(img_rle)
+    index += 1
+
+
+def u16_to_hexstr(val: int) -> str:
+  return "0x%02X, 0x%02X" % (
+    val & 0xFF,
+    (val >> 8) & 0xFF,
+  )
+
 def u32_to_hexstr(val: int) -> str:
-  return "0x%02X 0x%02X 0x%02X 0x%02X" % (
+  return "0x%02X, 0x%02X, 0x%02X, 0x%02X" % (
     val & 0xFF,
     (val >> 8) & 0xFF,
     (val >> 16) & 0xFF,
     (val >> 24) & 0xFF
   )
 
-def dump_sources(path: str, image_list: List[Tuple[str, Image.Image]]) -> None:
+
+def scale_image_if_needed(
+  img: Image.Image, max_image_comment_size: int) -> Image.Image:
+  if (img.width <= max_image_comment_size and
+      img.height <= max_image_comment_size):
+      return img
+
+  if img.width >= img.height:
+    # make the width the larger dimension
+    new_width = 80
+    new_height = img.height * 80 // img.width
+  else:
+    new_width = img.width * 80 // img.height
+    new_height = 80
+  if new_width < 1:
+    new_width = 1
+  if new_height < 1:
+    new_height = 1
+
+  return img.resize((new_width, new_height))
+
+
+def generate_image_comment(
+  index: int,
+  name: str,
+  img: Image.Image,
+  max_image_comment_size: int,
+  fout: IO
+) -> None:
+  """Generates a comment block for an image."""
+  fout.write(f'    // Image {index}: {name} w={img.width} h={img.height}\n')
+  img = scale_image_if_needed(img, max_image_comment_size)
+  for y in range(img.height):
+    fout.write('    // ')
+    for x in range(img.width):
+      fout.write('#' if img.getpixel((x,y)) else '-')
+    fout.write('\n')
+
+
+def dump_sources(
+  path: str,
+  image_list: List[Tuple[str, Image.Image]],
+  max_image_comment_size: int) -> None:
   out_path = pathlib.Path(path).with_suffix('.c')
   var_name = out_path.with_suffix('').name.replace('.', '_').replace('-', '_')
   codegen.dump_c_header(path, var_name, [name for name, _ in image_list])
@@ -102,9 +169,22 @@ def dump_sources(path: str, image_list: List[Tuple[str, Image.Image]]) -> None:
         '',
         'const uint8_t %s[] __in_flash() = {' % var_name,
         '    0x53, 0x48, 0x49, 0x31,  // id: SHI1',
-        '    %s, // image count' % u32_to_hexstr(len(image_list)),
+        '    %s, // image count (%d)' % (u32_to_hexstr(len(image_list)), len(image_list)),
     )))
-  # finish this later
+
+    image_rle_data = [
+        (name, img, rle.create_rle_data(img.height, img)) for name, img in image_list]
+    generate_offsets(fout, image_rle_data)
+
+    fout.write('    // Image data\n')
+    index = 0
+    for name, img, img_rle in image_rle_data:
+      generate_image_comment(index, name, img, max_image_comment_size, fout)
+      codegen.generate_character_data(img_rle, fout)
+
+    fout.write('};\n')
+
+  print('Wrote %s' % out_path)
 
 
 def main():
@@ -116,10 +196,12 @@ def main():
   with open(path, encoding='utf8') as f:
     cfg = yaml.safe_load(f)
 
+  max_image_comment_size = cfg.get('max_image_comment_size', 80)
+
   # creates a list of (name, image) tuples
   config_sections = (ConfigSection(section) for section in cfg['images'])
   image_list = [process_section(section) for section in config_sections]
-  dump_sources(path, image_list)
+  dump_sources(path, image_list, max_image_comment_size)
 
 
 if __name__ == '__main__':

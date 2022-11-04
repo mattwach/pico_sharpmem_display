@@ -14,13 +14,13 @@ It looks like this
 1|4|7
 2|5|8
 
-The example above would represent a 18x3 font (not very realistic but it's
+The example above would represent a 24x3 font (not very realistic but it's
 an example)  Each number is a 8x1 pixel slice and the data file
 contains the bytes in the numbers as-shown.
 
 If a character width is not a multiple of 8 (say it's 9), then a
 full extra byte is used to hold the extra.  So a 9-picel-wide font
-would be represented with 2 horizontal bytes, enougg for 16 pixels.
+would be represented with 2 horizontal bytes, enough for 16 pixels.
 
 This may seem wasteful, but the RLE can be a big help.  For example
 the 9 pixel wide font can only be either 0x00 or 0x80 in the second byte
@@ -191,11 +191,6 @@ def debug_dump(char_to_img: Dict[str, Image.Image]) -> None:
   for c, img in sorted(char_to_img.items()):
     dump_char(c, img)
 
-def chunks(lst, n):
-  """Yield successive n-sized chunks from lst."""
-  for i in range(0, len(lst), n):
-    yield lst[i:i + n]
-
 def generate_character_comment(c: str, img: Image.Image, fout: IO) -> None:
   if ord(c) < 32 or ord(c) > 128:
     c_rep = ''
@@ -225,11 +220,6 @@ def generate_offsets(
     fout.write('    %s, %d, 0x%02X, 0x%02X,  // off=%d\n' % (
     c_rep, img.width, offset >> 8, offset & 0xFF, offset))
     offset += len(char_to_data[c])
-
-
-def generate_character_data(data: List[int], fout: IO) -> None:
-  for chunk in chunks(data, 16):
-    fout.write('    %s,\n' % ', '.join('0x%02X' % b for b in chunk))
 
 
 def variable_font_dump(
@@ -264,7 +254,7 @@ def variable_font_dump(
     fout.write('    // Character data\n')
     for c, img in sorted(char_to_img.items()):
       generate_character_comment(c, img, fout)
-      generate_character_data(char_to_data[c], fout)
+      codegen.generate_character_data(char_to_data[c], fout)
 
     fout.write('};\n')
 
@@ -274,7 +264,7 @@ def variable_font_dump(
 def main():
   """Entry point."""
   if len(sys.argv) != 2:
-    sys.exit('Usage: make_var_ascii_font.py <config.yaml>')
+    sys.exit('Usage: make_var_font.py <config.yaml>')
 
   path = sys.argv[1]
   with open(path, encoding='utf8') as f:

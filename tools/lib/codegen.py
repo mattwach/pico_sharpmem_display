@@ -29,3 +29,15 @@ def dump_c_header(path: str, var_name: str, indexed_defines: Optional[List[str]]
   out_path.write_text('\n'.join(data), encoding='utf8')
 
   print('Wrote %s' % out_path)
+
+
+def chunks(lst, n):
+  """Yield successive n-sized chunks from lst."""
+  for i in range(0, len(lst), n):
+    yield lst[i:i + n]
+
+
+def generate_character_data(data: List[int], fout: IO) -> None:
+  for chunk in chunks(data, 16):
+    fout.write('    %s,\n' % ', '.join('0x%02X' % b for b in chunk))
+
