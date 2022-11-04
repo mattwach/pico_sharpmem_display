@@ -5,8 +5,10 @@
 #include "sharpdisp/bitmap.h"
 
 // errors
-#define IMAGE_BAD_FONT_ID_ERROR 0x01
-#define IMAGE_INVALID_RLE_DATA  0x02
+#define IMAGE_BAD_IMAGE_ID_ERROR      0x01
+#define IMAGE_BAD_RLE_DATA            0x02
+#define IMAGE_INVALID_ID              0x03
+#define IMAGE_UNEXPECTED_HEADER_SIZE 0x04
 
 struct BitmapImages {
     const uint8_t* images;    // Pointer to some font data
@@ -56,6 +58,9 @@ void image_init(struct BitmapImages* images, const void* image_data, struct Bitm
 // baseball would first fill in a white circle, then draw a black imamge on top of it
 // for stitching/etc.
 void image_draw(struct BitmapImages* images, uint32_t id, int16_t x, int16_t y);
+
+uint16_t image_width(struct BitmapImages* images, uint32_t id);
+uint16_t image_height(struct BitmapImages* images, uint32_t id);
 
 #endif
 

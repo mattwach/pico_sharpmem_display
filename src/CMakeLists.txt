@@ -18,6 +18,14 @@ target_sources(BITMAPTEXT  INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/rle.c
 )
 
+add_library(BITMAPIMAGE INTERFACE)
+target_include_directories(BITMAPIMAGE  INTERFACE ${CMAKE_CURRENT_LIST_DIR}/../include)
+target_link_libraries(BITMAPIMAGE  INTERFACE BITMAP)
+target_sources(BITMAPIMAGE  INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/bitmapimage.c
+    ${CMAKE_CURRENT_LIST_DIR}/rle.c
+)
+
 add_library(BITMAPSHAPES INTERFACE)
 target_include_directories(BITMAPSHAPES  INTERFACE ${CMAKE_CURRENT_LIST_DIR}/../include)
 target_link_libraries(BITMAPSHAPES  INTERFACE BITMAP)

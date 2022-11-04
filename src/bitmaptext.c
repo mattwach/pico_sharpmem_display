@@ -57,48 +57,6 @@ static const uint8_t* find_character_data(
   return 0;
 }
 
-static void map_char_data(
-    struct Bitmap* b,
-    int16_t x,
-    int16_t y,
-    uint8_t data) {
-  if (!data) {
-    return;
-  }
-  if ((y < 0) || (y >= b->height)) {
-    // off the top or bottom
-    return;
-  }
-  if (x < 0) {
-    if (x <= -8) {
-      // the entire byte is off-screen
-      return;
-    } else {
-      // part of the byte is off-screen.  Thus we need to shift bits up.
-      data <<= -x;
-      x = 0;
-    }
-  }
-
-  const uint8_t bit_offset = x & 0x07;
-  if (bit_offset) {
-    // not on an 8-bit boundary, therefore we need to execute this as two mappings
-    map_char_data(b, x & 0xFFF8, y, data >> bit_offset);
-    map_char_data(b, (x & 0xFFF8) + 8 , y, data << (8 - bit_offset));
-    return;
-  }
-
-  // thanks to the logic above, we can now assume that x is on an 8-bit boundary
-  uint16_t col = x >> 3;
-  if (col >= b->width_bytes) {
-    // off the edge
-    return;
-  }
-
-  uint8_t* addr = b->data + (y * b->width_bytes) + col;
-  bitmap_apply(addr, b->mode, data);
-}
-
 void text_char(struct BitmapText* text, char c) {
   if (text->error) {
     return;
@@ -106,36 +64,18 @@ void text_char(struct BitmapText* text, char c) {
 
   const struct SharpMemoryFont* font = (struct SharpMemoryFont*)text->font;
   const uint8_t height = font->height;
-
   uint8_t width = 0;
-  struct RLETracker rle_tracker;
-  rle_tracker.bytes_remaining = 0;
-  rle_tracker.pgm_data = find_character_data(font, c, &width);
-
-  if (!rle_tracker.pgm_data) {
-    // Character not found
-    return;
-  }
-
-  const uint8_t num_cols = (width + 7) >> 3;
-  struct Bitmap* bitmap = text->bitmap;
-  const int16_t x = text->x;
-  const int16_t y = text->y;
+  const uint8_t* pgm_data = find_character_data(font, c, &width);
   uint8_t* error = &(text->error);
 
-  // vertical stripes
-  for (uint8_t col = 0; col < num_cols; ++col) {
-    // each strip is height in length
-    for (uint8_t row = 0; row < height; ++row) {
-      if (!text->error) {
-        map_char_data(
-            bitmap,
-            x + (col * 8),
-            y + row,
-            next_rle_byte(&rle_tracker, error));
-      }
-    }
-  }
+  map_rle_image(
+    text->bitmap,
+    pgm_data,
+    text->x,
+    text->y,
+    width,
+    height,
+    error);
 
   if (text->x < text->bitmap->width) {
     text->x += width;
