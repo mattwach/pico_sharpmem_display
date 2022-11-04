@@ -94,12 +94,12 @@ void map_rle_image(
   struct RLETracker rle_tracker;
   rle_tracker.bytes_remaining = 0;
   rle_tracker.pgm_data = pgm_data;
-  const uint8_t num_cols = (width + 7) >> 3;
+  const uint16_t num_cols = (width + 7) >> 3;
 
   // vertical stripes
-  for (uint8_t col = 0; col < num_cols; ++col) {
+  for (uint16_t col = 0; col < num_cols; ++col) {
     // each strip is height in length
-    for (uint8_t row = 0; row < height; ++row) {
+    for (uint16_t row = 0; row < height; ++row) {
       if (!(*error)) {
         map_image_byte(
             bitmap,
