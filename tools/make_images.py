@@ -72,6 +72,7 @@ def process_section(section: ConfigSection) -> Tuple[str, Image.Image]:
   path = section.get('path')
   if not name:
     name = os.path.splitext(os.path.split(path)[1])[0].upper()
+    name = name + "_IMG"
     first_char = name[0]
     if first_char < 'A' or first_char > 'Z':
       name = 'I' + name
@@ -85,13 +86,13 @@ def generate_offsets(fout: IO, image_rle_data: List[Tuple[str, Image.Image, List
   offset = len(image_rle_data) * 8
   index = 0;
   for name, img, img_rle in image_rle_data:
-    line = ''.join(
+    line = ''.join((
       '    ',
       '%s, ' % u16_to_hexstr(img.width),
       '%s, ' % u16_to_hexstr(img.height),
       '%s, ' % u32_to_hexstr(offset),
       f'// {index}: {name} w={img.width}, h={img.height}, off={offset}\n'
-    )
+    ))
     fout.write(line)
     offset += len(img_rle)
     index += 1

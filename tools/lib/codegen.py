@@ -1,6 +1,6 @@
 """Utilities for generating C code."""
 
-from typing import List, Optional
+from typing import IO, List, Optional
 import pathlib
 
 def dump_c_header(path: str, var_name: str, indexed_defines: Optional[List[str]] = None) -> None:
@@ -15,7 +15,7 @@ def dump_c_header(path: str, var_name: str, indexed_defines: Optional[List[str]]
   ]
   if indexed_defines:
     for idx, name in enumerate(indexed_defines):
-      data.append('#define %-60s %u' % (name, idx))
+      data.append('#define %-30s %u' % (name, idx))
     data.append('')
   data.extend([
       '#include <inttypes.h>',
