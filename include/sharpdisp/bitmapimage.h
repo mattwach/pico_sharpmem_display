@@ -5,10 +5,10 @@
 #include "sharpdisp/bitmap.h"
 
 // errors
-#define IMAGE_BAD_IMAGE_ID_ERROR      0x01
+#define IMAGE_BAD_ID_ERROR      0x01
 #define IMAGE_BAD_RLE_DATA            0x02
 #define IMAGE_INVALID_ID              0x03
-#define IMAGE_UNEXPECTED_HEADER_SIZE 0x04
+#define IMAGE_UNEXPECTED_HEADER_SIZE  0x04
 
 struct BitmapImages {
     const uint8_t* images;    // Pointer to some font data
@@ -49,7 +49,7 @@ struct SharpMemoryImage {
 };
 
 // Use this to initialize a text object or change fonts in an existing one
-void image_init(struct BitmapImages* images, const void* image_data, struct Bitmap* bitmap);
+void image_init(struct BitmapImages* bi, const void* image_data, struct Bitmap* bitmap);
 
 // Draw an image.   Zero-bits are transparent. One bits will use the Bitmap.mode mode to
 // transfer.  Optionally use bitmapshapes.h bitmap_filled_rect() to clear out background
@@ -57,10 +57,11 @@ void image_init(struct BitmapImages* images, const void* image_data, struct Bitm
 // want to define a second image which will be the background mask.  For example a
 // baseball would first fill in a white circle, then draw a black imamge on top of it
 // for stitching/etc.
-void image_draw(struct BitmapImages* images, uint32_t id, int16_t x, int16_t y);
+void image_draw(struct BitmapImages* bi, uint32_t id, int16_t x, int16_t y);
 
-uint16_t image_width(struct BitmapImages* images, uint32_t id);
-uint16_t image_height(struct BitmapImages* images, uint32_t id);
+uint16_t image_width(struct BitmapImages* bi, uint32_t id);
+uint16_t image_height(struct BitmapImages* bi, uint32_t id);
+uint32_t image_count(struct BitmapImages* bi);
 
 #endif
 

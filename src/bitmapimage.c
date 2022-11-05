@@ -17,7 +17,7 @@ static void verify_image_data(struct BitmapImages* bi) {
       (id[1] != 'H') || 
       (id[2] != 'I') ||
       (id[3] != '1')) {
-    bi->error = TEXT_BAD_IMAGE_ID_ERROR;
+    bi->error = IMAGE_BAD_ID_ERROR;
   }
 }
 
@@ -31,18 +31,23 @@ static struct ImageInfo* image_info(struct BitmapImages* bi, uint32_t id) {
     return NULL;
   }
 
-  return (ImageInfo*)(&bi->data + (id * sizeof(ImageInfo)));
+  return (struct ImageInfo*)(img_data->data + (id * sizeof(struct ImageInfo)));
 }
 
 void image_init(struct BitmapImages* bi, const void* image_data, struct Bitmap* bitmap) {
-    bi->image_data = images;
+    bi->images = image_data;
     bi->bitmap = bitmap;
     bi->error = 0;
-    if (sizeof(ImageInfo) != 8) {
+    if (sizeof(struct ImageInfo) != 8) {
         bi->error = IMAGE_UNEXPECTED_HEADER_SIZE;
         return;
     }
-    verify_image_data(image_data, &(bi->error));
+    verify_image_data(bi);
+}
+
+uint32_t image_count(struct BitmapImages* bi) {
+  const struct SharpMemoryImage* img_data = (struct SharpMemoryImage*)bi->images;
+  return img_data->num_images;
 }
 
 uint16_t image_width(struct BitmapImages* images, uint32_t id) {
@@ -62,19 +67,19 @@ uint16_t image_height(struct BitmapImages* images, uint32_t id) {
 }
 
 void image_draw(struct BitmapImages* bi, uint32_t id, int16_t x, int16_t y) {
-  struct ImageInfo* ii = image_info(images, id);
+  struct ImageInfo* ii = image_info(bi, id);
   if (!ii) {
     return;
   }
 
   const struct SharpMemoryImage* img_data = (struct SharpMemoryImage*)bi->images;
-  const uint16_t num_cols = (ii->width + 7) >> 3;
+  const uint16_t width = ii->width;
   const uint16_t height = ii->height;
   uint8_t* error = &(bi->error);
 
   map_rle_image(
     bi->bitmap,
-    &img_data->data + ii->offset;
+    img_data->data + ii->offset,
     x,
     y,
     width,
