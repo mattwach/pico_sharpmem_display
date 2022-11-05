@@ -9,8 +9,6 @@ target_link_libraries(sharpdisp_bitmapimage
     pico_stdlib
     SHARPDISP
     BITMAPIMAGE
-    BITMAPTEXT
-    LIBERATION_MONO_14
 )
 
 # enable usb output, disable uart output

@@ -1,8 +1,6 @@
 #include "pico/stdlib.h"
-#include <fonts/liberation_mono_14.h>
 #include <sharpdisp/sharpdisp.h>
 #include <sharpdisp/bitmapimage.h>
-#include <sharpdisp/bitmaptext.h>
 #include "hardware/structs/rosc.h"
 
 #include "images.h"
@@ -11,10 +9,8 @@
 #define HEIGHT 240
 
 uint8_t disp_buffer[BITMAP_SIZE(WIDTH, HEIGHT)];
-char printf_buffer[80];
 struct SharpDisp sd;
 struct BitmapImages bi;
-struct BitmapText text;
 
 // some good-enough random generation
 static int16_t rand16(int16_t min, int16_t max) {
@@ -39,17 +35,16 @@ static void show_an_image(uint32_t idx) {
   }
   bitmap_clear(&sd.bitmap);
   image_draw(&bi, idx, x, y);
-  text.x = 5;
-  text.y = HEIGHT - 14;
-  text_printf(
-    &text,
-    "i=%d x=%d y=%d w=%d h=%d",
-    idx,
-    x,
-    y,
-    width,
-    height);
-  sharpdisp_refresh(&sd);
+}
+
+// need to keep refreshing the screen or it
+// will sometimes blank out.
+static void sleep_for(uint32_t ms) {
+  const uint32_t steps = ms / 50; 
+  for (uint32_t i=0; i<steps; ++i) {
+    sharpdisp_refresh(&sd);
+    sleep_ms(50);
+  }
 }
 
 int main() {
@@ -58,15 +53,13 @@ int main() {
   // Initailize
   sharpdisp_init_default(&sd, disp_buffer, WIDTH, HEIGHT, 0xFF);
   image_init(&bi, images, &sd.bitmap);
-  text_init(&text, liberation_mono_14, &sd.bitmap);
-  text.printf_buffer = printf_buffer;
 
   const uint32_t num_images = image_count(&bi);
   while (!bi.error) {
     sleep_ms(1000);
     for (uint32_t idx = 0; idx < num_images; ++idx) {
       show_an_image(idx);
-      sleep_ms(2000);
+      sleep_for(2000);
     }
   }
 
