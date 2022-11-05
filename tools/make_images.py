@@ -27,6 +27,7 @@ which leads to favorible compression odds.
 
 from typing import Any, Dict, IO, List, Tuple
 
+from dataclasses import dataclass
 import os
 import pathlib
 import sys
@@ -49,7 +50,8 @@ class ConfigSection:
   def __init__(self, section_data: Dict[str, Any]) -> None:
     self.config_keys = (
         ('path', 'Path to the image'),
-         'name', 'The #define name.  Default to a names that is based on the file name.'
+        ('name', 'The #define name.  Default to a names that is based on the file name.'),
+        ('invert', 'If true, then white pixels become the 1\'s in the image'),
     )
 
     known_keys = set(c[0] for c in self.config_keys)
@@ -66,8 +68,14 @@ class ConfigSection:
       return self.data[key]
     return self.data.get(key, default)
 
+@dataclass
+class ImageProps:
+  name: str
+  invert: bool
+  image: Image.Image
+  rle: List[int]
 
-def process_section(section: ConfigSection) -> Tuple[str, Image.Image]:
+def process_section(section: ConfigSection) -> ImageProps:
   name = section.get('Name', '')
   path = section.get('path')
   if not name:
@@ -77,24 +85,29 @@ def process_section(section: ConfigSection) -> Tuple[str, Image.Image]:
     if first_char < 'A' or first_char > 'Z':
       name = 'I' + name
   with Image.open(path) as img:
-    return (name, img.copy())
+    return ImageProps(
+        name=name,
+        invert=section.get('invert', False),
+        image=img.copy(),
+        rle=[]
+    )
 
 
-def generate_offsets(fout: IO, image_rle_data: List[Tuple[str, Image.Image, List[int]]]) -> None:
+def generate_offsets(fout: IO, image_list: List[ImageProps]) -> None:
   fout.write('    // Image Offsets\n')
   # 2 bytes width, 2 bytes height, 4 bytes offset
-  offset = len(image_rle_data) * 8
+  offset = len(image_list) * 8
   index = 0;
-  for name, img, img_rle in image_rle_data:
+  for i in image_list:
     line = ''.join((
       '    ',
-      '%s, ' % u16_to_hexstr(img.width),
-      '%s, ' % u16_to_hexstr(img.height),
+      '%s, ' % u16_to_hexstr(i.image.width),
+      '%s, ' % u16_to_hexstr(i.image.height),
       '%s, ' % u32_to_hexstr(offset),
-      f'// {index}: {name} w={img.width}, h={img.height}, off={offset}\n'
+      f'// {index}: {i.name} w={i.image.width}, h={i.image.height}, off={offset}\n'
     ))
     fout.write(line)
-    offset += len(img_rle)
+    offset += len(i.rle)
     index += 1
 
 
@@ -136,28 +149,27 @@ def scale_image_if_needed(
 
 def generate_image_comment(
   index: int,
-  name: str,
-  img: Image.Image,
+  i: ImageProps,
   max_image_comment_size: int,
   fout: IO
 ) -> None:
   """Generates a comment block for an image."""
-  fout.write(f'    // Image {index}: {name} w={img.width} h={img.height}\n')
-  img = scale_image_if_needed(img, max_image_comment_size)
+  fout.write(f'    // Image {index}: {i.name} w={i.image.width} h={i.image.height}\n')
+  img = scale_image_if_needed(i.image, max_image_comment_size)
   for y in range(img.height):
     fout.write('    // ')
     for x in range(img.width):
-      fout.write('#' if img.getpixel((x,y)) else '-')
+      fout.write('#' if bool(img.getpixel((x,y)) == i.invert) else '-')
     fout.write('\n')
 
 
 def dump_sources(
   path: str,
-  image_list: List[Tuple[str, Image.Image]],
+  image_list: List[ImageProps],
   max_image_comment_size: int) -> None:
   out_path = pathlib.Path(path).with_suffix('.c')
   var_name = out_path.with_suffix('').name.replace('.', '_').replace('-', '_')
-  codegen.dump_c_header(path, var_name, [name for name, _ in image_list])
+  codegen.dump_c_header(path, var_name, [i.name for i in image_list])
   
   with out_path.open('w', encoding='utf8') as fout:
     fout.write('\n'.join((
@@ -174,15 +186,15 @@ def dump_sources(
         ''
     )))
 
-    image_rle_data = [
-        (name, img, rle.create_rle_data(img.height, img)) for name, img in image_list]
-    generate_offsets(fout, image_rle_data)
+    for i in image_list:
+      i.rle = rle.create_rle_data(i.image.height, i.image)
+    generate_offsets(fout, image_list)
 
     fout.write('    // Image data\n')
     index = 0
-    for name, img, img_rle in image_rle_data:
-      generate_image_comment(index, name, img, max_image_comment_size, fout)
-      codegen.generate_character_data(img_rle, fout)
+    for i in image_list:
+      generate_image_comment(index, i, max_image_comment_size, fout)
+      codegen.generate_character_data(i.rle, fout)
 
     fout.write('};\n')
 

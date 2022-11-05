@@ -4,7 +4,7 @@
 from typing import List
 from PIL import Image
 
-def create_rle_data(height: int, img: Image.Image) -> List[int]:
+def create_rle_data(height: int, img: Image.Image, invert: bool = True) -> List[int]:
   data = []
   cols = (img.width + 7) // 8
   for col in range(cols):
@@ -14,7 +14,7 @@ def create_rle_data(height: int, img: Image.Image) -> List[int]:
       byte = 0x00
       bit = 7
       for x in range(startx, endx):
-        if img.getpixel((x, y)):
+        if bool(img.getpixel((x, y))) == invert:
           byte = byte | 1 << bit
         bit -= 1
       data.append(byte)

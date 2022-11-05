@@ -27,27 +27,28 @@ static int16_t rand16(int16_t min, int16_t max) {
   return min + (v % (max - min));
 }
 
-// something bas happened
-static void fatal() {
-  bitmap_clear(&sd.bitmap);
-  text_init(&text, liberation_mono_14, &sd.bitmap);
-  text.printf_buffer = printf_buffer;
-  text.x = 10;
-  text.y = 100;
-  text_printf(&text, "Error: %d", bi.error); 
-  sharpdisp_refresh(&sd);
-  while (1) {
-    sleep_ms(1000);
-  }
-}
-
 static void show_an_image(uint32_t idx) {
   int16_t width = image_width(&bi, idx);
   int16_t height = image_height(&bi, idx);
-  const int16_t x = rand16(-width / 2, WIDTH - width / 2);
-  const int16_t y = rand16(-height / 2, WIDTH - height / 2);
+  int16_t x = (WIDTH - width) / 2;
+  int16_t y = (HEIGHT - height) / 2;
+  if (rand16(0,100) > 50) {
+    // randomize the location
+    x = rand16(-width / 2, WIDTH - width / 2);
+    y = rand16(-height / 2, HEIGHT - height / 2);
+  }
   bitmap_clear(&sd.bitmap);
   image_draw(&bi, idx, x, y);
+  text.x = 5;
+  text.y = HEIGHT - 14;
+  text_printf(
+    &text,
+    "i=%d x=%d y=%d w=%d h=%d",
+    idx,
+    x,
+    y,
+    width,
+    height);
   sharpdisp_refresh(&sd);
 }
 
@@ -57,6 +58,8 @@ int main() {
   // Initailize
   sharpdisp_init_default(&sd, disp_buffer, WIDTH, HEIGHT, 0xFF);
   image_init(&bi, images, &sd.bitmap);
+  text_init(&text, liberation_mono_14, &sd.bitmap);
+  text.printf_buffer = printf_buffer;
 
   const uint32_t num_images = image_count(&bi);
   while (!bi.error) {
@@ -67,5 +70,8 @@ int main() {
     }
   }
 
-  fatal();
+  // an error occurred.  If you don't see images, add some debug messages here
+  while (1) {
+    sleep_ms(1000);
+  }
 }
