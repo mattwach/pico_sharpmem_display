@@ -33,6 +33,11 @@ static void show_an_image(uint32_t idx) {
     x = rand16(-width / 2, WIDTH - width / 2);
     y = rand16(-height / 2, HEIGHT - height / 2);
   }
+  if (rand16(0,100) > 50) {
+    sd.bitmap.clear_byte = 0xFF;
+  } else {
+    sd.bitmap.clear_byte = 0x00;
+  }
   bitmap_clear(&sd.bitmap);
   image_draw(&bi, idx, x, y);
 }
@@ -52,6 +57,7 @@ int main() {
 
   // Initailize
   sharpdisp_init_default(&sd, disp_buffer, WIDTH, HEIGHT, 0xFF);
+  sd.bitmap.mode = BITMAP_INVERSE;
   image_init(&bi, images, &sd.bitmap);
 
   const uint32_t num_images = image_count(&bi);
