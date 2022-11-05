@@ -62,7 +62,6 @@ int main() {
 
   const uint32_t num_images = image_count(&bi);
   while (!bi.error) {
-    sleep_ms(1000);
     for (uint32_t idx = 0; idx < num_images; ++idx) {
       show_an_image(idx);
       sleep_for(2000);
