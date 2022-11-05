@@ -52,6 +52,8 @@ class ConfigSection:
         ('path', 'Path to the image'),
         ('name', 'The #define name.  Default to a names that is based on the file name.'),
         ('invert', 'If true, then white pixels become the 1\'s in the image'),
+        ('tile_x', 'If > 0, break the image into tiles.'),
+        ('tile_y', 'If > 0, break the image into tiles.'),
     )
 
     known_keys = set(c[0] for c in self.config_keys)
@@ -75,7 +77,38 @@ class ImageProps:
   image: Image.Image
   rle: List[int]
 
-def process_section(section: ConfigSection) -> ImageProps:
+
+def add_image_as_tiles(
+  image_list: List[ImageProps],
+  img: Image.Image,
+  name: str,
+  invert: bool,
+  tile_x: int,
+  tile_y: int) -> None:
+  if (tile_x == 0) or (tile_x > img.width):
+    tile_x = img.width
+  if (tile_y == 0) or (tile_y > img.height):
+    tile_y = img.height
+
+  # need to round up the values
+  columns = int((img.width + tile_x - 1) / tile_x)
+  rows = int((img.height + tile_y - 1) / tile_y)
+
+  for row in range(0, rows):
+    for column in range(0, columns):
+      left = column * tile_x
+      right = min(left + tile_x, img.width)
+      top = row * tile_y
+      bottom = min(top + tile_y, img.height)
+      image_list.append(ImageProps(
+          name=f'{name}_{column}_{row}',
+          invert=invert,
+          image=img.crop([left, top, right, bottom]),
+          rle=[]
+      ))
+
+
+def process_section(image_list: List[ImageProps], section: ConfigSection) -> None:
   name = section.get('Name', '')
   path = section.get('path')
   if not name:
@@ -84,13 +117,26 @@ def process_section(section: ConfigSection) -> ImageProps:
     first_char = name[0]
     if first_char < 'A' or first_char > 'Z':
       name = 'I' + name
+
   with Image.open(path) as img:
-    return ImageProps(
-        name=name,
-        invert=section.get('invert', False),
-        image=img.copy(),
-        rle=[]
-    )
+    tile_x = section.get('tile_x', 0)
+    tile_y = section.get('tile_y', 0)
+
+    if not tile_x and not tile_y:
+      image_list.append(ImageProps(
+          name=name,
+          invert=section.get('invert', False),
+          image=img.copy(),
+          rle=[]
+      ))
+    else:
+      add_image_as_tiles(
+        image_list,
+        img,
+        name,
+        section.get('invert', False),
+        tile_x,
+        tile_y)
 
 
 def generate_offsets(fout: IO, image_list: List[ImageProps]) -> None:
@@ -214,7 +260,9 @@ def main():
 
   # creates a list of (name, image) tuples
   config_sections = (ConfigSection(section) for section in cfg['images'])
-  image_list = [process_section(section) for section in config_sections]
+  image_list = []
+  for section in config_sections:
+    process_section(image_list, section)
   dump_sources(path, image_list, max_image_comment_size)
 
 

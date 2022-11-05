@@ -4,3 +4,6 @@ output_type: SharpMemoryImage
 # overlaps a previous section, an error will be raised.
 images:
   - path: map.png 
+    tile_x: 64
+    tile_y: 64
+
