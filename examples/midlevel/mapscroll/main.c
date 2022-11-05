@@ -3,18 +3,48 @@
 #include <sharpdisp/doublebuffer.h>
 #include <sharpdisp/bitmap.h>
 #include <sharpdisp/bitmapimage.h>
+#include <sharpdisp/metrics.h>
+#include <sharpdisp/bitmaptext.h>
+#include <fonts/liberation_sans_18.h>
 
 #include "map.h"
 
 #define WIDTH 400
 #define HEIGHT 240
-#define SLEEP_MS 16
+#define SLEEP_MS 50
 
 uint8_t disp_buffer[BITMAP_SIZE(WIDTH, HEIGHT)];
 uint8_t disp_buffer2[BITMAP_SIZE(WIDTH, HEIGHT)];
+char printf_buffer[256];
 struct SharpDisp sd;
 struct DoubleBuffer dub_buff;
+struct SharpMetrics metrics;
+struct BitmapText text;
 struct BitmapImages bi;
+
+static void init_metrics() {
+  // Metric makes this example a bit more complex than needed, but
+  // it is useful/interesting to show FPS and draw time as
+  // a demonstration of the effecitveness of the method.
+  metrics_init(&metrics);
+  text_init(&text, liberation_sans_18, &dub_buff.bitmap);
+  text.printf_buffer = printf_buffer;
+}
+
+static void draw_metrics(void) {
+  text.x = 8;
+  text.y = HEIGHT - 18;
+  if (metrics.frame_index > 0) {
+    const uint8_t old_mode = dub_buff.bitmap.mode;
+    dub_buff.bitmap.mode = BITMAP_INVERSE;
+    text_printf(
+        &text,
+        "Draw: %u ms FPS: %u",
+        metrics_draw_ms(&metrics),
+        1000 / metrics_total_ms(&metrics));     
+    dub_buff.bitmap.mode = old_mode;
+  }
+}
 
 int main() {
   sleep_ms(100);  // allow voltage to stabilize
@@ -22,7 +52,8 @@ int main() {
   // Initailize
   sharpdisp_init_default(&sd, disp_buffer, WIDTH, HEIGHT, 0xFF);
   doublebuffer_init(&dub_buff, &sd, disp_buffer2, SLEEP_MS);
-  image_init(&bi, map, &sd.bitmap);
+  image_init(&bi, map, &dub_buff.bitmap);
+  init_metrics();
 
   const int16_t xmin = WIDTH - image_width(&bi, MAP_IMG);
   const int16_t xmax = 0;
@@ -35,9 +66,13 @@ int main() {
   int16_t yv = -1;
 
   while (!bi.error) {
+    metrics_start(&metrics);
     bitmap_clear(&dub_buff.bitmap);
     image_draw(&bi, MAP_IMG, x, y);
+    draw_metrics();
+    metrics_prerefresh(&metrics);
     doublebuffer_swap(&dub_buff);
+    metrics_postrefresh(&metrics, 0);
 
     x += xv;
     if ((x < xmin) || (x > xmax)) {
