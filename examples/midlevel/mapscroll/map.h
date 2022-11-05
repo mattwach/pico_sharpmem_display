@@ -2,6 +2,8 @@
 #define MAP_H
 // Generated data for map.yaml
 
+#define MAP_IMG_COLUMNS                16
+#define MAP_IMG_ROWS                   11
 #define MAP_IMG_0_0                    0
 #define MAP_IMG_1_0                    1
 #define MAP_IMG_2_0                    2

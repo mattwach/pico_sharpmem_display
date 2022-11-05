@@ -80,6 +80,7 @@ class ImageProps:
 
 def add_image_as_tiles(
   image_list: List[ImageProps],
+  defines: Dict[str, Any],
   img: Image.Image,
   name: str,
   invert: bool,
@@ -93,6 +94,9 @@ def add_image_as_tiles(
   # need to round up the values
   columns = int((img.width + tile_x - 1) / tile_x)
   rows = int((img.height + tile_y - 1) / tile_y)
+
+  defines[f'{name}_COLUMNS'] = columns
+  defines[f'{name}_ROWS'] = rows
 
   for row in range(0, rows):
     for column in range(0, columns):
@@ -108,7 +112,10 @@ def add_image_as_tiles(
       ))
 
 
-def process_section(image_list: List[ImageProps], section: ConfigSection) -> None:
+def process_section(
+  image_list: List[ImageProps], 
+  defines: Dict[str, Any],
+  section: ConfigSection) -> None:
   name = section.get('Name', '')
   path = section.get('path')
   if not name:
@@ -132,6 +139,7 @@ def process_section(image_list: List[ImageProps], section: ConfigSection) -> Non
     else:
       add_image_as_tiles(
         image_list,
+        defines,
         img,
         name,
         section.get('invert', False),
@@ -212,10 +220,16 @@ def generate_image_comment(
 def dump_sources(
   path: str,
   image_list: List[ImageProps],
+  defines: Dict[str, Any],
   max_image_comment_size: int) -> None:
   out_path = pathlib.Path(path).with_suffix('.c')
   var_name = out_path.with_suffix('').name.replace('.', '_').replace('-', '_')
-  codegen.dump_c_header(path, var_name, [i.name for i in image_list])
+  define_list = []
+  if defines:
+    for k, v in sorted(defines.items()):
+      define_list.append((k, v))
+  define_list.extend((i.name, idx) for idx, i in enumerate(image_list))
+  codegen.dump_c_header(path, var_name, define_list)
   
   with out_path.open('w', encoding='utf8') as fout:
     fout.write('\n'.join((
@@ -261,9 +275,10 @@ def main():
   # creates a list of (name, image) tuples
   config_sections = (ConfigSection(section) for section in cfg['images'])
   image_list = []
+  defines = {}
   for section in config_sections:
-    process_section(image_list, section)
-  dump_sources(path, image_list, max_image_comment_size)
+    process_section(image_list, defines, section)
+  dump_sources(path, image_list, defines, max_image_comment_size)
 
 
 if __name__ == '__main__':

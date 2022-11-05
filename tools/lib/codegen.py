@@ -1,9 +1,9 @@
 """Utilities for generating C code."""
 
-from typing import IO, List, Optional
+from typing import Any, IO, List, Optional, Tuple
 import pathlib
 
-def dump_c_header(path: str, var_name: str, indexed_defines: Optional[List[str]] = None) -> None:
+def dump_c_header(path: str, var_name: str, defines: Optional[List[Tuple[str, Any]]] = None) -> None:
   """Dumps the header of a .c file"""
   out_path = pathlib.Path(path).with_suffix('.h')
   header_guard = f'{var_name}_h'.upper()
@@ -13,9 +13,9 @@ def dump_c_header(path: str, var_name: str, indexed_defines: Optional[List[str]]
       '// Generated data for %s' % path,
       '',
   ]
-  if indexed_defines:
-    for idx, name in enumerate(indexed_defines):
-      data.append('#define %-30s %u' % (name, idx))
+  if defines:
+    for name, value in defines:
+      data.append('#define %-30s %s' % (name, value))
     data.append('')
   data.extend([
       '#include <inttypes.h>',
