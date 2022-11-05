@@ -59,9 +59,43 @@ void image_init(struct BitmapImages* bi, const void* image_data, struct Bitmap* 
 // for stitching/etc.
 void image_draw(struct BitmapImages* bi, uint32_t id, int16_t x, int16_t y);
 
+// image_draw_tiled helps make drawing very large images more efficient.
+// The strategy is that you break an image into rectangular tiles of
+// equal size (except for the far left and bottom) in the following
+// pattern
+//
+// 01234
+// 56789
+//
+// The example above would show the layout of a image broken into 5x2 tiles
+//
+// The way this is optimized is that the function will skip drawing tiles
+// that are completly off the bitmap.  For images that are significantly
+// larger than the bitmap, significant amounts of drawing will be skipped.
+//
+// A good general tile size is 64x64 pixels.  This gives 512 byte uncompressed
+// tiles which gives the RLE engine something to compress.  To get actual ideal
+// numbers, benchmark different sizes using sharpmetrics.h or similar.
+//
+// The make_images.py tool supports splitting a large image into tiles for you
+// Provide it with tile_x and tile_y parameters and the image will be divided up.
+void image_draw_tiled(
+  struct BitmapImages* bi,
+  uint32_t first_id,
+  uint16_t columns,  // number of tiled columns
+  uint16_t rows, // number of tiled rows
+  int16_t x,
+  int16_t y);
+
 uint16_t image_width(struct BitmapImages* bi, uint32_t id);
 uint16_t image_height(struct BitmapImages* bi, uint32_t id);
 uint32_t image_count(struct BitmapImages* bi);
+
+// Determines the overall width and height of a tiled image
+uint16_t image_width_tiled(
+  struct BitmapImages* bi, uint32_t first_id, uint16_t columns);
+uint16_t image_height_tiled(
+  struct BitmapImages* bi, uint32_t first_id, uint16_t columns, uint16_t rows);
 
 #endif
 

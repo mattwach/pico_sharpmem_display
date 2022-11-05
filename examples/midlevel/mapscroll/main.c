@@ -55,9 +55,11 @@ int main() {
   image_init(&bi, map, &dub_buff.bitmap);
   init_metrics();
 
-  const int16_t xmin = WIDTH - image_width(&bi, MAP_IMG);
+  const int16_t xmin = WIDTH - image_width_tiled(
+    &bi, MAP_IMG_0_0, MAP_IMG_COLUMNS);
   const int16_t xmax = 0;
-  const int16_t ymin = HEIGHT - image_height(&bi, MAP_IMG);
+  const int16_t ymin = HEIGHT - image_height_tiled(
+    &bi, MAP_IMG_0_0, MAP_IMG_COLUMNS, MAP_IMG_ROWS);
   const int16_t ymax = 0;
 
   int16_t x = 0;
@@ -68,7 +70,7 @@ int main() {
   while (!bi.error) {
     metrics_start(&metrics);
     bitmap_clear(&dub_buff.bitmap);
-    image_draw(&bi, MAP_IMG, x, y);
+    image_draw_tiled(&bi, MAP_IMG_0_0, MAP_IMG_COLUMNS, MAP_IMG_ROWS, x, y);
     draw_metrics();
     metrics_prerefresh(&metrics);
     doublebuffer_swap(&dub_buff);

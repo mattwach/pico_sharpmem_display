@@ -86,3 +86,59 @@ void image_draw(struct BitmapImages* bi, uint32_t id, int16_t x, int16_t y) {
     height,
     error);
 }
+
+void image_draw_tiled(
+    struct BitmapImages* bi,
+    uint32_t first_id,
+    uint16_t columns,
+    uint16_t rows,
+    int16_t x,
+    int16_t y) {
+  // The first task is to figure out the starting and
+  // ending columns
+  const uint16_t tile_width = image_width(bi, first_id);
+  const uint16_t min_column = (-x) >= tile_width ?
+      (-x) / tile_width :
+      0;
+  int16_t last_x = x + (tile_width * (columns - 1));
+  if (last_x > bi->bitmap->width) {
+    last_x = bi->bitmap->width;
+  }
+  const uint16_t max_column = (last_x - x) / tile_width;
+
+  // same calculations, but for rows
+  const uint16_t tile_height = image_height(bi, first_id);
+  const uint16_t min_row = (-y) >= tile_height ?
+      (-y) / tile_height :
+      0;
+  int16_t last_y = y + (tile_height * (rows - 1));
+  if (last_y > bi->bitmap->height) {
+    last_y = bi->bitmap->height;
+  }
+  const uint16_t max_row = (last_y - y) / tile_height;
+
+  // draw the tiles
+  for (uint16_t row = min_row; row < max_row; ++row) {
+    for (uint16_t column = min_column; column < max_column; ++column,++first_id) {
+      image_draw(bi, first_id, x + (column * tile_width), y + (row * tile_height));
+    }
+  }
+}
+
+uint16_t image_width_tiled(
+  struct BitmapImages* bi, uint32_t first_id, uint16_t columns) {
+  const uint16_t tile_width = image_width(bi, first_id);
+  if (columns <= 1) {
+    return tile_width;
+  }
+  return (tile_width * (columns - 1)) + image_width(bi, first_id + columns - 1);
+}
+
+uint16_t image_height_tiled(
+  struct BitmapImages* bi, uint32_t first_id, uint16_t columns, uint16_t rows) {
+  const uint16_t tile_height = image_height(bi, first_id);
+  if (rows <= 1) {
+    return tile_height;
+  }
+  return (tile_height * (rows - 1)) + image_height(bi, first_id + (rows * columns) - 1);
+}
