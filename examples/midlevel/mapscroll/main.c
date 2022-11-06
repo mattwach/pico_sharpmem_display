@@ -11,7 +11,7 @@
 
 #define WIDTH 400
 #define HEIGHT 240
-#define SLEEP_MS 50
+#define SLEEP_MS 32
 
 uint8_t disp_buffer[BITMAP_SIZE(WIDTH, HEIGHT)];
 uint8_t disp_buffer2[BITMAP_SIZE(WIDTH, HEIGHT)];

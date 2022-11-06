@@ -118,9 +118,9 @@ void image_draw_tiled(
   const uint16_t max_row = (last_y - y) / tile_height;
 
   // draw the tiles
-  for (uint16_t row = min_row; row < max_row; ++row) {
+  for (uint16_t row = min_row; row <= max_row; ++row) {
     const uint32_t row_id = first_id + (row * columns);
-    for (uint16_t column = min_column; column < max_column; ++column) {
+    for (uint16_t column = min_column; column <= max_column; ++column) {
       image_draw(
         bi,
         row_id + column,
