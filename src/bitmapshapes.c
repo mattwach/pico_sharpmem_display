@@ -7,8 +7,8 @@ static inline void _bitmap_hline_single_byte(
     uint16_t w,
     uint8_t mode) {
   // start with a full byte
-  uint8_t left_gap = x & 0x07;
-  uint8_t right_gap = (8 - ((x + w) & 0x07)) & 0x07;
+  const uint8_t left_gap = x & 0x07;
+  const uint8_t right_gap = (8 - ((x + w) & 0x07)) & 0x07;
   const uint8_t mask = (0xFF >> (left_gap + right_gap)) << right_gap;
   bitmap_apply(ptr, mode, mask);
 }

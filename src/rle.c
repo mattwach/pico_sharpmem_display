@@ -1,47 +1,5 @@
 #include "rle.h"
 
-static void map_image_byte(
-    struct Bitmap* b,
-    int16_t x,
-    int16_t y,
-    uint8_t data) {
-  if (!data) {
-    return;
-  }
-  if ((y < 0) || (y >= b->height)) {
-    // off the top or bottom
-    return;
-  }
-  if (x < 0) {
-    if (x <= -8) {
-      // the entire byte is off-screen
-      return;
-    } else {
-      // part of the byte is off-screen.  Thus we need to shift bits up.
-      data <<= -x;
-      x = 0;
-    }
-  }
-
-  const uint8_t bit_offset = x & 0x07;
-  if (bit_offset) {
-    // not on an 8-bit boundary, therefore we need to execute this as two mappings
-    map_image_byte(b, x & 0xFFF8, y, data >> bit_offset);
-    map_image_byte(b, (x & 0xFFF8) + 8 , y, data << (8 - bit_offset));
-    return;
-  }
-
-  // thanks to the logic above, we can now assume that x is on an 8-bit boundary
-  uint16_t col = x >> 3;
-  if (col >= b->width_bytes) {
-    // off the edge
-    return;
-  }
-
-  uint8_t* addr = b->data + (y * b->width_bytes) + col;
-  bitmap_apply(addr, b->mode, data);
-}
-
 void map_rle_image(
     struct Bitmap* bitmap,
     const uint8_t* pgm_data,
@@ -104,7 +62,7 @@ void map_rle_image(
         rle_byte = *(pgm_data++);
       }
 
-      map_image_byte(
+      bitmap_set_stripe(
           bitmap,
           x + (col * 8),
           y + row,

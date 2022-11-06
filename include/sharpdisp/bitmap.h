@@ -49,8 +49,27 @@ void bitmap_init(
 //   - Bitmaps must have the same widths
 // Violating either of these rules will cause this function to do nothing.
 // If this is too restrictive for your usecase, consider the slower
-// bitmap_blit() function.
+// bitmap_copy_rect() or bitmap_blit() functions.
 void bitmap_copy(struct Bitmap* dest, const struct Bitmap* src);
+
+// LATER
+// This function is intended to copy a rectangular area
+// of a larger bitmap to a smaller one.  The width and height
+// of dest represent the rect size.
+//void bitmap_copy_rect(
+//  struct Bitmap* dest,
+//  const struct Bitmap* src,
+//  uint16_t src_x,
+//  uint16_t src_y);
+//
+// Blits a bitmap onto another one.  Uses dest->mode
+// in the blit operation thus you might need to preclear
+// the area with bitmap_filled_rect() in some cases.
+//void bitmap_blit(
+//  struct Bitmap* dest,
+//  uint16_t dest_x,
+//  uint16_t dest_y,
+//  const struct Bitmap* src);
 
 // A transfer mode helper for rendering functions
 // data_byte is expected to already be pointing to the
@@ -109,6 +128,51 @@ static inline uint8_t bitmap_get_point(
   }
   return b->clear_byte;
 }
+
+// set an 8x1 pixel stripe with provisions for out-of-bounds
+static inline void bitmap_set_stripe(
+  struct Bitmap* b,
+  int16_t x,
+  int16_t y,
+  uint8_t data) {
+    if (!data) {
+      return;
+    }
+    const uint16_t bwidth = b->width;
+    const uint16_t bheight = b->height;
+    const uint8_t mode = b->mode;
+    // First, the common case of everything being in bounds
+    if ((x >= 0) && (y >= 0) && (y < bheight) && (x <= (bwidth - 8))) {
+      uint8_t* base = b->data + (y * b->width_bytes) + (x >> 3);
+      const uint8_t shift = x & 0x07;
+      bitmap_apply(base, mode, data >> shift);
+      if (shift) {
+        bitmap_apply(base + 1, mode, data << (8 - shift)); 
+      }
+      return;
+    }
+
+    // the next case to check is things off the screen
+    if ((x <= -8) || (y < 0) || (x >= bwidth) || (y >= bheight)) {
+      return;
+    }
+
+    // at this point, x is either partially shifted off the left or the right
+    uint8_t* base = b->data + (y * b->width_bytes);
+    if (x < 0) {
+      bitmap_apply(base, mode, data << (-x));
+    } else {
+      bitmap_apply(base + (x >> 3), mode, data >> (x & 0x07));
+    }
+}
+
+// later
+// returns an 8x1 pixel stripe.  Out of bounds return zeros
+//static inline uint8_t bitmap_get_stripe(
+//  const struct Bitmap* b,
+//  int16_t x,
+//  int16_t y) {
+//}
 
 // Clear the entire bitmap.  Change Bitmap.clear_byte to 0x00 for a black
 // backgroud or 0xFF for a white one.  This information is stored in the
