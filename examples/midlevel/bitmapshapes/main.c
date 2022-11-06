@@ -146,7 +146,6 @@ void lines2(void) {
 void lines3(void) {
   bitmap_clear(&dbl_buff.bitmap);
   for (uint16_t i=0; i<FRAMES; ++i) {
-    memcpy(dbl_buff.bitmap.data, display.bitmap.data, sizeof(disp_buffer));
     bitmap_line(
         &dbl_buff.bitmap,
         rand16(-50, WIDTH + 50),
@@ -155,6 +154,7 @@ void lines3(void) {
         rand16(-50, HEIGHT+ 50));
     title("Random Lines");
     doublebuffer_swap(&dbl_buff);
+    bitmap_copy(&dbl_buff.bitmap, &display.bitmap);
   }
 }
 

@@ -44,6 +44,13 @@ void bitmap_init(
     uint8_t mode,
     uint8_t clear_byte);
 
+// Copies one bitmap to another one.  Rules:
+//   - Bitmaps must point to different data
+//   - Bitmaps must have the same widths
+// Violating either of these rules will cause this function to do nothing.
+// If this is too restrictive for your usecase, consider the slower
+// bitmap_blit() function.
+void bitmap_copy(struct Bitmap* dest, const struct Bitmap* src);
 
 // A transfer mode helper for rendering functions
 // data_byte is expected to already be pointing to the
