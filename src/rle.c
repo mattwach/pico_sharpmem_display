@@ -1,41 +1,5 @@
 #include "rle.h"
 
-struct RLETracker {
-  const uint8_t* pgm_data;  // address of next byte
-  uint8_t bytes_remaining;  // number of bytes remaining on the current run
-  uint8_t repeat_mode;  // if true, then we are in repeat mode
-};
-
-static uint8_t next_rle_byte(struct RLETracker* self, uint8_t* err) {
-  if (*err) {
-    return 0xFF;
-  }
-  if (self->bytes_remaining == 0) {
-    // prep for the next sequence
-    self->bytes_remaining = self->pgm_data[0];
-    ++self->pgm_data;
-    if (self->bytes_remaining & 0x80) {
-      self->bytes_remaining &= 0x7F;
-      self->repeat_mode = 0;
-    } else {
-      self->repeat_mode = 1;
-    }
-
-    if (self->bytes_remaining == 0) {
-      // data is invalid
-      *err = RLE_BAD_DATA;
-      return 0xFF;
-    }
-  }
-
-  const uint8_t b = self->pgm_data[0];
-  --self->bytes_remaining;
-  if (!self->repeat_mode || (self->bytes_remaining == 0)) {
-    ++self->pgm_data;
-  }
-  return b;
-}
-
 static void map_image_byte(
     struct Bitmap* b,
     int16_t x,
@@ -87,26 +51,53 @@ void map_rle_image(
     uint16_t height,
     uint8_t* error
 ) {
+  if (*error) {
+    return;
+  }
+
   if (!pgm_data) {
     return;
   }
 
-  struct RLETracker rle_tracker;
-  rle_tracker.bytes_remaining = 0;
-  rle_tracker.pgm_data = pgm_data;
+  uint8_t bytes_remaining = 0;  // number of bytes remaining on the current run
+  uint8_t repeat_mode = 0;
   const uint16_t num_cols = (width + 7) >> 3;
+  uint8_t rle_byte = 0;
 
   // vertical stripes
   for (uint16_t col = 0; col < num_cols; ++col) {
     // each strip is height in length
     for (uint16_t row = 0; row < height; ++row) {
-      if (!(*error)) {
-        map_image_byte(
-            bitmap,
-            x + (col * 8),
-            y + row,
-            next_rle_byte(&rle_tracker, error));
+      if (bytes_remaining == 0) {
+        // grab the next control byte
+        bytes_remaining = *(pgm_data++);
+        if (bytes_remaining & 0x80) {
+          // a non-repeating sequence
+          bytes_remaining &= 0x7F;
+          repeat_mode = 0;
+        } else {
+          // a repeating sequence
+          rle_byte = *pgm_data;
+          repeat_mode = 1;
+        }
+
+        if (bytes_remaining == 0) {
+          // data is invalid
+          *error = RLE_BAD_DATA;
+          return;
+        }
       }
+
+      --bytes_remaining;
+      if (!repeat_mode || (bytes_remaining == 0)) {
+        rle_byte = *(pgm_data++);
+      }
+
+      map_image_byte(
+          bitmap,
+          x + (col * 8),
+          y + row,
+          rle_byte);
     }
   }
 
