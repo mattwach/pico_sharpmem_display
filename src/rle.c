@@ -79,6 +79,17 @@ void map_rle_image(
           // a repeating sequence
           rle_byte = *pgm_data;
           repeat_mode = 1;
+          if (rle_byte == 0x00) {
+            // Optimization: When the byte is zero, the destination bitmap
+            // is not changed at all.   Thus we can skip over the process of
+            // even trying.
+            row += bytes_remaining - 1;  // account for the increment inthe for loop above
+            for (; row >= height; row -= height, ++col);
+            // and skip to the next byte
+            ++pgm_data;
+            bytes_remaining = 0;
+            continue;
+          }
         }
 
         if (bytes_remaining == 0) {
