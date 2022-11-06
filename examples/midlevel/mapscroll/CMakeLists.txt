@@ -10,6 +10,9 @@ target_link_libraries(sharpdisp_mapscroll
     SHARPDISP
     SHARPDOUBLEBUFFER
     BITMAPIMAGE
+    SHARPMETRICS
+    BITMAPTEXT
+    LIBERATION_MONO_12
 )
 
 # enable usb output, disable uart output
