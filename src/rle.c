@@ -62,7 +62,7 @@ void map_rle_image(
         rle_byte = *(pgm_data++);
       }
 
-      bitmap_set_stripe(
+      bitmap_apply_stripe(
           bitmap,
           x + (col * 8),
           y + row,

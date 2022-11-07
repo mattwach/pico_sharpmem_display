@@ -1,0 +1,6 @@
+output_type: SharpMemoryImage
+
+# The rest is a concatenated set of sections.  If any section
+# overlaps a previous section, an error will be raised.
+images:
+  - path: rose.png 

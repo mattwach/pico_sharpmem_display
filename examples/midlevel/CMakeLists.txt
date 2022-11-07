@@ -1,3 +1,4 @@
+add_subdirectory(bitmapblit)
 add_subdirectory(bitmapimage)
 add_subdirectory(bitmapshapes)
 add_subdirectory(doublebuffer)
