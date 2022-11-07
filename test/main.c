@@ -18,12 +18,13 @@ struct TestData* bitmap_clr1(struct Bitmap* bitmap);
 // Call all APIs that result in something being drawn to the display
 // Then checks pixel counts and certain called-out pixel values
 
-#define EYECATCHER_BYTES 4
-
+const uint8_t eyecatcher_bytes[] = { 0xAB, 0xCD, 0x12, 0x34 };
 uint8_t disp_buffer[BITMAP_SIZE(DISPLAY_WIDTH, DISPLAY_HEIGHT)];
-uint8_t bitmap_buffer[BITMAP_SIZE(WIDTH, HEIGHT) + EYECATCHER_BYTES * 2];
+uint8_t bitmap_buffer[BITMAP_SIZE(WIDTH, HEIGHT) + sizeof(eyecatcher_bytes) * 2];
+char printf_buffer[128];
 struct SharpDisp sd;
 struct BitmapText text;
+
 
 struct TestData* (*tests[])(struct Bitmap*) = {
   bitmap_clr0,
@@ -40,20 +41,20 @@ static void init(void) {
   sleep_ms(100);  // allow voltage to stabilize
   sharpdisp_init_default(&sd, disp_buffer, DISPLAY_WIDTH, DISPLAY_HEIGHT, 0xFF);
   text_init(&text, liberation_mono_10, &sd.bitmap);
+  text.printf_buffer = printf_buffer;
   printf("Test Framework Initialized\n");
 }
 
 static void set_eyecatcher(uint8_t addr[]) {
-  addr[0] = 0xAB;
-  addr[1] = 0xCD;
-  addr[2] = 0x12;
-  addr[3] = 0x34;
+  for (int idx=0; idx < sizeof(eyecatcher_bytes); ++idx) {
+    addr[idx] = eyecatcher_bytes[idx];
+  }
 }
 
 static void prepare_bitmap(struct Bitmap* bitmap) {
   bitmap_init(
     bitmap,
-    bitmap_buffer + EYECATCHER_BYTES,
+    bitmap_buffer + sizeof(eyecatcher_bytes),
     WIDTH,
     HEIGHT,
     BITMAP_WHITE,
@@ -61,7 +62,7 @@ static void prepare_bitmap(struct Bitmap* bitmap) {
   memset(bitmap_buffer, 0, sizeof(bitmap_buffer));
   // Eye catchers are to help detect buffer overruns/underruns
   set_eyecatcher(bitmap_buffer);
-  set_eyecatcher(bitmap_buffer + sizeof(bitmap_buffer) - EYECATCHER_BYTES);
+  set_eyecatcher(bitmap_buffer + sizeof(bitmap_buffer) - sizeof(eyecatcher_bytes));
 }
 
 static inline uint32_t uptime_ms() {
@@ -106,12 +107,40 @@ static void draw_result(struct Bitmap* bitmap, const char* name) {
   increment_display_slot();
 }
 
+static uint8_t check_eyecatchers(const uint8_t* data, const char* context) {
+  uint8_t errors = 0;
+  for (int idx = 0; idx < sizeof(eyecatcher_bytes); ++idx) {
+    if (data[idx] != eyecatcher_bytes[idx]) {
+      printf("  Eyecatcher %s, byte %d FAIL (want=0x%02X, got=0x%02X)\n",
+          context,
+          idx,
+          eyecatcher_bytes[idx],
+          data[idx]);
+      ++errors;
+    }
+  }
+  if (errors == 0) {
+    printf("  Eyecatcher %s: OK\n", context);
+  }
+  return (errors > 0) ? 1 : 0;
+} 
+
+static uint8_t check_test_data(struct Bitmap* bitmap, struct TestData* test_data) {
+  uint8_t errors = 0;
+  printf("%s:\b", test_data->name);
+  errors += check_eyecatchers(bitmap->data, "start");
+  errors += check_eyecatchers(
+    bitmap->data + sizeof(bitmap_buffer) - sizeof(eyecatcher_bytes), "end");
+
+  return (errors > 0) ? 1 : 0;
+}
+
 static uint8_t run_test(int index) {
   struct Bitmap bitmap;
   prepare_bitmap(&bitmap);
   struct TestData* test_data = tests[index](&bitmap);
   draw_result(&bitmap, test_data->name);
-  return 0;
+  return check_test_data(&bitmap, test_data);
 }
 
 int main(void) {
@@ -127,7 +156,17 @@ int main(void) {
       failures,
       (num_tests - failures),
       num_tests);
+  
+  refresh_and_wait();
+  text.x = 10;
+  text.y = DISPLAY_HEIGHT / 2;
+  text_printf(&text, "Test Completed: %d failures.", failures);
+  text.x = 10;
+  text.y += 10;
+  text_printf(&text, "Connect a USB console for more details.", failures);
+
   while (1) {
-    sleep_ms(1000);
+    sharpdisp_refresh(&sd);
+    sleep_ms(10);
   }
 }
