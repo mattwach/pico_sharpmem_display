@@ -16,7 +16,7 @@ add_library(LIBERATION_MONO_10 INTERFACE)
 target_include_directories(LIBERATION_MONO_10  INTERFACE ${CMAKE_CURRENT_LIST_DIR}/..)
 target_link_libraries(LIBERATION_MONO_10  INTERFACE)
 target_sources(LIBERATION_MONO_10  INTERFACE
-    ${CMAKE_CURRENT_LIST_DIR}/liberation_mono_9.c
+    ${CMAKE_CURRENT_LIST_DIR}/liberation_mono_10.c
 )
 
 

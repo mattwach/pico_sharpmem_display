@@ -9,6 +9,7 @@ target_link_libraries(sharpdisp_test_alldraw
     pico_stdlib
     SHARPDISP
     BITMAPIMAGE
+    BITMAPSHAPES
     BITMAPTEXT
     LIBERATION_MONO_10
 )
