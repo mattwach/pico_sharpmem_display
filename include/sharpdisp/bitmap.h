@@ -176,7 +176,11 @@ static inline uint8_t bitmap_get_stripe(
   if ((x >= 0) && (y >= 0) && (y < bheight) && (x <= (bwidth - 8))) {
     uint8_t* base = b->data + (y * b->width_bytes) + (x >> 3);
     const uint8_t shift = x & 0x07;
-    return (base[0] >> shift) | (base[1] << (8 - shift));
+    if (shift) {
+      return (base[0] >> shift) | (base[1] << (8 - shift));
+    } else {
+      return base[0];
+    }
   }
 
   // the next case to check is things off the screen
