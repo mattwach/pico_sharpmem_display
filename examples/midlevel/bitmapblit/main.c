@@ -8,9 +8,13 @@
 
 #define WIDTH 400
 #define HEIGHT 240
-#define MIN_COPY_SIZE 64
-#define MAX_COPY_SIZE 128
+#define MIN_COPY_SIZE 100
+#define MAX_COPY_SIZE 200
 #define BORDER 16
+#define EDGE_WIDTH 4
+#define SLEEP_MIN 25
+#define SLEEP_MAX 2000
+#define SLEEP_STEP 100
 
 uint8_t disp_buffer[BITMAP_SIZE(WIDTH, HEIGHT)];
 uint8_t copy_buffer[BITMAP_SIZE(WIDTH, HEIGHT)];
@@ -38,23 +42,24 @@ static void sleep_for(uint32_t ms) {
   }
 }
 
-static void init_and_draw_image(void) {
-  sharpdisp_init_default(&sd, disp_buffer, WIDTH, HEIGHT, 0xFF);
-  sd.bitmap.mode = BITMAP_BLACK;
-  image_init(&bi, rose, &sd.bitmap);
+static void draw_background(void) {
+  sd.bitmap.mode = BITMAP_WHITE;
+  bitmap_clear(&sd.bitmap);
   image_draw(&bi, ROSE_IMG, 0, 0);
 }
 
 static void copy_region(void) {
   // Create a bitmap of a random size
+  //bitmap_clear(&sd.bitmap);
+  //image_draw(&bi, ROSE_IMG, 0, 0);
   struct Bitmap bcopy;
   bitmap_init(
     &bcopy,
     copy_buffer,
     rand16(MIN_COPY_SIZE, MAX_COPY_SIZE),
     rand16(MIN_COPY_SIZE, MAX_COPY_SIZE),
-    BITMAP_BLACK,
-    0xFF
+    BITMAP_WHITE,
+    0x00
   );
 
   // Copy a random region of the screen to this bitmap
@@ -69,8 +74,16 @@ static void copy_region(void) {
   const int16_t destx = rand16(-BORDER, WIDTH - bcopy.width + BORDER);
   const int16_t desty = rand16(-BORDER, HEIGHT - bcopy.height + BORDER);
 
-  // clear the area with a white background
-  sd.bitmap.mode = BITMAP_WHITE;
+  // clear the area with a black background and a random border
+  sd.bitmap.mode = rand16(0,100) > 50 ? BITMAP_WHITE : BITMAP_BLACK;
+  bitmap_filled_rect(
+    &sd.bitmap,
+    destx - EDGE_WIDTH,
+    desty - EDGE_WIDTH,
+    bcopy.width + EDGE_WIDTH * 2,
+    bcopy.height + EDGE_WIDTH * 2
+  );
+  sd.bitmap.mode = BITMAP_BLACK;
   bitmap_filled_rect(
     &sd.bitmap,
     destx,
@@ -80,7 +93,7 @@ static void copy_region(void) {
   );
 
   // paste in the bitmap
-  sd.bitmap.mode = BITMAP_BLACK;
+  sd.bitmap.mode = BITMAP_WHITE;
   bitmap_blit(
     &sd.bitmap,
     destx,
@@ -91,10 +104,22 @@ static void copy_region(void) {
 
 int main() {
   sleep_ms(100);  // allow voltage to stabilize
-  init_and_draw_image();
+  sharpdisp_init_default(&sd, disp_buffer, WIDTH, HEIGHT, 0x00);
+  image_init(&bi, rose, &sd.bitmap);
+  draw_background();
 
+  int32_t ms = SLEEP_MAX;
+  int32_t step = -SLEEP_STEP;
   while (1) {
+    sleep_for(ms);
     copy_region();
-    sleep_for(2000);
+    ms += step;
+    if (ms > SLEEP_MAX || ms < SLEEP_MIN) {
+      if (ms > SLEEP_MAX) {
+        draw_background();
+      }
+      step = -step;
+      ms += step;
+    }
   }
 }

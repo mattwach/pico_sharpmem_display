@@ -44,6 +44,18 @@ void bitmap_copy_rect(
       );
     }
   }
+  // some extra pixels beyond the actual width may have been grabbed
+  const uint8_t clear_width = 8 - (dest->width & 0x07);
+  if (clear_width >= 8) {
+    // guess not
+    return;
+  }
+  const uint8_t clear_mask = 0xFF << clear_width;
+  // select the last column
+  dest_data = dest->data + num_columns - 1;
+  for (uint16_t row = 0; row < num_rows; ++row,dest_data+=num_columns) {
+    (*dest_data) &= clear_mask;
+  }
 }
 
 void bitmap_blit(
@@ -58,8 +70,8 @@ void bitmap_blit(
     for (uint16_t column = 0; column < num_columns; ++column, ++src_data) {
       bitmap_apply_stripe(
         dest,
-        dest_x,
-        dest_y,
+        dest_x + (column << 3),
+        dest_y + row,
         *src_data);
     }
   }

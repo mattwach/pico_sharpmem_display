@@ -177,7 +177,7 @@ static inline uint8_t bitmap_get_stripe(
     uint8_t* base = b->data + (y * b->width_bytes) + (x >> 3);
     const uint8_t shift = x & 0x07;
     if (shift) {
-      return (base[0] >> shift) | (base[1] << (8 - shift));
+      return (base[0] << shift) | (base[1] >> (8 - shift));
     } else {
       return base[0];
     }
@@ -191,10 +191,10 @@ static inline uint8_t bitmap_get_stripe(
   // at this point, x is either partially shifted off the left or the right
   uint8_t* base = b->data + (y * b->width_bytes);
   if (x < 0) {
-    return base[0] << (-x);
+    return base[0] >> (7 + x);
   }
   
-  return base[x >> 3] >> (x & 0x07);
+  return base[x >> 3] << (x & 0x07);
 }
 
 // Clear the entire bitmap.  Change Bitmap.clear_byte to 0x00 for a black
