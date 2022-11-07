@@ -31,3 +31,4 @@ add_compile_options(-Wall
 add_subdirectory(examples)
 add_subdirectory(fonts)
 add_subdirectory(src)
+add_subdirectory(test)
