@@ -75,3 +75,21 @@ void doublebuffer_swap(struct DoubleBuffer* db) {
   // allow core1 to start rendering this frame
   queue_add_blocking(&(db->frame_is_ready), &unused_entry);
 }
+
+void doublebuffer_refresh(struct DoubleBuffer* db) {
+  uint32_t unused_entry = 0;
+  // wait for any rendering to finish
+  queue_remove_blocking(&(db->frame_is_rendered), &unused_entry);
+  // allow core1 to start rendering this frame
+  queue_add_blocking(&(db->frame_is_ready), &unused_entry);
+}
+
+void doublebuffer_sleep_ms(struct DoubleBuffer* db, uint8_t swap, uint32_t ms) {
+  uint32_t done_time_ms = uptime_ms() + ms;
+  if (swap) {
+    doublebuffer_swap(db);
+  }
+  while (uptime_ms() < done_time_ms) {
+    doublebuffer_refresh(db);
+  }
+}

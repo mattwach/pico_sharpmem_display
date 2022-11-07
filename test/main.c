@@ -5,11 +5,12 @@
 #include <sharpdisp/bitmapshapes.h>
 #include <sharpdisp/bitmaptext.h>
 #include <sharpdisp/bitmap.h>
+#include <sharpdisp/doublebuffer.h>
 #include <fonts/liberation_mono_10.h>
 #include "constants.h"
 
 #define WAIT_MS 2000
-#define REFRESH_MS 10
+#define REFRESH_MS 32
 
 // Declare all tests here
 struct TestData* bitmap_clr0(struct Bitmap* bitmap);
@@ -20,9 +21,11 @@ struct TestData* bitmap_clr1(struct Bitmap* bitmap);
 
 const uint8_t eyecatcher_bytes[] = { 0xAB, 0xCD, 0x12, 0x34 };
 uint8_t disp_buffer[BITMAP_SIZE(DISPLAY_WIDTH, DISPLAY_HEIGHT)];
+uint8_t disp_buffer2[BITMAP_SIZE(DISPLAY_WIDTH, DISPLAY_HEIGHT)];
 uint8_t bitmap_buffer[BITMAP_SIZE(WIDTH, HEIGHT) + sizeof(eyecatcher_bytes) * 2];
 char printf_buffer[128];
 struct SharpDisp sd;
+struct DoubleBuffer db;
 struct BitmapText text;
 
 
@@ -40,7 +43,8 @@ static void init(void) {
   stdio_init_all();
   sleep_ms(100);  // allow voltage to stabilize
   sharpdisp_init_default(&sd, disp_buffer, DISPLAY_WIDTH, DISPLAY_HEIGHT, 0xFF);
-  text_init(&text, liberation_mono_10, &sd.bitmap);
+  doublebuffer_init(&db, &sd, disp_buffer2, REFRESH_MS);
+  text_init(&text, liberation_mono_10, &db.bitmap);
   text.printf_buffer = printf_buffer;
   printf("Test Framework Initialized\n");
 }
@@ -65,20 +69,6 @@ static void prepare_bitmap(struct Bitmap* bitmap) {
   set_eyecatcher(bitmap_buffer + sizeof(bitmap_buffer) - sizeof(eyecatcher_bytes));
 }
 
-static inline uint32_t uptime_ms() {
-  return to_ms_since_boot(get_absolute_time());
-}
-
-static void refresh_and_wait(void) {
-  uint32_t done_time_ms = uptime_ms() + WAIT_MS;
-  while (uptime_ms() < done_time_ms) {
-    sharpdisp_refresh(&sd);
-    sleep_ms(REFRESH_MS);
-  }
-  // clear for the next round
-  bitmap_clear(&sd.bitmap);
-}
-
 static void increment_display_slot(void) {
   ds.x += WIDTH;
   if ((ds.x + WIDTH) > DISPLAY_WIDTH) {
@@ -88,22 +78,23 @@ static void increment_display_slot(void) {
   // the 10 is for text height
   if ((ds.y + HEIGHT + 10) > DISPLAY_HEIGHT) {
     ds.y = 0;
-    refresh_and_wait();
+    doublebuffer_sleep_ms(&db, 0, WAIT_MS); 
+    bitmap_clear(&db.bitmap);
   } else {
-    sharpdisp_refresh(&sd);
     sleep_ms(REFRESH_MS);
   }
 }
 
 static void draw_result(struct Bitmap* bitmap, const char* name) {
-  sd.bitmap.mode = bitmap->clear_byte ? BITMAP_WHITE : BITMAP_BLACK;
-  bitmap_filled_rect(&sd.bitmap, ds.x, ds.y, bitmap->width, bitmap->height);
-  sd.bitmap.mode = bitmap->clear_byte ? BITMAP_BLACK : BITMAP_WHITE;
-  bitmap_blit(&sd.bitmap, ds.x, ds.y, bitmap);
-  sd.bitmap.mode = BITMAP_WHITE;
+  db.bitmap.mode = bitmap->clear_byte ? BITMAP_WHITE : BITMAP_BLACK;
+  bitmap_filled_rect(&db.bitmap, ds.x, ds.y, bitmap->width, bitmap->height);
+  db.bitmap.mode = bitmap->clear_byte ? BITMAP_BLACK : BITMAP_WHITE;
+  bitmap_blit(&db.bitmap, ds.x, ds.y, bitmap);
+  db.bitmap.mode = BITMAP_WHITE;
   text.x = ds.x;
   text.y = ds.y + bitmap->height;
   text_str(&text, name);
+  doublebuffer_swap(&db);
   increment_display_slot();
 }
 
@@ -143,6 +134,22 @@ static uint8_t run_test(int index) {
   return check_test_data(&bitmap, test_data);
 }
 
+static void final_status(uint32_t failures, uint32_t num_tests) {
+  printf("Tests Completed: %d failures.  %d/%d passed\n",
+      failures,
+      (num_tests - failures),
+      num_tests);
+  
+  bitmap_clear(&db.bitmap);
+  text.x = 10;
+  text.y = DISPLAY_HEIGHT / 2;
+  text_printf(&text, "Test Completed: %d failures.", failures);
+  text.x = 10;
+  text.y += 10;
+  text_printf(&text, "Connect a USB console for more details.", failures);
+  doublebuffer_swap(&db);
+}
+
 int main(void) {
   init();
   const int num_tests = sizeof(tests) / sizeof(tests[0]);
@@ -152,21 +159,8 @@ int main(void) {
   for (int i=0; i < num_tests; ++i) {
     failures += run_test(i);
   }
-  printf("Tests Completed: %d failures.  %d/%d passed\n",
-      failures,
-      (num_tests - failures),
-      num_tests);
-  
-  refresh_and_wait();
-  text.x = 10;
-  text.y = DISPLAY_HEIGHT / 2;
-  text_printf(&text, "Test Completed: %d failures.", failures);
-  text.x = 10;
-  text.y += 10;
-  text_printf(&text, "Connect a USB console for more details.", failures);
-
+  final_status(failures, num_tests);
   while (1) {
-    sharpdisp_refresh(&sd);
-    sleep_ms(10);
+    doublebuffer_refresh(&db);
   }
 }

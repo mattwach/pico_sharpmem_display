@@ -91,6 +91,23 @@ void doublebuffer_init_nostart(
 // data to the hardware.
 void doublebuffer_swap(struct DoubleBuffer* db);
 
+// The sharp display hardware needs to be refreshed with a cadence
+// to avoid display issues.  If you want to sent a refresh but have
+// no new data to send, call doublebuffer_refresh() instead
+// of doublebuffer_swap().  doublebuffer_refresh() will update
+// the sharp display hardware without swapping buffers, effectively
+// repeating whatever was sent by the last-issued doublebuffer_swap().
+void doublebuffer_refresh(struct DoubleBuffer* db);
+
+// doublebuffer_sleep_ms() is a convienence method that will block
+// for the given requested ms value, refreshing the display while it
+// blocks.  Note that the ms value is coarse (tolerance around the
+// frame_period_ms value given to the init function) thus this
+// function should not be used where tight timing tolerances are
+// required.  Set swap to 1 if you want the function to start with
+// a doublebuffer_swap and zero otherwise.
+void doublebuffer_sleep_ms(struct DoubleBuffer* db, uint8_t swap, uint32_t ms);
+
 // Only call this function if you used doublebuffer_init_nostart().  It is
 // called in the case where you are setting up CPU1 yourself.  See the init function
 // above for more details on what to do.

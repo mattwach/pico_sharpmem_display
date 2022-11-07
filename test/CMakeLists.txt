@@ -8,6 +8,7 @@ add_executable(sharpdisp_test_alldraw
 target_link_libraries(sharpdisp_test_alldraw
     pico_stdlib
     SHARPDISP
+    SHARPDOUBLEBUFFER
     BITMAPIMAGE
     BITMAPSHAPES
     BITMAPTEXT
