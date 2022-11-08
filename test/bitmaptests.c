@@ -92,7 +92,7 @@ struct TestData* bitmap_copy3(struct Bitmap* bitmap) {
   bitmap_init(&b, buff, WIDTH, HEIGHT + 5, BITMAP_WHITE, 0x00);
   bitmap_rect(&b, 1, 1, WIDTH-2, HEIGHT+3);
   bitmap_copy(bitmap, &b);
-  return &bitmap_copy2_data;
+  return &bitmap_copy3_data;
 }
 
 static struct TestData bitmap_cpyr1_data = {
@@ -111,10 +111,10 @@ static struct TestData bitmap_cpyr1_data = {
     {WIDTH-2, HEIGHT-2, 0},
   }
 };
-struct TestData* bitmap_cpr1(struct Bitmap* bitmap) {
+struct TestData* bitmap_cpyr1(struct Bitmap* bitmap) {
   struct Bitmap b;
   bitmap_init(&b, buff, WIDTH * 2, HEIGHT * 2, BITMAP_WHITE, 0x00);
   bitmap_rect(&b, 2, 1, WIDTH - 3, HEIGHT - 2);
-  bitmap_copy_rect(bitmap, -2, -1, &b);
-  return &bitmap_cpr1_data;
+  bitmap_copy_rect(bitmap, &b, -2, -1);
+  return &bitmap_cpyr1_data;
 }

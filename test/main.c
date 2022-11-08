@@ -2,6 +2,7 @@
 #include "pico/stdlib.h"
 #include <sharpdisp/sharpdisp.h>
 #include <sharpdisp/bitmapimage.h>
+#include <sharpdisp/bitmapshapes.h>
 #include <sharpdisp/bitmaptext.h>
 #include <sharpdisp/bitmap.h>
 #include <sharpdisp/doublebuffer.h>
@@ -18,6 +19,7 @@ struct TestData* bitmap_clr1(struct Bitmap* bitmap);
 struct TestData* bitmap_copy1(struct Bitmap* bitmap);
 struct TestData* bitmap_copy2(struct Bitmap* bitmap);
 struct TestData* bitmap_copy3(struct Bitmap* bitmap);
+struct TestData* bitmap_cpyr1(struct Bitmap* bitmap);
 
 // Call all APIs that result in something being drawn to the display
 // Then checks pixel counts and certain called-out pixel values
@@ -38,6 +40,7 @@ struct TestData* (*tests[])(struct Bitmap*) = {
   bitmap_copy1,
   bitmap_copy2,
   bitmap_copy3,
+  bitmap_cpyr1,
 };
 
 struct DrawState {
@@ -109,9 +112,14 @@ static void increment_display_slot(void) {
   }
 }
 
-static void draw_result(struct Bitmap* bitmap, const char* name) {
+static void draw_result(struct Bitmap* bitmap, const char* name, uint8_t errors) {
   db.bitmap.mode = BITMAP_WHITE;
   bitmap_blit(&db.bitmap, ds.x, ds.y, bitmap);
+  if (errors) {
+    bitmap_filled_rect(
+      &db.bitmap, ds.x, ds.y + bitmap->height, bitmap->width, 10);
+  }
+  db.bitmap.mode = BITMAP_INVERSE;
   text.x = ds.x;
   text.y = ds.y + bitmap->height;
   text_str(&text, name);
@@ -164,7 +172,7 @@ static uint8_t check_pixel_count(struct Bitmap* bitmap, uint16_t want) {
 
 static uint8_t test_a_sample(struct Bitmap* bitmap, const struct SamplePoint* p) {
   uint8_t want = p->value != 0;
-  uint8_t got = bitmap_get_point(bitmap, p->x, p->y);
+  uint8_t got = bitmap_get_point(bitmap, p->x, p->y) != 0;
   if (want == got) {
     printf("  Sample: [%d,%d] = %d OK\n", p->x, p->y, got);
   } else {
@@ -190,12 +198,13 @@ static uint8_t run_test(int index) {
   struct Bitmap bitmap;
   prepare_bitmap(&bitmap);
   struct TestData* test_data = tests[index](&bitmap);
-  draw_result(&bitmap, test_data->name);
-  return check_test_data(&bitmap, test_data);
+  uint8_t errors = check_test_data(&bitmap, test_data);
+  draw_result(&bitmap, test_data->name, errors);
+  return errors;
 }
 
 static void final_status(uint32_t failures, uint32_t num_tests) {
-  if (ds.x != 0 || ds.y != 0) {
+  if ((ds.x != 0 || ds.y != 0) && (failures == 0)) {
     doublebuffer_sleep_ms(&db, 0, WAIT_MS);
   }
   printf("Tests Completed: %d failures.  %d/%d passed\n",
@@ -203,12 +212,13 @@ static void final_status(uint32_t failures, uint32_t num_tests) {
       (num_tests - failures),
       num_tests);
   
-  bitmap_clear(&db.bitmap);
   text.x = 10;
-  text.y = DISPLAY_HEIGHT / 2;
+  text.y = DISPLAY_HEIGHT - 20;
   if (failures > 0) {
+    bitmap_copy(&db.bitmap, &sd.bitmap);
     text_printf(&text, "Test Completed: %d/%d FAILED.", failures, num_tests);
   } else {
+    bitmap_clear(&db.bitmap);
     text_printf(&text, "ALL %d TESTS PASSED.", num_tests);
   }
   text.x = 10;
