@@ -16,6 +16,8 @@
 struct TestData* bitmap_clr0(struct Bitmap* bitmap);
 struct TestData* bitmap_clr1(struct Bitmap* bitmap);
 struct TestData* bitmap_copy1(struct Bitmap* bitmap);
+struct TestData* bitmap_copy2(struct Bitmap* bitmap);
+struct TestData* bitmap_copy3(struct Bitmap* bitmap);
 
 // Call all APIs that result in something being drawn to the display
 // Then checks pixel counts and certain called-out pixel values
@@ -34,6 +36,8 @@ struct TestData* (*tests[])(struct Bitmap*) = {
   bitmap_clr0,
   bitmap_clr1,
   bitmap_copy1,
+  bitmap_copy2,
+  bitmap_copy3,
 };
 
 struct DrawState {
