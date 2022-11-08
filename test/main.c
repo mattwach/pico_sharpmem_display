@@ -15,6 +15,7 @@
 // Declare all tests here
 struct TestData* bitmap_clr0(struct Bitmap* bitmap);
 struct TestData* bitmap_clr1(struct Bitmap* bitmap);
+struct TestData* bitmap_copy1(struct Bitmap* bitmap);
 
 // Call all APIs that result in something being drawn to the display
 // Then checks pixel counts and certain called-out pixel values
@@ -32,6 +33,7 @@ struct BitmapText text;
 struct TestData* (*tests[])(struct Bitmap*) = {
   bitmap_clr0,
   bitmap_clr1,
+  bitmap_copy1,
 };
 
 struct DrawState {
@@ -132,13 +134,51 @@ static uint8_t check_eyecatchers(const uint8_t* data, const char* context) {
   return (errors > 0) ? 1 : 0;
 } 
 
+static uint8_t check_pixel_count(struct Bitmap* bitmap, uint16_t want) {
+  uint16_t got = 0;
+  const uint16_t width = bitmap->width;
+  const uint16_t height = bitmap->height;
+  // This code could be faster if it considered entire bytes.
+  // But the gial here is not speed as much as simplicity as
+  // it's a testing framework.
+  for (uint16_t y=0; y<height; ++y) {
+    for (uint16_t x=0; x<width; ++x) {
+      if (bitmap_get_point_no_check(bitmap, x, y)) {
+        ++got;
+      }
+    }
+  }
+
+  if (want == got) {
+    printf("  Pixel Count: %d OK\n", want);
+  } else {
+    printf("  Pixel Count: FAIL want=%d, got=%d\n", want, got);
+  }
+
+  return want != got;
+}
+
+static uint8_t test_a_sample(struct Bitmap* bitmap, const struct SamplePoint* p) {
+  uint8_t want = p->value != 0;
+  uint8_t got = bitmap_get_point(bitmap, p->x, p->y);
+  if (want == got) {
+    printf("  Sample: [%d,%d] = %d OK\n", p->x, p->y, got);
+  } else {
+    printf("  Sample: [%d,%d] = want=%d, got=%d FAIL\n", p->x, p->y, want, got);
+  }
+  return want != got; 
+}
+
 static uint8_t check_test_data(struct Bitmap* bitmap, struct TestData* test_data) {
   uint8_t errors = 0;
   printf("%s:\n", test_data->name);
   errors += check_eyecatchers(bitmap_buffer, "start");
   errors += check_eyecatchers(
     bitmap_buffer + sizeof(bitmap_buffer) - sizeof(eyecatcher_bytes), "end");
-
+  errors += check_pixel_count(bitmap, test_data->on_count);
+  for (uint16_t sample = 0; sample < test_data->num_samples; ++sample) {
+    errors += test_a_sample(bitmap, test_data->samples + sample);
+  }
   return (errors > 0) ? 1 : 0;
 }
 
