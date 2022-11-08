@@ -6,7 +6,7 @@ functions.
 What is a Sharp Memory Display?
 
 I consider it an evolution of LCD displays - higher contrast and 60FPS animations
-with just a bit of ghosting.  Due to it's high contrast, it is often compared to
+with very little ghosting.  Due to it's high contrast, it is often compared to
 e-paper (or eink) displays.  Here is a quick comparison:
 
 EPaper Advantages
@@ -26,7 +26,7 @@ Sharp LCD Advantages
 This library is built on the pico-sdk SPI libraries.  It provides an API with
 three conceptual layers:
 
-   * *Low level*: At this level the display is represented as a `uint8_t[]` array. 
+   * *Low level*: At this level the display is represented as a byte array. 
      You set bytes in the array (each byte represents an 8x1 pixel slice) and
      then call `sharpdisp_refresh()` to see results.  If you are trying to add
      sharp support to a different graphics library, this is probably the code
@@ -37,8 +37,21 @@ three conceptual layers:
    * *High Level*: At this level, the sharp display is no longer directly
      visible but used lower down.  The one existing example is the `console.h`
      library which lets you create and print text to a scrolling console without
-     concering yourself with all of the setup code otherwise needed to get it
+     concering yourself with all of the setup code otherwise-needed to get it
      working.
+
+# Project Stibility
+
+I would consider this project to be "early beta" at this point.  There is
+testing and examples for every API function  but likely still some corner-case
+bugs lurking in places.
+
+You are using this library *at your own risk* and are responsible for doing
+the appropriate testing and validation to assert it's reliability is
+sufficient for your needs.
+
+As an early-beta, I may still make breaking changes to the API.  I suggest
+pinning to a release branch if this might be a problem.
 
 # Getting Started - Hello World
 
@@ -80,9 +93,8 @@ this command:
 
     picotool load sharpdisp_hello_world.uf2
 
-of course this only works if the pico is ready to accept code (as
-with loading any program to the pico) by holding the boot button
-on reset or power on.
+of course this only works if the pico is ready to accept code
+by holding the boot button on reset or power on.
 
 If the code loads but the image doesn't show, one thing to consider
 (along with the usual checking connections) is to lower the SPI
@@ -311,14 +323,9 @@ int main() {
 Everything before this point was just changing the `disp_buffer[]` array in memory.
 The `sharpdisp_refresh()` function is what sends this buffer to the hardware.
 At the default SPI speed of 10Mhz (which you can change), it will take about
-2 ms to do the send and the code will be blocked during the operation.
-You could streamline the system by taking advantage of the
-Pico's dual processor cores, calling `sharpdisp_refresh()` on one CPU while the bitmap
-for the next frame is prepared on the other (e.g. double-buffering).  Doing this
-is straight-forward if you are familiar with multithreaded programming but
-explaining details go beyond the scope of this guide.
-Later I might add a helper library for double buffering, If I happen to need the
-performance boost.
+14 ms to do the send and the code will be blocked during the operation.  This 
+time can be offloaded to the Pico's second CPU uing the `doublebuffer.h` library 
+that is explained in a future section. 
 
 # High Level API - The Console Interface
 
@@ -424,4 +431,328 @@ Very little code overall.
 The main usecase here you be if you already have a graphics library you are
 using and want some example code you can use or port to make the
 Sharp LCD a target.
+
+# Double Buffering
+
+As said earlier, at 10Mhz, the Pico is taking around 14 ms to update the screen.
+If you are trying for a 60 FPS animate, you'll need to complete each frame in
+16.7 ms and will likely find the 14 ms update time a heavy tax.
+
+One way to resolve the problem is to move the Sharp hardware update to CPU1
+on the Pico.  Under this scheme CPU0 and CPU1 work in parallel, thus the 14 ms
+overhead effectively disappears.
+
+The `doublebuffer.h` library provides functions to do this as well as details
+on how the sharing works.  To summarize here:
+
+   * Instead of allocating one display buffer, you allocate two.  Lets
+     call these `b1` and `b2` for this example.
+   * CPU0 prepares an image on `b1` while CPU1 is sending `b2` to the
+     Sharp hardware.
+   * `doublebuffer_swap()` is called.  It handles syncronization and,
+     when the time is right, swaps internal pointers for `b2` and `b1`
+   * Now CPU0 will preparing the next image on `b2` while CPU1 sends `b1`
+     to the display.
+   * and the flip-flop cycle continues.
+
+This may sound complicated (or notm it's subjective) but I think that actually
+using the library is nearly as simple as not using it.  Let's take a simple
+example and convert it for demonstration.
+
+Without double buffering
+```c
+struct SharpDisp display;
+uint8_t disp_buffer[BITMAP_SIZE(WIDTH, HEIGHT)];
+#define SLEEP_MS 1   // Account for the 14ms drawing time
+
+int main() {
+  sharpdisp_init_default(&sd, disp_buffer, WIDTH, HEIGHT, 0x00);
+
+  while (1) {
+    bitmap_clear(&display.bitmap);
+    draw_things(&display.bitmap);
+    sharpdisp_refresh(&display);  // This instead of sharpdisp_refresh()
+    sleep_ms(SLEEP_MS);
+  }
+}
+```
+
+This example will get around 60 FPS assuming draw_things() completes in 1ms. 
+
+With double buffering
+
+```c
+struct SharpDisp display;
+struct DoubleBuffer dub_buff;
+uint8_t disp_buffer[BITMAP_SIZE(WIDTH, HEIGHT)];
+uint8_t disp_buffer2[BITMAP_SIZE(WIDTH, HEIGHT)];
+#define SLEEP_MS 16   // 62 FPS
+
+int main() {
+  sharpdisp_init_default(&sd, disp_buffer, WIDTH, HEIGHT, 0x00);
+  doublebuffer_init(&db, &display, disp_buffer2, SLEEP_MS);
+
+  while (1) {
+    bitmap_clear(&dub_buff.bitmap);
+    draw_things(&dub_buff.bitmap);
+    doublebuffer_swap(&dub_buff);  // This instead of sharpdisp_refresh()
+  }
+}
+
+```
+
+With these couple of lines changed (and the additional memory), `draw_things()`
+is now rendering to the double buffer bitmap while the Sharp hardware is
+updated in parallel.  Under this setup, `draw_things()` can take up to 16 ms
+and we will still see >60 FPS.  We may also see a more consistent framerate
+in this example as `doublebuffer_swap()` contains the needed logic to
+keep the FPS even so long as `draw_things()` does not take longer to complete
+than `SLEEP_MS`.  If `draw_things()` does take too long, things will still
+work but the framerate will not hold > 60 FPS.
+
+`examples/midlevel/doublebuffer` and `examples/midlevel/mapscroll` provide
+additional examples.
+
+# Metrics
+
+If you want to know what framerates you are actually getting, the internal
+pico timers can help gather the data.  All of this is already wrapped up
+in the `metrics.h` library that you can use directly or a starting point
+for your own system.
+
+`examples/midlevel/metrics` provides an example.
+
+# Custom Fonts
+
+The `font/` directory has a set of fonts you can choose from without doing
+any additional steps.
+
+It's also easy to create your own fonts.  To do so, you'll need the following installed:
+
+   1. Python3
+   2. The pillow image library (Google "python3 pillow")
+   3. GNU Make
+
+Then you:
+
+   1. copy a `.yaml` file in the fonts directory from a similar font to your
+      new one.
+   2. Edit your new `.yaml` file
+   3. Run `make` in the `fonts/` directory.
+
+The make command calls `tools/make_var_font.py` for every font that needs
+updating.  You could of course just call `make_var_font.py` yourself if
+that suits you.
+
+Here is an example `.yaml` file:
+
+```yaml
+output_type: SharpMemoryFont
+height: 18
+sections:
+  - type: ttf
+    path: LiberationSans-Regular.ttf
+    right_trim: 1
+    y_offset: -3
+    font_size: 18
+```
+
+Most parameters should be clear except for possibly `right_trim` and `y_offset`.  These are used to help fit characters into a smaller bounding box.
+
+There are more parameters listed in `make_var_font.py`.  I suggest reviweing them
+before undergoing any serious font conversion efforts as the same effect
+might be a simple setting away.
+
+Another paramter worth mentioning and not shown above is `chars`.  Let's 
+demonstrate:
+
+```yaml
+output_type: SharpMemoryFont
+height: 72
+sections:
+  - type: ttf
+    path: LiberationSans-Regular.ttf
+    font_size: 72
+    chars: "1234567890APM"
+  - type: ttf
+    path: LiberationSans-Regular.ttf
+    left_trim: 5
+    right_trim: 5
+    font_size: 72
+    chars: ":"
+```
+
+Here, we picked a large font size but saved memory by not including every 
+character.  Also demonstrated here is the use of sections to apply different
+settings to different characters.  In this example, it was used to apply
+different trim settings to just the `:` character.
+
+## Storage
+
+Fonts are stored using RLE encoding.  This encoding can rapidly 
+decompress and works well with repeating patterns (vertical stripes
+of repeating patterns as-implemented).
+
+Verses an uncompressed font, this can save up to 100x the space or use a little
+more space depending on how many patterns there are to exploit.  The best-case
+example is the space character which is all repeating `0x00` bytes.  Usually,
+the larger the font, the bigger the spacing savings.
+
+RLE can also be faster to draw than uncompressed because of the way that data
+is "blitted" and not copied.  Basically pixels in the font are combined with
+what is already there using one of three modes: `BITMAP_BLACK`, `BITMAP_WHITE`
+or `BITMAP_INVERT`.  Under this scheme, which is basically necessary for
+font widths that are not a multiple of 8, the `0x00` byte is a NOOP byte
+and thus repeating sequences of `0x00` can be skipped over
+efficiently.  Again, the larger the fonts will generally see larger benefits.
+
+See `include/sharpdisp/bitmaptext.h` and `include/sharpdisp/bitmapimage.h` for
+additional details.
+
+# Custom Images
+
+Custom images here means images such as `.jpg` and `.png` files that you
+want to use, not images you create at runtime inside the Pico.
+
+The `bitmapimages.h` library supports the use of these images encoded as
+RLE and embedded into the firmware as compiled `.c` objects.
+
+The `make_var_font.py` utility creates the data.  Here is an example:
+
+```yaml
+output_type: SharpMemoryImage
+images:
+  - path: diploma.png
+  - path: file_search.png 
+  - path: pnp.png 
+  - path: vase.png 
+```
+
+To generate:
+
+```
+tools/make_var_font.py images.yaml
+```
+
+*The yaml file supports further options.  See `make_images.py` for details*
+
+Using the recipe above, `images.h` and `images.c` files will be generated with 
+RLE image data and header definitions that look like this:
+
+```
+#define DIPLOMA_IMG                    0
+#define FILE_SEARCH_IMG                1
+#define PNP_IMG                        2
+#define VASE_IMG                       3
+```
+
+Here is an example showing basic usage:
+
+```c
+int main() {
+  sharpdisp_init_default(&sd, disp_buffer, WIDTH, HEIGHT, 0xFF);
+  image_init(&bi, images, &sd.bitmap);
+  image_draw(&bi, FILE_SEARCH_IMG, 10, 10);
+  sharpdisp_refresh(&sd);
+  while (1) { sleep_ms(1000); }
+}
+```
+
+## Large Images
+
+One of the downsides of RLE is that, due to compression, it's non-trivial to 
+extract a rectangular selection - easier handle the image as a whole.  This
+can come up when you are working with an image that is much larger than the
+screen and you want to scroll around in it (see `examples/midlevel/mapscroll`
+for a case of this).  You *can* just draw the image with a negative offset like this:
+
+```c
+  image_draw(&bi, LARGE_MAP_IMG, -400, -200);
+```
+
+and the output will be correct but performance will not be optimal.
+
+Like all problems in computer science, there are many solutions possible.
+One that is popular (and implemented) is to break the image into tiles and
+restrict rendering to only the tiles that actually appear in the image.
+To do this, you add additional annotations to the `.yaml` file:
+
+```yaml
+images:
+  - path: map.png 
+    tile_x: 64
+    tile_y: 64
+```
+
+and call an alternate drawing function:
+
+```
+image_draw_tiled(bitmap, MAP_IMG_0_0, MAP_IMG_COLUMNS, MAP_IMG_ROWS, x, y);
+```
+
+For the map `mapscroll` example, using tiles resulted in able a 5x rendering performance improvement.  The larger the source image, the larger potential for
+improvement.  Images that (mostly) fit within the screen bondaries will see no improvement with this method.
+
+An alternate approach is to use bitmaps instead.  This will use more memory
+but offers runtime flexibility that is sometimes needed.  See the next
+section for details.
+
+## Bitmap copy and blitting
+
+The `bitmap.h` library supports three functions for copying and blitting one 
+bitmap onto the other:
+
+```c
+void bitmap_copy(
+  struct Bitmap* dest,
+  const struct Bitmap* src);
+
+void bitmap_copy_rect(
+  struct Bitmap* dest,
+  const struct Bitmap* src,
+  int16_t src_x,
+  int16_t src_y);
+
+void bitmap_blit(
+  struct Bitmap* dest,
+  int16_t dest_x,
+  int16_t dest_y,
+  const struct Bitmap* src);
+```
+
+A quick rundown:
+
+   * `bitmap_copy()` is an efficient bitmap copy mechanism for two bitmaps that 
+     share the same width.
+   * `bitmap_copy_rect()` is less efficient but adds `src_x` and `src_y`
+     parameters for more flexibility.  It's main use is to capture an area
+     of a larger bitmap into the entirity of a smaller one.
+   * `bitmap_blit()` overlays one bitmap onto another one using `bitmap.mode`
+     as an overlay operation.  Because `0` pixels are transparent with this
+     function, you may need to prepare the tarrget area by drawing a filled 
+     shape or using a special bitmap that is intended to be used as a masking 
+     image.
+
+Most bitmap copy/overlay operations can be implemented by combining the
+above methods in the proper sequence.  See `bitmap.h` and
+`examples/midlevel/bitmapblit` for more details.
+
+# Testing
+
+There is a `test/` directory that builds a binary file that can be loaded onto
+a Pico with a connected display for testing and connected to a PC for logging
+messages. 
+
+The test runs through most of the API functions, drawing on bitmaps and
+asserting that the output conforms to certain properties (such as 1's pixel
+count and pixel tests at certain locations).  The test also puts guards around
+the buffer arrays and tests for intrusion into these guards (to help spot
+buffer overruns and underruns).
+
+As the observer, it's your job to assert that reasonable-looking output is
+actually appearing on the Display hardware.  Due to the other tests, it's
+not ncessary to scrutinize the results, manually confirming non-garbled
+output should be enough to cover the testing aspects that other tests can
+not check.
+
 
