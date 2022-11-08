@@ -7,7 +7,7 @@
 #define DISPLAY_WIDTH 400
 #define DISPLAY_HEIGHT 240
 #define WIDTH 35
-#define HEIGHT 11
+#define HEIGHT 25
 
 struct SamplePoint {
   uint8_t x;

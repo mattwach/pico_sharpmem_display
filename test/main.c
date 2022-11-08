@@ -2,14 +2,14 @@
 #include "pico/stdlib.h"
 #include <sharpdisp/sharpdisp.h>
 #include <sharpdisp/bitmapimage.h>
-#include <sharpdisp/bitmapshapes.h>
 #include <sharpdisp/bitmaptext.h>
 #include <sharpdisp/bitmap.h>
 #include <sharpdisp/doublebuffer.h>
 #include <fonts/liberation_mono_10.h>
 #include "constants.h"
 
-#define WAIT_MS 2000
+#define USB_WAIT_MS 2000
+#define WAIT_MS 4000
 #define REFRESH_MS 32
 
 // Declare all tests here
@@ -39,13 +39,31 @@ struct DrawState {
   uint16_t y;
 } ds;
 
+static inline uint32_t uptime_ms() {
+  return to_ms_since_boot(get_absolute_time());
+}
+
+static void usb_wait(void) {
+  const uint32_t tstart = uptime_ms();
+  uint32_t tend = tstart + USB_WAIT_MS;
+  for (uint32_t t=tstart; t < tend; t=uptime_ms()) {
+    bitmap_clear(&db.bitmap);
+    text.x = 50;
+    text.y = DISPLAY_HEIGHT / 2;
+    text_printf(&text, "WAIT FOR USB: %d/%d ms", t-tstart, USB_WAIT_MS);
+    doublebuffer_swap(&db);
+  }
+  bitmap_clear(&db.bitmap);
+}
+
 static void init(void) {
   stdio_init_all();
-  sleep_ms(100);  // allow voltage to stabilize
-  sharpdisp_init_default(&sd, disp_buffer, DISPLAY_WIDTH, DISPLAY_HEIGHT, 0xFF);
+  sleep_ms(100);  // wait for voltages to stabilize
+  sharpdisp_init_default(&sd, disp_buffer, DISPLAY_WIDTH, DISPLAY_HEIGHT, 0x00);
   doublebuffer_init(&db, &sd, disp_buffer2, REFRESH_MS);
   text_init(&text, liberation_mono_10, &db.bitmap);
   text.printf_buffer = printf_buffer;
+  usb_wait();
   printf("Test Framework Initialized\n");
 }
 
@@ -86,15 +104,13 @@ static void increment_display_slot(void) {
 }
 
 static void draw_result(struct Bitmap* bitmap, const char* name) {
-  db.bitmap.mode = bitmap->clear_byte ? BITMAP_WHITE : BITMAP_BLACK;
-  bitmap_filled_rect(&db.bitmap, ds.x, ds.y, bitmap->width, bitmap->height);
-  db.bitmap.mode = bitmap->clear_byte ? BITMAP_BLACK : BITMAP_WHITE;
-  bitmap_blit(&db.bitmap, ds.x, ds.y, bitmap);
   db.bitmap.mode = BITMAP_WHITE;
+  bitmap_blit(&db.bitmap, ds.x, ds.y, bitmap);
   text.x = ds.x;
   text.y = ds.y + bitmap->height;
   text_str(&text, name);
   doublebuffer_swap(&db);
+  bitmap_copy(&db.bitmap, &sd.bitmap);
   increment_display_slot();
 }
 
@@ -118,10 +134,10 @@ static uint8_t check_eyecatchers(const uint8_t* data, const char* context) {
 
 static uint8_t check_test_data(struct Bitmap* bitmap, struct TestData* test_data) {
   uint8_t errors = 0;
-  printf("%s:\b", test_data->name);
-  errors += check_eyecatchers(bitmap->data, "start");
+  printf("%s:\n", test_data->name);
+  errors += check_eyecatchers(bitmap_buffer, "start");
   errors += check_eyecatchers(
-    bitmap->data + sizeof(bitmap_buffer) - sizeof(eyecatcher_bytes), "end");
+    bitmap_buffer + sizeof(bitmap_buffer) - sizeof(eyecatcher_bytes), "end");
 
   return (errors > 0) ? 1 : 0;
 }
@@ -146,7 +162,11 @@ static void final_status(uint32_t failures, uint32_t num_tests) {
   bitmap_clear(&db.bitmap);
   text.x = 10;
   text.y = DISPLAY_HEIGHT / 2;
-  text_printf(&text, "Test Completed: %d failures.", failures);
+  if (failures > 0) {
+    text_printf(&text, "Test Completed: %d/%d FAILED.", failures, num_tests);
+  } else {
+    text_printf(&text, "ALL %d TESTS PASSED.", num_tests);
+  }
   text.x = 10;
   text.y += 10;
   text_printf(&text, "Connect a USB console for more details.", failures);
