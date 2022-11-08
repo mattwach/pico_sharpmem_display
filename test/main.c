@@ -135,6 +135,9 @@ static uint8_t run_test(int index) {
 }
 
 static void final_status(uint32_t failures, uint32_t num_tests) {
+  if (ds.x != 0 || ds.y != 0) {
+    doublebuffer_sleep_ms(&db, 0, WAIT_MS);
+  }
   printf("Tests Completed: %d failures.  %d/%d passed\n",
       failures,
       (num_tests - failures),
