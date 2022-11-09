@@ -1,7 +1,6 @@
 # pico_sharpmem_display
 The code here is a Raspberry PI Pico library for driving a Sharp Memory Module,
-such as the LS013B4DN04 or LS027B7DH01.  Includes low, mid and high level
-functions.
+such as the LS013B4DN04 or LS027B7DH01.  The library includes low, mid and high level functions.
 
 What is a Sharp Memory Display?
 
@@ -103,7 +102,8 @@ how to do this (i.e. use `sharpdisp_init_freq_hz()`).
 
 # In-Depth Hello World Analysis
 
-Lets look at the code (located at `examples/midlevel/hello_world`):
+Lets break down an example that uses the API
+(located at `examples/midlevel/hello_world`):
 
 ```c
 #include "pico/stdlib.h"
@@ -197,10 +197,6 @@ need to pass to drawing functions (as `bitmap_rect()` is doing above).  On to
 ```c
 sharpdisp/bitmap.h
 
-#define BITMAP_WHITE   0x01
-#define BITMAP_BLACK   0x02
-#define BITMAP_INVERSE 0x03
-
 struct Bitmap {
   uint16_t width;        // width in pixels
   uint16_t width_bytes;  // width in bytes, for buffer calculations
@@ -212,10 +208,9 @@ struct Bitmap {
 ```
 
 The `mode` field is used by higher-level drawing functions such as `text_str()`
-and `bitmap_rect()` to decide how to draw pixels.
+and `bitmap_rect()` to decide how to draw pixels (`BITMAP_BLACK`, `BITMAP_WHITE` and `BITMAP_INVERSE` are the options).
 
-The `clear_byte` field defines if the background "color".  It is used by
-libraries that need to "scroll" the bitmap, such as `console.h`.
+The `clear_byte` field defines the background "color" to `0x00` (black) `0xFF` (white) or some other value (for vertical stripes). 
 
 ## Text Initialization
 
@@ -244,11 +239,11 @@ struct BitmapText {
 ```
 
 The `font` pointer points to a compiled object in the `fonts/` directory.  It
-is purposefully left typeless so that different font formats can be supported.
+is purposefully left typeless so that different font formats can be supported
+without requiring the use of compile-casting.
 
-The `bitmap` pointer is usually set to the same place as `SharpDisp.bitmap` but
-you might choose a different bitmap if you want to do double buffering or
-other special techniques.
+The `bitmap` pointer is usually set to `SharpDisp.bitmap` but you might choose a
+different bitmap if you want to do double buffering or other special techniques.
 
 After a character is drawn, `x` is automatically incremented by that
 character's width.  `y` is not incremented, thus your mid-level code will
@@ -306,9 +301,9 @@ void bitmap_rect(
     uint16_t h);
 ```
 
-The same header file provides function for drawing lines, ovals, and flood fills.
-The base `bitmap.h` file contains functions for setting/getting individual pixels
-(`bitmap_point()` and `bitmap_get_point()`).
+The same header file provides functions for drawing lines, ovals, and flood
+fills.  The base `bitmap.h` file contains functions for setting/getting
+individual pixels (`bitmap_point()` and `bitmap_get_point()`).
 
 ## Refresh the Sharp LCD
 
@@ -320,12 +315,12 @@ int main() {
 }
 ```
 
-Everything before this point was just changing the `disp_buffer[]` array in memory.
-The `sharpdisp_refresh()` function is what sends this buffer to the hardware.
-At the default SPI speed of 10Mhz (which you can change), it will take about
-14 ms to do the send and the code will be blocked during the operation.  This 
-time can be offloaded to the Pico's second CPU uing the `doublebuffer.h` library 
-that is explained in a future section. 
+Everything before this point was just changing the `disp_buffer[]` array in
+memory.  The `sharpdisp_refresh()` function is what sends this buffer to the
+hardware.  At the default SPI speed of 10Mhz (which you can change), it will
+take about 14 ms to do the send and the code will be blocked during the
+operation.  This time can be offloaded to the Pico's second CPU using the
+`doublebuffer.h` library that is explained in an upcoming section. 
 
 # High Level API - The Console Interface
 
@@ -370,7 +365,7 @@ int main() {
 }
 ```
 
-The `console_init_defalt()` function makes many decisions for you.  There is
+The `console_init_default()` function makes many decisions for you.  There is
 also a `console_init()` alternative that takes many additional parameters,
 allowing you to choose a different font, background color, and refresh
 rate.  The default refresh rate is 30 Hz.  The LCD does not update with
@@ -380,13 +375,13 @@ print/scroll around 7,000 lines per second.  You can scroll even faster by
 *lowering* the refresh rate as a refresh is the real bottleneck for
 performance.
 
-Another trick the console uses for speed is that is calls `sharpdisp_refresh_vscroll()`
-instead of `sharpdisp_refresh()`.  The extended form allows you to change where the
-`y=0` point in the bitmap is.  Having this ability means that the console needs to
-update/move much less data for a scroll event which boosts scrolling performance.
-I suppose these are details you don't *need* to know - just know that the console
-code is using tricks to be faster than a naive implementation would likely be able
-to achieve.
+Another trick the console uses for speed is that it calls
+`sharpdisp_refresh_vscroll()` instead of `sharpdisp_refresh()`.  The extended
+form allows you to change where the `y=0` point in the bitmap is.  Having this
+ability means that the console needs to update/move much less data for a scroll
+event which boosts scrolling performance.  I suppose these are details you don't
+*need* to know - just know that the console code is using tricks to be faster
+than a naive implementation would likely be able to achieve.
 
 # Low Level API - Direct Array Manipulation
 
@@ -435,7 +430,7 @@ Sharp LCD a target.
 # Double Buffering
 
 As said earlier, at 10Mhz, the Pico is taking around 14 ms to update the screen.
-If you are trying for a 60 FPS animate, you'll need to complete each frame in
+If you are targeting a 60 FPS animation, you'll need to complete each frame in
 16.7 ms and will likely find the 14 ms update time a heavy tax.
 
 One way to resolve the problem is to move the Sharp hardware update to CPU1
@@ -451,13 +446,13 @@ on how the sharing works.  To summarize here:
      Sharp hardware.
    * `doublebuffer_swap()` is called.  It handles syncronization and,
      when the time is right, swaps internal pointers for `b2` and `b1`
-   * Now CPU0 will preparing the next image on `b2` while CPU1 sends `b1`
+   * Now CPU0 can render the next image on `b2` while CPU1 sends `b1`
      to the display.
    * and the flip-flop cycle continues.
 
-This may sound complicated (or notm it's subjective) but I think that actually
-using the library is nearly as simple as not using it.  Let's take a simple
-example and convert it for demonstration.
+This *may* sound complicated but actually using the `doublebuffer.h` library is
+nearly as simple as not using it.  Let's take a simple example and convert it
+for demonstration.
 
 Without double buffering
 ```c
@@ -471,7 +466,7 @@ int main() {
   while (1) {
     bitmap_clear(&display.bitmap);
     draw_things(&display.bitmap);
-    sharpdisp_refresh(&display);  // This instead of sharpdisp_refresh()
+    sharpdisp_refresh(&display); 
     sleep_ms(SLEEP_MS);
   }
 }
@@ -589,30 +584,33 @@ different trim settings to just the `:` character.
 
 ## Storage
 
-Fonts are stored using RLE encoding.  This encoding can rapidly 
-decompress and works well with repeating patterns (vertical stripes
-of repeating patterns as-implemented).
+Fonts are stored using a
+[RLE](https://en.wikipedia.org/wiki/Run-length_encoding) compression variant.
+This encoding can decompress nearly as fast (and often faster) than an
+uncompressed image and works well with repeating patterns (vertical stripes of
+repeating patterns as-implemented).
 
 Verses an uncompressed font, this can save up to 100x the space or use a little
 more space depending on how many patterns there are to exploit.  The best-case
 example is the space character which is all repeating `0x00` bytes.  Usually,
 the larger the font, the bigger the spacing savings.
 
-RLE can also be faster to draw than uncompressed because of the way that data
-is "blitted" and not copied.  Basically pixels in the font are combined with
-what is already there using one of three modes: `BITMAP_BLACK`, `BITMAP_WHITE`
-or `BITMAP_INVERT`.  Under this scheme, which is basically necessary for
-font widths that are not a multiple of 8, the `0x00` byte is a NOOP byte
-and thus repeating sequences of `0x00` can be skipped over
-efficiently.  Again, the larger the fonts will generally see larger benefits.
+RLE can also be faster to draw than uncompressed because of the way that data is
+"blitted" and not copied.  Basically pixels in the font are combined with what
+is already there using one of three modes: `BITMAP_BLACK`, `BITMAP_WHITE` or
+`BITMAP_INVERT`.  Under this scheme, which is basically necessary for font
+widths that are not a multiple of 8, the `0x00` byte is a NOOP byte and thus
+repeating sequences of `0x00` can be skipped over efficiently.  Again, larger
+fonts will generally see larger relative improvements.
 
 See `include/sharpdisp/bitmaptext.h` and `include/sharpdisp/bitmapimage.h` for
 additional details.
 
 # Custom Images
 
-Custom images here means images such as `.jpg` and `.png` files that you
-want to use, not images you create at runtime inside the Pico.
+"Custom images" in this section refers to prerendered images such as `.jpg` and
+`.png` files that you want to use.  It does not refer images you dynamically
+create at runtime inside the Pico.
 
 The `bitmapimages.h` library supports the use of these images encoded as
 RLE and embedded into the firmware as compiled `.c` objects.
@@ -628,7 +626,7 @@ images:
   - path: vase.png 
 ```
 
-To generate:
+To process the yaml above:
 
 ```
 tools/make_var_font.py images.yaml
@@ -660,11 +658,12 @@ int main() {
 
 ## Large Images
 
-One of the downsides of RLE is that, due to compression, it's non-trivial to 
-extract a rectangular selection - easier handle the image as a whole.  This
-can come up when you are working with an image that is much larger than the
-screen and you want to scroll around in it (see `examples/midlevel/mapscroll`
-for a case of this).  You *can* just draw the image with a negative offset like this:
+One of the downsides of RLE is that, due to compression, it's inefficient (or
+non-trivial, if you prefer) to extract a rectangular selection from within the
+data.  This can come up when you are working with an image that is much larger
+than the screen and you want to scroll around in it (see
+`examples/midlevel/mapscroll` for a case of this).  You *can* just draw the
+image with a negative offset like this:
 
 ```c
   image_draw(&bi, LARGE_MAP_IMG, -400, -200);
@@ -690,8 +689,11 @@ and call an alternate drawing function:
 image_draw_tiled(bitmap, MAP_IMG_0_0, MAP_IMG_COLUMNS, MAP_IMG_ROWS, x, y);
 ```
 
-For the map `mapscroll` example, using tiles resulted in able a 5x rendering performance improvement.  The larger the source image, the larger potential for
-improvement.  Images that (mostly) fit within the screen bondaries will see no improvement with this method.
+For the map `mapscroll` example, using tiles resulted in around a 5x rendering
+performance improvement and thus achieved glitch-free 60 FPS scrolling.  The
+larger the source image, the larger potential for improvement.  Images that
+(mostly) fit within the screen boundaries will see no improvement with this
+method.
 
 An alternate approach is to use bitmaps instead.  This will use more memory
 but offers runtime flexibility that is sometimes needed.  See the next
