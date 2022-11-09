@@ -15,6 +15,7 @@
 
 // Declare all tests here
 struct TestData* bitmap_pnt(struct Bitmap* bitmap);
+struct TestData* bitmap_apst1(struct Bitmap* bitmap);
 struct TestData* bitmap_clr0(struct Bitmap* bitmap);
 struct TestData* bitmap_clr1(struct Bitmap* bitmap);
 struct TestData* bitmap_copy1(struct Bitmap* bitmap);
@@ -38,6 +39,7 @@ struct BitmapText text;
 
 struct TestData* (*tests[])(struct Bitmap*) = {
   bitmap_pnt,
+  bitmap_apst1,
   bitmap_clr0,
   bitmap_clr1,
   bitmap_copy1,
