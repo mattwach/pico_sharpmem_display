@@ -16,6 +16,7 @@
 // Declare all tests here
 struct TestData* bitmap_pnt(struct Bitmap* bitmap);
 struct TestData* bitmap_apst1(struct Bitmap* bitmap);
+struct TestData* bitmap_apst2(struct Bitmap* bitmap);
 struct TestData* bitmap_clr0(struct Bitmap* bitmap);
 struct TestData* bitmap_clr1(struct Bitmap* bitmap);
 struct TestData* bitmap_copy1(struct Bitmap* bitmap);
@@ -40,6 +41,7 @@ struct BitmapText text;
 struct TestData* (*tests[])(struct Bitmap*) = {
   bitmap_pnt,
   bitmap_apst1,
+  bitmap_apst2,
   bitmap_clr0,
   bitmap_clr1,
   bitmap_copy1,
@@ -146,9 +148,6 @@ static uint8_t check_eyecatchers(const uint8_t* data, const char* context) {
       ++errors;
     }
   }
-  if (errors == 0) {
-    printf("  Eyecatcher %s: OK\n", context);
-  }
   return (errors > 0) ? 1 : 0;
 } 
 
@@ -167,9 +166,7 @@ static uint8_t check_pixel_count(struct Bitmap* bitmap, uint16_t want) {
     }
   }
 
-  if (want == got) {
-    printf("  Pixel Count: %d OK\n", want);
-  } else {
+  if (want != got) {
     printf("  Pixel Count: FAIL want=%d, got=%d\n", want, got);
   }
 
@@ -179,9 +176,7 @@ static uint8_t check_pixel_count(struct Bitmap* bitmap, uint16_t want) {
 static uint8_t test_a_sample(struct Bitmap* bitmap, const struct SamplePoint* p) {
   uint8_t want = p->value != 0;
   uint8_t got = bitmap_get_point(bitmap, p->x, p->y) != 0;
-  if (want == got) {
-    printf("  Sample: [%d,%d] = %d OK\n", p->x, p->y, got);
-  } else {
+  if (want != got) {
     printf("  Sample: [%d,%d] = want=%d, got=%d FAIL\n", p->x, p->y, want, got);
   }
   return want != got; 
