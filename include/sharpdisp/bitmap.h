@@ -191,7 +191,7 @@ static inline uint8_t bitmap_get_stripe(
   // at this point, x is either partially shifted off the left or the right
   uint8_t* base = b->data + (y * b->width_bytes);
   if (x < 0) {
-    return base[0] >> (7 + x);
+    return base[0] >> (-x);
   }
   
   return base[x >> 3] << (x & 0x07);

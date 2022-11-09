@@ -20,6 +20,7 @@ struct TestData* bitmap_copy1(struct Bitmap* bitmap);
 struct TestData* bitmap_copy2(struct Bitmap* bitmap);
 struct TestData* bitmap_copy3(struct Bitmap* bitmap);
 struct TestData* bitmap_cpyr1(struct Bitmap* bitmap);
+struct TestData* bitmap_cpyr2(struct Bitmap* bitmap);
 
 // Call all APIs that result in something being drawn to the display
 // Then checks pixel counts and certain called-out pixel values
@@ -41,6 +42,7 @@ struct TestData* (*tests[])(struct Bitmap*) = {
   bitmap_copy2,
   bitmap_copy3,
   bitmap_cpyr1,
+  bitmap_cpyr2,
 };
 
 struct DrawState {
@@ -204,9 +206,6 @@ static uint8_t run_test(int index) {
 }
 
 static void final_status(uint32_t failures, uint32_t num_tests) {
-  if ((ds.x != 0 || ds.y != 0) && (failures == 0)) {
-    doublebuffer_sleep_ms(&db, 0, WAIT_MS);
-  }
   printf("Tests Completed: %d failures.  %d/%d passed\n",
       failures,
       (num_tests - failures),
@@ -214,11 +213,10 @@ static void final_status(uint32_t failures, uint32_t num_tests) {
   
   text.x = 10;
   text.y = DISPLAY_HEIGHT - 20;
+  bitmap_copy(&db.bitmap, &sd.bitmap);
   if (failures > 0) {
-    bitmap_copy(&db.bitmap, &sd.bitmap);
     text_printf(&text, "Test Completed: %d/%d FAILED.", failures, num_tests);
   } else {
-    bitmap_clear(&db.bitmap);
     text_printf(&text, "ALL %d TESTS PASSED.", num_tests);
   }
   text.x = 10;
