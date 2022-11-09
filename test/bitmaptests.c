@@ -4,6 +4,63 @@
 
 uint8_t buff[BITMAP_SIZE(WIDTH*2, HEIGHT*2)];
 
+// Tests the bitmap_point function (clear to 0xFF)
+static struct TestData bitmap_pnt_data = {
+  "point",
+  10,  // 1 pixel count
+  10,  // point test count
+  // Point Tests
+  {
+    {0, 0, 1},
+    {0, 3, 1},
+    {3, 0, 1},
+    {3, 3, 1},
+    {1, 1, 1},
+    {1, 11, 1},
+    {11, 1, 1},
+    {11, 11, 1},
+    {21, 1, 1},
+    {11, 21, 1},
+  }
+};
+struct TestData* bitmap_pnt(struct Bitmap* bitmap) {
+  bitmap_point(bitmap, 0, 0);
+  bitmap_point(bitmap, 0, 3);
+  bitmap_point(bitmap, 3, 0);
+  bitmap_point(bitmap, 3, 3);
+  bitmap_point(bitmap, 1, 1);
+  bitmap_point(bitmap, 1, 11);
+  bitmap_point(bitmap, 11, 1);
+  bitmap_point(bitmap, 11, 11);
+  bitmap_point(bitmap, WIDTH, 0);
+  bitmap_point(bitmap, WIDTH, HEIGHT-1);
+  bitmap_point(bitmap, 0, HEIGHT);
+  bitmap_point(bitmap, WIDTH-1, HEIGHT);
+
+  // some getpoint transfers
+  if (bitmap_get_point(bitmap, 11, 1)) {
+    bitmap_point(bitmap, 21, 1);
+  }
+  if (bitmap_get_point(bitmap, 11, 11)) {
+    bitmap_point(bitmap, 21, 21);
+  }
+
+  // and some that should be zero
+  if (bitmap_get_point(bitmap, 11, 2)) {
+    bitmap_point(bitmap, 21, 2);
+  }
+  if (bitmap_get_point(bitmap, 11, 0)) {
+    bitmap_point(bitmap, 21, 0);
+  }
+  if (bitmap_get_point(bitmap, 10, 1)) {
+    bitmap_point(bitmap, 20, 1);
+  }
+  if (bitmap_get_point(bitmap, 12, 1)) {
+    bitmap_point(bitmap, 22, 1);
+  }
+  return &bitmap_pnt_data;
+}
+
 // Tests the bitmap_clear function (clear to 0x00)
 static struct TestData bitmap_clr0_data = { "clr0", 0, 0, {} };
 struct TestData* bitmap_clr0(struct Bitmap* bitmap) {
