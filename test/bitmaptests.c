@@ -20,7 +20,7 @@ static struct TestData bitmap_pnt_data = {
     {11, 1, 1},
     {11, 11, 1},
     {21, 1, 1},
-    {11, 21, 1},
+    {21, 21, 1},
   }
 };
 struct TestData* bitmap_pnt(struct Bitmap* bitmap) {
@@ -133,7 +133,7 @@ struct TestData* bitmap_apst1(struct Bitmap* bitmap) {
   // 14 .....********..
   // 15 ......********.
   // 16 .......********
-  for (int i=-9; i<17; ++i) {
+  for (int i=-9; i<8; ++i) {
     bitmap_apply_stripe(bitmap, i, i + 9, 0xFF);
   }
   return &bitmap_apst1_data;
