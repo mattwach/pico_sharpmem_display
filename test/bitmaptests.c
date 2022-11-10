@@ -216,6 +216,75 @@ struct TestData* bitmap_apst2(struct Bitmap* bitmap) {
   return &bitmap_apst2_data;
 }
 
+static struct TestData bitmap_gtst1_data = {
+  "gtst2",
+  27,  // 1 pixel count
+  27,  // point test count
+  // Point Tests
+  {
+    {0, 0, 1},
+    {7, 0, 1},
+    {8, 0, 1},
+    {7, 2, 1},
+    {6, 3, 1},
+    {5, 4, 1},
+    {4, 5, 1},
+    {3, 6, 1},
+    {2, 7, 1},
+    {1, 8, 1},
+    {0, 9, 1},
+    {7, 9, 1},
+    {7, 10, 1},
+    {6, 10, 1},
+    {6, 11, 1},
+    {5, 11, 1},
+    {5, 12, 1},
+    {4, 12, 1},
+    {4, 13, 1},
+    {3, 13, 1},
+    {3, 14, 1},
+    {2, 14, 1},
+    {2, 15, 1},
+    {1, 15, 1},
+    {1, 16, 1},
+    {0, 16, 1},
+    {0, 17, 1},
+  }
+};
+struct TestData* bitmap_gtst1(struct Bitmap* bitmap) {
+  // apply full stripes in a slant pattern
+  //
+  // Expecting this
+  //
+  //  0 *......**  // Seed line
+  //  1 ........
+  //  2 .......*
+  //  3 ......*.
+  //  4 .....*..
+  //  5 ....*...
+  //  6 ...*....
+  //  7 ..*.....
+  //  8 .*......
+  //  9 *......*
+  // 10 ......**
+  // 11 .....**.
+  // 12 ....**..
+  // 13 ...**...
+  // 14 ..**....
+  // 15 .**.....
+  // 16 **......
+  // 17 *.......
+  bitmap_point_nocheck(bitmap, 0, 0);
+  bitmap_point_nocheck(bitmap, 7, 0);
+  bitmap_point_nocheck(bitmap, 8, 0);
+
+  for (int i=-8; i<18; ++i) {
+    uint8_t data = bitmap_get_stripe(bitmap, i, 0);
+    bitmap_apply_stripe(bitmap, 0, i+9, data);
+  }
+  return &bitmap_gtst1_data;
+}
+
 
 // Tests the bitmap_clear function (clear to 0x00)
 static struct TestData bitmap_clr0_data = { "clr0", 0, 0, {} };
