@@ -76,7 +76,7 @@ static struct TestData bitmap_apst1_data = {
     {0, 6, 1},
     {0, 7, 1},
     {0, 8, 1},
-    {0, 8, 1},
+    {0, 9, 1},
     {0, 10, 0},
 
     {1, 3, 1},
@@ -140,7 +140,7 @@ struct TestData* bitmap_apst1(struct Bitmap* bitmap) {
 }
 
 static struct TestData bitmap_apst2_data = {
-  "apst1",
+  "apst2",
   23,  // 1 pixel count
   39,  // point test count
   // Point Tests
@@ -153,7 +153,7 @@ static struct TestData bitmap_apst2_data = {
     {0, 6, 0},
     {0, 7, 0},
     {0, 8, 0},
-    {0, 8, 1},
+    {0, 9, 1},
     {0, 10, 0},
 
     {1, 3, 1},
