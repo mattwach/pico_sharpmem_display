@@ -12,6 +12,8 @@
 #define USB_WAIT_MS 2000
 #define WAIT_MS 4000
 #define REFRESH_MS 32
+#define TEXT_HEIGHT 10
+#define XPAD 4
 
 // Declare all tests here
 struct TestData* bitmap_pnt(struct Bitmap* bitmap);
@@ -109,13 +111,13 @@ static void prepare_bitmap(struct Bitmap* bitmap) {
 }
 
 static void increment_display_slot(void) {
-  ds.x += WIDTH;
+  ds.x += WIDTH + XPAD;
   if ((ds.x + WIDTH) > DISPLAY_WIDTH) {
     ds.x = 0;
-    ds.y += HEIGHT;
+    ds.y += HEIGHT + TEXT_HEIGHT;
   }
   // the 10 is for text height
-  if ((ds.y + HEIGHT + 10) > DISPLAY_HEIGHT) {
+  if ((ds.y + HEIGHT + TEXT_HEIGHT) > DISPLAY_HEIGHT) {
     ds.y = 0;
     doublebuffer_sleep_ms(&db, 0, WAIT_MS); 
     bitmap_clear(&db.bitmap);
@@ -129,7 +131,7 @@ static void draw_result(struct Bitmap* bitmap, const char* name, uint8_t errors)
   bitmap_blit(&db.bitmap, ds.x, ds.y, bitmap);
   if (errors) {
     bitmap_filled_rect(
-      &db.bitmap, ds.x, ds.y + bitmap->height, bitmap->width, 10);
+      &db.bitmap, ds.x, ds.y + bitmap->height, bitmap->width, TEXT_HEIGHT);
   }
   db.bitmap.mode = BITMAP_INVERSE;
   text.x = ds.x;
@@ -215,7 +217,7 @@ static void final_status(uint32_t failures, uint32_t num_tests) {
       num_tests);
   
   text.x = 10;
-  text.y = DISPLAY_HEIGHT - 20;
+  text.y = DISPLAY_HEIGHT - TEXT_HEIGHT * 2;
   bitmap_copy(&db.bitmap, &sd.bitmap);
   if (failures > 0) {
     text_printf(&text, "Test Completed: %d/%d FAILED.", failures, num_tests);
@@ -223,7 +225,7 @@ static void final_status(uint32_t failures, uint32_t num_tests) {
     text_printf(&text, "ALL %d TESTS PASSED.", num_tests);
   }
   text.x = 10;
-  text.y += 10;
+  text.y += TEXT_HEIGHT;
   text_printf(&text, "Connect a USB console for more details.", failures);
   doublebuffer_swap(&db);
 }
