@@ -1,4 +1,4 @@
-#include "constants.h"
+#include "common.h"
 #include "sharpdisp/bitmap.h"
 #include "sharpdisp/bitmapshapes.h"
 
@@ -217,7 +217,7 @@ struct TestData* bitmap_apst2(struct Bitmap* bitmap) {
 }
 
 static struct TestData bitmap_gtst1_data = {
-  "gtst2",
+  "gtst1",
   27,  // 1 pixel count
   27,  // point test count
   // Point Tests
@@ -283,6 +283,19 @@ struct TestData* bitmap_gtst1(struct Bitmap* bitmap) {
     bitmap_apply_stripe(bitmap, 0, i+9, data);
   }
   return &bitmap_gtst1_data;
+}
+
+static struct TestData bitmap_gtst2_data = { "gtst2", 0, 0, {} };
+struct TestData* bitmap_gtst2(struct Bitmap* bitmap) {
+  bitmap->mode = BITMAP_INVERSE;
+  for (int i=0; i<100; ++i) {
+    int16_t x = rand16(-10, bitmap->width+1);
+    int16_t y = rand16(-10, bitmap->height+1);
+    bitmap_apply_stripe(bitmap, x, y, rand16(0,256));
+    uint8_t data = bitmap_get_stripe(bitmap, x, y);
+    bitmap_apply_stripe(bitmap, x, y, data);
+  }
+  return &bitmap_gtst2_data;
 }
 
 

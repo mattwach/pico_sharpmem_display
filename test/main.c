@@ -7,7 +7,7 @@
 #include <sharpdisp/bitmap.h>
 #include <sharpdisp/doublebuffer.h>
 #include <fonts/liberation_mono_10.h>
-#include "constants.h"
+#include "common.h"
 
 #define USB_WAIT_MS 2000
 #define WAIT_MS 4000
@@ -17,6 +17,8 @@
 struct TestData* bitmap_pnt(struct Bitmap* bitmap);
 struct TestData* bitmap_apst1(struct Bitmap* bitmap);
 struct TestData* bitmap_apst2(struct Bitmap* bitmap);
+struct TestData* bitmap_gtst1(struct Bitmap* bitmap);
+struct TestData* bitmap_gtst2(struct Bitmap* bitmap);
 struct TestData* bitmap_clr0(struct Bitmap* bitmap);
 struct TestData* bitmap_clr1(struct Bitmap* bitmap);
 struct TestData* bitmap_copy1(struct Bitmap* bitmap);
@@ -42,6 +44,8 @@ struct TestData* (*tests[])(struct Bitmap*) = {
   bitmap_pnt,
   bitmap_apst1,
   bitmap_apst2,
+  bitmap_gtst1,
+  bitmap_gtst2,
   bitmap_clr0,
   bitmap_clr1,
   bitmap_copy1,

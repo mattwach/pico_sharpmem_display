@@ -1,6 +1,7 @@
 add_executable(sharpdisp_test_alldraw
         main.c
         bitmaptests.c
+        common.c
         )
 
 
