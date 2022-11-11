@@ -298,6 +298,45 @@ struct TestData* bitmap_gtst2(struct Bitmap* bitmap) {
   return &bitmap_gtst2_data;
 }
 
+// bitmap_blit test
+static struct TestData bitmap_blit0_data = {
+  "blit0",
+  8,
+  8, 
+  {
+    {0, 0, 1},
+    {WIDTH-1, 0, 1},
+    {0, HEIGHT-1, 1},
+    {WIDTH-1, HEIGHT-1, 1},
+    {6, 5, 1},
+    {5, 6, 1},
+    {7, 6, 1},
+    {6, 7, 1},
+  }
+};
+struct TestData* bitmap_blit0(struct Bitmap* bitmap) {
+  // Create a bitmapthat looks like this
+  // .*.
+  // *.*
+  // .*.
+  struct Bitmap b;
+  bitmap_init(&b, buff, 3, 3, BITMAP_WHITE, 0x00);
+  bitmap_clear(&b);
+  bitmap_point(&b, 1, 0);
+  bitmap_point(&b, 0, 1);
+  bitmap_point(&b, 2, 1);
+  bitmap_point(&b, 1, 2);
+  // aiming for the 4 corners
+  bitmap_blit(bitmap, -1, -2, &b);  // expose the bottom @ 0,0
+  bitmap_blit(bitmap, bitmap->width-1, -1, &b);  // left at WIDTH-1, 0
+  bitmap_blit(bitmap, -2, bitmap->height-2, &b);  // right @ 0,HEIGHT-1
+  bitmap_blit(bitmap, bitmap->width-2, bitmap->height-1, &b);  // top at WIDTH-1, HEIGHT=1
+
+  // now put one at 5,5
+  bitmap_blit(bitmap, 5, 5, &b);  // expose the bottom @ 0,0
+  return &bitmap_blit0_data;
+}
+
 
 // Tests the bitmap_clear function (clear to 0x00)
 static struct TestData bitmap_clr0_data = { "clr0", 0, 0, {} };

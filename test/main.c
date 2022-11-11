@@ -28,6 +28,7 @@ struct TestData* bitmap_copy2(struct Bitmap* bitmap);
 struct TestData* bitmap_copy3(struct Bitmap* bitmap);
 struct TestData* bitmap_cpyr1(struct Bitmap* bitmap);
 struct TestData* bitmap_cpyr2(struct Bitmap* bitmap);
+struct TestData* bitmap_blit0(struct Bitmap* bitmap);
 
 // Call all APIs that result in something being drawn to the display
 // Then checks pixel counts and certain called-out pixel values
