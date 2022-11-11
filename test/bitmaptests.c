@@ -337,6 +337,37 @@ struct TestData* bitmap_blit0(struct Bitmap* bitmap) {
   return &bitmap_blit0_data;
 }
 
+static struct TestData bitmap_blit1_data = { "blit1", 0, 0, {}};
+struct TestData* bitmap_blit1(struct Bitmap* bitmap) {
+  // Create boxes of random points, get them, put them back in XOR mode
+  // when all done there should be no lit pixels
+  const uint16_t num_rounds = 100;
+  const uint16_t num_points = 100;
+  const uint16_t min_size = 1;
+  const uint16_t max_size = 24;
+
+  for (uint16_t i=0; i<num_rounds; ++i) {
+    const int16_t x = rand16(-max_size, bitmap->width + 1);
+    const int16_t y = rand16(-max_size, bitmap->height + 1);
+    const uint16_t w = rand16(min_size, max_size);
+    const uint16_t h = rand16(min_size, max_size);
+
+    struct Bitmap b;
+    bitmap_init(&b, buff, w, h, BITMAP_WHITE, 0x00);
+    bitmap_clear(&b);
+    bitmap->mode = BITMAP_WHITE;
+    for (uint16_t j=0; j < num_points; ++j) {
+      const int16_t px = rand16(0, w);
+      const int16_t py = rand16(0, h);
+      bitmap_point(bitmap, x + px, y + py);
+      bitmap_point(&b, px, py);
+    }
+    bitmap->mode = BITMAP_INVERSE;
+    bitmap_blit(bitmap, x, y, &b);  // this should clear everythign back
+  }
+  return &bitmap_blit1_data;
+}
+
 
 // Tests the bitmap_clear function (clear to 0x00)
 static struct TestData bitmap_clr0_data = { "clr0", 0, 0, {} };
