@@ -16,20 +16,20 @@
 #define XPAD 4
 
 // Declare all tests here
-struct TestData* bitmap_pnt(struct Bitmap* bitmap);
-struct TestData* bitmap_apst1(struct Bitmap* bitmap);
-struct TestData* bitmap_apst2(struct Bitmap* bitmap);
-struct TestData* bitmap_gtst1(struct Bitmap* bitmap);
-struct TestData* bitmap_gtst2(struct Bitmap* bitmap);
-struct TestData* bitmap_clr0(struct Bitmap* bitmap);
-struct TestData* bitmap_clr1(struct Bitmap* bitmap);
-struct TestData* bitmap_copy1(struct Bitmap* bitmap);
-struct TestData* bitmap_copy2(struct Bitmap* bitmap);
-struct TestData* bitmap_copy3(struct Bitmap* bitmap);
-struct TestData* bitmap_cpyr1(struct Bitmap* bitmap);
-struct TestData* bitmap_cpyr2(struct Bitmap* bitmap);
-struct TestData* bitmap_blit0(struct Bitmap* bitmap);
-struct TestData* bitmap_blit1(struct Bitmap* bitmap);
+struct TestData* test_bitmap_pnt(struct Bitmap* bitmap);
+struct TestData* test_bitmap_apst1(struct Bitmap* bitmap);
+struct TestData* test_bitmap_apst2(struct Bitmap* bitmap);
+struct TestData* test_bitmap_gtst1(struct Bitmap* bitmap);
+struct TestData* test_bitmap_gtst2(struct Bitmap* bitmap);
+struct TestData* test_bitmap_clr0(struct Bitmap* bitmap);
+struct TestData* test_bitmap_clr1(struct Bitmap* bitmap);
+struct TestData* test_bitmap_copy1(struct Bitmap* bitmap);
+struct TestData* test_bitmap_copy2(struct Bitmap* bitmap);
+struct TestData* test_bitmap_copy3(struct Bitmap* bitmap);
+struct TestData* test_bitmap_cpyr1(struct Bitmap* bitmap);
+struct TestData* test_bitmap_cpyr2(struct Bitmap* bitmap);
+struct TestData* test_bitmap_blit0(struct Bitmap* bitmap);
+struct TestData* test_bitmap_blit1(struct Bitmap* bitmap);
 
 // Call all APIs that result in something being drawn to the display
 // Then checks pixel counts and certain called-out pixel values
@@ -45,20 +45,20 @@ struct BitmapText text;
 
 
 struct TestData* (*tests[])(struct Bitmap*) = {
-  bitmap_pnt,
-  bitmap_apst1,
-  bitmap_apst2,
-  bitmap_gtst1,
-  bitmap_gtst2,
-  bitmap_clr0,
-  bitmap_clr1,
-  bitmap_copy1,
-  bitmap_copy2,
-  bitmap_copy3,
-  bitmap_cpyr1,
-  bitmap_cpyr2,
-  bitmap_blit0,
-  bitmap_blit1,
+  test_bitmap_pnt,
+  test_bitmap_apst1,
+  test_bitmap_apst2,
+  test_bitmap_gtst1,
+  test_bitmap_gtst2,
+  test_bitmap_clr0,
+  test_bitmap_clr1,
+  test_bitmap_copy1,
+  test_bitmap_copy2,
+  test_bitmap_copy3,
+  test_bitmap_cpyr1,
+  test_bitmap_cpyr2,
+  test_bitmap_blit0,
+  test_bitmap_blit1,
 };
 
 struct DrawState {

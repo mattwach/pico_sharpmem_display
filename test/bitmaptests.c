@@ -23,7 +23,7 @@ static struct TestData bitmap_pnt_data = {
     {21, 21, 1},
   }
 };
-struct TestData* bitmap_pnt(struct Bitmap* bitmap) {
+struct TestData* test_bitmap_pnt(struct Bitmap* bitmap) {
   bitmap_point(bitmap, 0, 0);
   bitmap_point(bitmap, 0, 3);
   bitmap_point(bitmap, 3, 0);
@@ -111,7 +111,7 @@ static struct TestData bitmap_apst1_data = {
     {15, 16, 0},
   }
 };
-struct TestData* bitmap_apst1(struct Bitmap* bitmap) {
+struct TestData* test_bitmap_apst1(struct Bitmap* bitmap) {
   // apply full stripes in a slant pattern
   //
   // Expecting this
@@ -188,7 +188,7 @@ static struct TestData bitmap_apst2_data = {
     {15, 16, 0},
   }
 };
-struct TestData* bitmap_apst2(struct Bitmap* bitmap) {
+struct TestData* test_bitmap_apst2(struct Bitmap* bitmap) {
   // apply full stripes in a slant pattern
   //
   // Expecting this
@@ -251,7 +251,7 @@ static struct TestData bitmap_gtst1_data = {
     {0, 17, 1},
   }
 };
-struct TestData* bitmap_gtst1(struct Bitmap* bitmap) {
+struct TestData* test_bitmap_gtst1(struct Bitmap* bitmap) {
   // apply full stripes in a slant pattern
   //
   // Expecting this
@@ -286,7 +286,7 @@ struct TestData* bitmap_gtst1(struct Bitmap* bitmap) {
 }
 
 static struct TestData bitmap_gtst2_data = { "gtst2", 0, 0, {} };
-struct TestData* bitmap_gtst2(struct Bitmap* bitmap) {
+struct TestData* test_bitmap_gtst2(struct Bitmap* bitmap) {
   bitmap->mode = BITMAP_INVERSE;
   for (int i=0; i<100; ++i) {
     int16_t x = rand16(-10, bitmap->width+1);
@@ -314,7 +314,7 @@ static struct TestData bitmap_blit0_data = {
     {6, 7, 1},
   }
 };
-struct TestData* bitmap_blit0(struct Bitmap* bitmap) {
+struct TestData* test_bitmap_blit0(struct Bitmap* bitmap) {
   // Create a bitmapthat looks like this
   // .*.
   // *.*
@@ -338,7 +338,7 @@ struct TestData* bitmap_blit0(struct Bitmap* bitmap) {
 }
 
 static struct TestData bitmap_blit1_data = { "blit1", 0, 0, {}};
-struct TestData* bitmap_blit1(struct Bitmap* bitmap) {
+struct TestData* test_bitmap_blit1(struct Bitmap* bitmap) {
   // Create boxes of random points, get them, put them back in XOR mode
   // when all done there should be no lit pixels
   const uint16_t num_rounds = 100;
@@ -371,7 +371,7 @@ struct TestData* bitmap_blit1(struct Bitmap* bitmap) {
 
 // Tests the bitmap_clear function (clear to 0x00)
 static struct TestData bitmap_clr0_data = { "clr0", 0, 0, {} };
-struct TestData* bitmap_clr0(struct Bitmap* bitmap) {
+struct TestData* test_bitmap_clr0(struct Bitmap* bitmap) {
   bitmap->clear_byte = 0x00;
   bitmap_clear(bitmap);
   return &bitmap_clr0_data;
@@ -379,7 +379,7 @@ struct TestData* bitmap_clr0(struct Bitmap* bitmap) {
 
 // Tests the bitmap_clear function (clear to 0xFF)
 static struct TestData bitmap_clr1_data = { "clr1", WIDTH * HEIGHT, 0, {} };
-struct TestData* bitmap_clr1(struct Bitmap* bitmap) {
+struct TestData* test_bitmap_clr1(struct Bitmap* bitmap) {
   bitmap->clear_byte = 0xFF;
   bitmap_clear(bitmap);
   return &bitmap_clr1_data;
@@ -402,7 +402,7 @@ static struct TestData bitmap_copy1_data = {
     {WIDTH-2, HEIGHT-2, 1},
   }
 };
-struct TestData* bitmap_copy1(struct Bitmap* bitmap) {
+struct TestData* test_bitmap_copy1(struct Bitmap* bitmap) {
   struct Bitmap b;
   bitmap_init(&b, buff, WIDTH, HEIGHT, BITMAP_WHITE, 0x00);
   bitmap_clear(&b);
@@ -428,7 +428,7 @@ static struct TestData bitmap_copy2_data = {
     {WIDTH-2, HEIGHT-2, 0},
   }
 };
-struct TestData* bitmap_copy2(struct Bitmap* bitmap) {
+struct TestData* test_bitmap_copy2(struct Bitmap* bitmap) {
   struct Bitmap b;
   bitmap_init(&b, buff, WIDTH, HEIGHT - 5, BITMAP_WHITE, 0x00);
   bitmap_clear(&b);
@@ -454,7 +454,7 @@ static struct TestData bitmap_copy3_data = {
     {WIDTH-2, HEIGHT-2, 1},
   }
 };
-struct TestData* bitmap_copy3(struct Bitmap* bitmap) {
+struct TestData* test_bitmap_copy3(struct Bitmap* bitmap) {
   struct Bitmap b;
   bitmap_init(&b, buff, WIDTH, HEIGHT + 5, BITMAP_WHITE, 0x00);
   bitmap_clear(&b);
@@ -478,7 +478,7 @@ static struct TestData bitmap_cpyr1_data = {
     {0, HEIGHT - 3, 1},
   }
 };
-struct TestData* bitmap_cpyr1(struct Bitmap* bitmap) {
+struct TestData* test_bitmap_cpyr1(struct Bitmap* bitmap) {
   struct Bitmap b;
   bitmap_init(&b, buff, WIDTH * 2, HEIGHT * 2, BITMAP_WHITE, 0x00);
   bitmap_clear(&b);
@@ -501,7 +501,7 @@ static struct TestData bitmap_cpyr2_data = {
     {WIDTH-6+3,HEIGHT-10+5,0},
   }
 };
-struct TestData* bitmap_cpyr2(struct Bitmap* bitmap) {
+struct TestData* test_bitmap_cpyr2(struct Bitmap* bitmap) {
   struct Bitmap b;
   bitmap_init(&b, buff, WIDTH * 2, HEIGHT * 2, BITMAP_WHITE, 0x00);
   bitmap_clear(&b);
