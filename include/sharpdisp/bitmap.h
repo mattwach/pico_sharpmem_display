@@ -141,11 +141,11 @@ static inline void bitmap_apply_stripe(
   const uint16_t bheight = b->height;
   const uint8_t mode = b->mode;
   // First, the common case of everything being in bounds
-  if ((x >= 0) && (y >= 0) && (y < bheight) && (x <= (bwidth - 8))) {
+  if ((x >= 0) && (y >= 0) && (y < bheight) && (x < bwidth)) {
     uint8_t* base = b->data + (y * b->width_bytes) + (x >> 3);
     const uint8_t shift = x & 0x07;
     bitmap_apply(base, mode, data >> shift);
-    if (shift) {
+    if (shift && (x <= (bwidth - 8))) {
       bitmap_apply(base + 1, mode, data << (8 - shift)); 
     }
     return;
@@ -156,13 +156,9 @@ static inline void bitmap_apply_stripe(
     return;
   }
 
-  // at this point, x is either partially shifted off the left or the right
+  // at this point, x is either partially shifted off the left
   uint8_t* base = b->data + (y * b->width_bytes);
-  if (x < 0) {
-    bitmap_apply(base, mode, data << (-x));
-  } else {
-    bitmap_apply(base + (x >> 3), mode, data >> (x & 0x07));
-  }
+  bitmap_apply(base, mode, data << (-x));
 }
 
 // returns an 8x1 pixel stripe.  Out of bounds return zeros
