@@ -139,14 +139,20 @@ static inline void bitmap_apply_stripe(
   }
   const uint16_t bwidth = b->width;
   const uint16_t bheight = b->height;
+  const uint16_t wbytes = b->width_bytes;
   const uint8_t mode = b->mode;
   // First, the common case of everything being in bounds
   if ((x >= 0) && (y >= 0) && (y < bheight) && (x < bwidth)) {
-    uint8_t* base = b->data + (y * b->width_bytes) + (x >> 3);
+    const uint16_t column = x >> 3;
+    uint8_t* base = b->data + (y * wbytes) + column;
     const uint8_t shift = x & 0x07;
     bitmap_apply(base, mode, data >> shift);
-    if (shift && (x <= (bwidth - 8))) {
+    if (shift && (column < (wbytes - 1))) {
       bitmap_apply(base + 1, mode, data << (8 - shift)); 
+      if (column == (wbytes - 2) && (bwidth & 0x07)) {
+        // may need to trim the edge
+        base[1] &= (0xFF << (8 - (bwidth & 0x07))); 
+      }
     }
     return;
   }
