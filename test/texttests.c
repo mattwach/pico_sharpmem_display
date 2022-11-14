@@ -125,3 +125,23 @@ struct TestData* test_text_chr11(struct Bitmap* bitmap) {
   assert_true(&bitmap_chr11_data, text.x == 0, "text.x want=0, got=%d", text.x);
   return &bitmap_chr11_data;
 }
+
+static struct TestData bitmap_slen1_data = { "slen1", 57,  0, {}};
+struct TestData* test_text_slen1(struct Bitmap* bitmap) {
+  struct BitmapText text;
+  text_init(&text, liberation_sans_18, bitmap);
+  text_strlen(&text, "Hi", 2);
+  assert_true(&bitmap_slen1_data, text.error == 0, "text.error want=0, got=%d", text.error);
+  assert_true(&bitmap_slen1_data, text.x == 21, "text.x want=21, got=%d", text.x);
+  return &bitmap_slen1_data;
+}
+
+static struct TestData bitmap_str1_data = { "str1", 57,  0, {}};
+struct TestData* test_text_str1(struct Bitmap* bitmap) {
+  struct BitmapText text;
+  text_init(&text, liberation_sans_18, bitmap);
+  text_str(&text, "Hi");
+  assert_true(&bitmap_str1_data, text.error == 0, "text.error want=0, got=%d", text.error);
+  assert_true(&bitmap_str1_data, text.x == 21, "text.x want=21, got=%d", text.x);
+  return &bitmap_str1_data;
+}
