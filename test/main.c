@@ -30,6 +30,17 @@ struct TestData* test_bitmap_cpyr1(struct Bitmap* bitmap);
 struct TestData* test_bitmap_cpyr2(struct Bitmap* bitmap);
 struct TestData* test_bitmap_blit0(struct Bitmap* bitmap);
 struct TestData* test_bitmap_blit1(struct Bitmap* bitmap);
+struct TestData* test_text_char1(struct Bitmap* bitmap);
+struct TestData* test_text_char2(struct Bitmap* bitmap);
+struct TestData* test_text_char3(struct Bitmap* bitmap);
+struct TestData* test_text_char4(struct Bitmap* bitmap);
+struct TestData* test_text_char5(struct Bitmap* bitmap);
+struct TestData* test_text_char6(struct Bitmap* bitmap);
+struct TestData* test_text_char7(struct Bitmap* bitmap);
+struct TestData* test_text_char8(struct Bitmap* bitmap);
+struct TestData* test_text_char9(struct Bitmap* bitmap);
+struct TestData* test_text_chr10(struct Bitmap* bitmap);
+struct TestData* test_text_chr11(struct Bitmap* bitmap);
 
 // Call all APIs that result in something being drawn to the display
 // Then checks pixel counts and certain called-out pixel values
@@ -59,6 +70,17 @@ struct TestData* (*tests[])(struct Bitmap*) = {
   test_bitmap_cpyr2,
   test_bitmap_blit0,
   test_bitmap_blit1,
+  test_text_char1,
+  test_text_char2,
+  test_text_char3,
+  test_text_char4,
+  test_text_char5,
+  test_text_char6,
+  test_text_char7,
+  test_text_char8,
+  test_text_char9,
+  test_text_chr10,
+  test_text_chr11,
 };
 
 struct DrawState {

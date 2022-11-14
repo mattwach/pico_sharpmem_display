@@ -15,6 +15,7 @@ target_link_libraries(sharpdisp_test_alldraw
     BITMAPSHAPES
     BITMAPTEXT
     LIBERATION_MONO_10
+    LIBERATION_SANS_18
 )
 
 # enable usb output, disable uart output
