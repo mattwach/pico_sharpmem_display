@@ -24,6 +24,8 @@ struct TestData {
 
 // Utility functions
 int16_t rand16(int16_t min, int16_t max);
+// assert with a printf-syntax for failure
+void assert_true(struct TestData* t, uint8_t condition, const char* fmt, ...);
 
 #endif
 
