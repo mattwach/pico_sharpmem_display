@@ -150,9 +150,17 @@ static inline void bitmap_apply_stripe(
     if (shift && (column < (wbytes - 1))) {
       bitmap_apply(base + 1, mode, data << (8 - shift)); 
       if (column == (wbytes - 2) && (bwidth & 0x07)) {
-        // may need to trim the edge
+        // This is the last byte in a bitmap row which contains some
+        // "unused" bits.  Even though these are unused, they still
+        // need to be cleared out so that functions that expect these
+        // bits to just be zero will not run into bugs (such as
+        // drawing random artifacts on the right edge).
         base[1] &= (0xFF << (8 - (bwidth & 0x07))); 
       }
+    } else if (column == (wbytes - 1) && (bwidth & 0x07)) {
+      // The same "last byte" issue as described above with the
+      // same solution.
+      base[0] &= (0xFF << (8 - (bwidth & 0x07)));
     }
     return;
   }
