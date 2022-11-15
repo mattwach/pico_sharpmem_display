@@ -183,11 +183,16 @@ static inline uint8_t bitmap_get_stripe(
   const uint16_t bwidth = b->width;
   const uint16_t bheight = b->height;
   // First, the common case of everything being in bounds
-  if ((x >= 0) && (y >= 0) && (y < bheight) && (x <= (bwidth - 8))) {
-    uint8_t* base = b->data + (y * b->width_bytes) + (x >> 3);
+  if ((x >= 0) && (y >= 0) && (y < bheight) && (x <= bwidth)) {
+    const uint16_t column = x >> 3;
+    uint8_t* base = b->data + (y * b->width_bytes) + column;
     const uint8_t shift = x & 0x07;
     if (shift) {
-      return (base[0] << shift) | (base[1] >> (8 - shift));
+      if (column < (bwidth - 1)) {
+        return (base[0] << shift) | (base[1] >> (8 - shift));
+      } else {
+        return base[0] << shift;
+      }
     } else {
       return base[0];
     }
