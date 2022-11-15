@@ -1,3 +1,6 @@
+#include "common.h"
+#include <stdarg.h>
+#include <stdio.h>
 #include "hardware/structs/rosc.h"
 
 // some good-enough random generation
@@ -11,4 +14,16 @@ int16_t rand16(int16_t min, int16_t max) {
     }
   }
   return (min + (v % (max - min))) / 2;
+}
+
+void assert_true(struct TestData* t, uint8_t condition, const char* fmt, ...) {
+  if (!condition) {
+    t->on_count = 10000;  // the real bitmap can not get this high
+    printf("  assert failure: ");
+    va_list args;
+    va_start(args, fmt);
+    vprintf(fmt, args);
+    va_end(args);
+    printf("\n");
+  }
 }
