@@ -47,7 +47,7 @@ struct TestData* test_text_char4(struct Bitmap* bitmap) {
   return &bitmap_char4_data;
 }
 
-static struct TestData bitmap_char5_data = { "char5", 20,  0, {}};
+static struct TestData bitmap_char5_data = { "char5", 21,  0, {}};
 struct TestData* test_text_char5(struct Bitmap* bitmap) {
   struct BitmapText text;
   text_init(&text, liberation_sans_18, bitmap);
@@ -76,11 +76,11 @@ struct TestData* test_text_char7(struct Bitmap* bitmap) {
   text.x = bitmap->width;
   text_char(&text, 'A');
   assert_true(&bitmap_char7_data, text.error == 0, "text.error want=0, got=%d", text.error);
-  assert_true(&bitmap_char7_data, text.x == bitmap->width + 14, "text.x want=%d, got=%d", bitmap->width + 14, text.x);
+  assert_true(&bitmap_char7_data, text.x == bitmap->width, "text.x want=%d, got=%d", bitmap->width + 14, text.x);
   return &bitmap_char7_data;
 }
 
-static struct TestData bitmap_char8_data = { "char8", 20,  0, {}};
+static struct TestData bitmap_char8_data = { "char8", 28,  0, {}};
 struct TestData* test_text_char8(struct Bitmap* bitmap) {
   struct BitmapText text;
   text_init(&text, liberation_sans_18, bitmap);
@@ -91,19 +91,19 @@ struct TestData* test_text_char8(struct Bitmap* bitmap) {
   return &bitmap_char8_data;
 }
 
-static struct TestData bitmap_char9_data = { "char9", 20,  0, {}};
+static struct TestData bitmap_char9_data = { "char9", 13,  0, {}};
 struct TestData* test_text_char9(struct Bitmap* bitmap) {
   struct BitmapText text;
   text_init(&text, liberation_sans_18, bitmap);
   text.y = bitmap->height - 7;
   text_char(&text, 'A');
   assert_true(&bitmap_char9_data, text.error == 0, "text.error want=0, got=%d", text.error);
-  assert_true(&bitmap_char9_data, text.y == bitmap->height + 7, "text.y want=%d, got=%d", bitmap->height + 7, text.y);
+  assert_true(&bitmap_char9_data, text.y == bitmap->height - 7, "text.y want=%d, got=%d", bitmap->height + 7, text.y);
   return &bitmap_char9_data;
 }
 
 // Unknown character
-static struct TestData bitmap_chr10_data = { "chr10", 41,  0, {}};
+static struct TestData bitmap_chr10_data = { "chr10", 0,  0, {}};
 struct TestData* test_text_chr10(struct Bitmap* bitmap) {
   struct BitmapText text;
   text_init(&text, liberation_sans_18, bitmap);
@@ -115,7 +115,7 @@ struct TestData* test_text_chr10(struct Bitmap* bitmap) {
 }
 
 // Bad font data
-static struct TestData bitmap_chr11_data = { "chr11", 41,  0, {}};
+static struct TestData bitmap_chr11_data = { "chr11", 0,  0, {}};
 struct TestData* test_text_chr11(struct Bitmap* bitmap) {
   struct BitmapText text;
   text_init(&text, liberation_sans_18 + 1, bitmap);
@@ -126,7 +126,7 @@ struct TestData* test_text_chr11(struct Bitmap* bitmap) {
   return &bitmap_chr11_data;
 }
 
-static struct TestData bitmap_slen1_data = { "slen1", 57,  0, {}};
+static struct TestData bitmap_slen1_data = { "slen1", 79,  0, {}};
 struct TestData* test_text_slen1(struct Bitmap* bitmap) {
   struct BitmapText text;
   text_init(&text, liberation_sans_18, bitmap);
@@ -136,7 +136,7 @@ struct TestData* test_text_slen1(struct Bitmap* bitmap) {
   return &bitmap_slen1_data;
 }
 
-static struct TestData bitmap_str1_data = { "str1", 57,  0, {}};
+static struct TestData bitmap_str1_data = { "str1", 79,  0, {}};
 struct TestData* test_text_str1(struct Bitmap* bitmap) {
   struct BitmapText text;
   text_init(&text, liberation_sans_18, bitmap);

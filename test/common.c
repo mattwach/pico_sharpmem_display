@@ -19,7 +19,7 @@ int16_t rand16(int16_t min, int16_t max) {
 void assert_true(struct TestData* t, uint8_t condition, const char* fmt, ...) {
   if (!condition) {
     t->on_count = 10000;  // the real bitmap can not get this high
-    printf("  assert failure: ");
+    printf("%s assert failure: ", t->name);
     va_list args;
     va_start(args, fmt);
     vprintf(fmt, args);

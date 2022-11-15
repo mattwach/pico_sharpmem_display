@@ -79,6 +79,8 @@ void text_char(struct BitmapText* text, char c) {
 
   if (text->x < text->bitmap->width) {
     text->x += width;
+  } else {
+    text->x = text->bitmap->width;
   }
 }
 
