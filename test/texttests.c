@@ -145,3 +145,32 @@ struct TestData* test_text_str1(struct Bitmap* bitmap) {
   assert_true(&bitmap_str1_data, text.x == 21, "text.x want=21, got=%d", text.x);
   return &bitmap_str1_data;
 }
+
+static struct TestData bitmap_prtf1_data = { "prtf1", 79,  0, {}};
+struct TestData* test_text_prtf1(struct Bitmap* bitmap) {
+  struct BitmapText text;
+  char str[16];
+  text_init(&text, liberation_sans_18, bitmap);
+  text.printf_buffer = str;
+  text_printf(&text, "%d", 10);
+  assert_true(&bitmap_prtf1_data, text.error == 0, "text.error want=0, got=%d", text.error);
+  assert_true(&bitmap_prtf1_data, text.x == 24, "text.x want=24, got=%d", text.x);
+  return &bitmap_prtf1_data;
+}
+
+static struct TestData bitmap_mtric_data = { "mtric", 0,  0, {}};
+struct TestData* test_text_mtric(struct Bitmap* bitmap) {
+  struct BitmapText text;
+  text_init(&text, liberation_sans_18, bitmap);
+  uint8_t w = text_char_width(&text, '0');
+  assert_true(&bitmap_mtric_data, w == 12, "char_width want=12, got=%d", w);
+  w = text_char_width(&text, 200);
+  assert_true(&bitmap_mtric_data, w == 0, "char_width want=0, got=%d", w);
+  w = text_strlen_width(&text, "Hi", 2);
+  assert_true(&bitmap_mtric_data, w == 21, "char_width want=21, got=%d", w);
+  w = text_str_width(&text, "OK");
+  assert_true(&bitmap_mtric_data, w == 22, "char_width want=22, got=%d", w);
+  uint8_t h = text_height(&text);
+  assert_true(&bitmap_mtric_data, h == 14, "char_height want=14, got=%d", h);
+  return &bitmap_mtric_data;
+}
