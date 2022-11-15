@@ -146,7 +146,7 @@ struct TestData* test_text_str1(struct Bitmap* bitmap) {
   return &bitmap_str1_data;
 }
 
-static struct TestData bitmap_prtf1_data = { "prtf1", 79,  0, {}};
+static struct TestData bitmap_prtf1_data = { "prtf1", 61,  0, {}};
 struct TestData* test_text_prtf1(struct Bitmap* bitmap) {
   struct BitmapText text;
   char str[16];
@@ -169,8 +169,8 @@ struct TestData* test_text_mtric(struct Bitmap* bitmap) {
   w = text_strlen_width(&text, "Hi", 2);
   assert_true(&bitmap_mtric_data, w == 21, "char_width want=21, got=%d", w);
   w = text_str_width(&text, "OK");
-  assert_true(&bitmap_mtric_data, w == 22, "char_width want=22, got=%d", w);
+  assert_true(&bitmap_mtric_data, w == 30, "char_width want=30, got=%d", w);
   uint8_t h = text_height(&text);
-  assert_true(&bitmap_mtric_data, h == 14, "char_height want=14, got=%d", h);
+  assert_true(&bitmap_mtric_data, h == 18, "char_height want=18, got=%d", h);
   return &bitmap_mtric_data;
 }
