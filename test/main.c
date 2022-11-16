@@ -10,7 +10,7 @@
 #include "common.h"
 
 #define USB_WAIT_MS 2000
-#define WAIT_MS 4000
+#define WAIT_MS 1000
 #define REFRESH_MS 32
 #define TEXT_HEIGHT 10
 #define XPAD 4
@@ -183,17 +183,18 @@ static uint8_t run_test(int index) {
   return errors;
 }
 
-static void final_status(uint32_t failures, uint32_t num_tests) {
-  printf("Tests Completed: %d failures.  %d/%d passed\n",
+static void final_status(uint32_t failures, uint32_t num_ran, uint32_t num_tests) {
+  printf("Tests Completed: %d failures.  %d/%d passed, %d skipped\n",
       failures,
-      (num_tests - failures),
-      num_tests);
+      (num_ran - failures),
+      num_ran,
+      num_tests - num_ran);
   
   text.x = 10;
   text.y = DISPLAY_HEIGHT - TEXT_HEIGHT * 2;
   bitmap_copy(&db.bitmap, &sd.bitmap);
   if (failures > 0) {
-    text_printf(&text, "Test Completed: %d/%d FAILED.", failures, num_tests);
+    text_printf(&text, "Completed: %d/%d FAILED, %d SKIP", failures, num_ran, num_tests - num_ran);
   } else {
     text_printf(&text, "ALL %d TESTS PASSED.", num_tests);
   }
@@ -209,10 +210,15 @@ int main(void) {
   uint32_t failures = 0;
   ds.x = 0;
   ds.y = 0;
-  for (int i=0; i < num_tests; ++i) {
+  int i = 0;
+  for (; i < num_tests; ++i) {
     failures += run_test(i);
+    if ((failures > 0) && (ds.x == 0) && (ds.y == 0)) {
+      // stop here for analysis
+      break;
+    }
   }
-  final_status(failures, num_tests);
+  final_status(failures, i, num_tests);
   while (1) {
     doublebuffer_refresh(&db);
   }
