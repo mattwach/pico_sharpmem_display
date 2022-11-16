@@ -30,6 +30,8 @@ struct TestData* test_image_imgy4(struct Bitmap* bitmap);
 struct TestData* test_image_imgy5(struct Bitmap* bitmap);
 struct TestData* test_image_imgy6(struct Bitmap* bitmap);
 struct TestData* test_image_imgy7(struct Bitmap* bitmap);
+struct TestData* test_image_tile0(struct Bitmap* bitmap);
+struct TestData* test_image_tile1(struct Bitmap* bitmap);
 struct TestData* test_text_char1(struct Bitmap* bitmap);
 struct TestData* test_text_char2(struct Bitmap* bitmap);
 struct TestData* test_text_char3(struct Bitmap* bitmap);
@@ -76,6 +78,8 @@ struct TestData* (*tests[])(struct Bitmap*) = {
   test_image_imgy5,
   test_image_imgy6,
   test_image_imgy7,
+  test_image_tile0,
+  test_image_tile1,
   test_text_char1,
   test_text_char2,
   test_text_char3,

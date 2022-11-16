@@ -13,7 +13,7 @@ def get_functions(path: str) -> List[str]:
         continue
       line, _ = line.split('(', 1)
       tokens = line.split()
-      if len(tokens) < 2:
+      if len(tokens) < 3:
         continue
       if tokens[0] != 'struct':
         continue

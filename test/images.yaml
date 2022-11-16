@@ -3,3 +3,8 @@ output_type: SharpMemoryImage
 images:
   - path: small.png 
   - path: medium.png 
+  - path: medium.png 
+    tile_x: 8
+    tile_y: 6
+
+

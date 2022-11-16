@@ -172,3 +172,31 @@ struct TestData* test_image_imgy7(struct Bitmap* bitmap) {
   image_draw(&bi, SMALL_IMG, 0, bitmap->height);
   return &image_imgy7_data;
 }
+
+static struct TestData image_tile0_data = { "tile0", 30, 0, {} };
+struct TestData* test_image_tile0(struct Bitmap* bitmap) {
+  struct BitmapImages bi;
+  image_init(&bi, images, bitmap);
+  image_draw_tiled(&bi, MEDIUM_IMG_0_0, MEDIUM_IMG_COLUMNS, MEDIUM_IMG_ROWS, 0, 0);
+  return &image_tile0_data;
+}
+
+static struct TestData image_tile1_data = { "tile0", 0, 0, {} };
+struct TestData* test_image_tile1(struct Bitmap* bitmap) {
+  struct BitmapImages bi;
+  image_init(&bi, images, bitmap);
+  bitmap->mode = BITMAP_INVERSE;
+  const uint16_t rounds = 100;
+
+  for (uint16_t i=0; i<rounds; ++i) {
+    const uint16_t x = rand16(-10, bitmap->width + 1);
+    const uint16_t y = rand16(-10, bitmap->height + 1);
+
+    // draw it
+    image_draw(&bi, MEDIUM_IMG, x, y);
+    // erase it
+    image_draw_tiled(&bi, MEDIUM_IMG_0_0, MEDIUM_IMG_COLUMNS, MEDIUM_IMG_ROWS, x, y);
+  }
+
+  return &image_tile1_data;
+}
