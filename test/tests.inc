@@ -15,11 +15,21 @@ struct TestData* test_bitmap_cpyr2(struct Bitmap* bitmap);
 struct TestData* test_bitmap_gtst1(struct Bitmap* bitmap);
 struct TestData* test_bitmap_gtst2(struct Bitmap* bitmap);
 struct TestData* test_bitmap_pnt(struct Bitmap* bitmap);
-struct TestData* test_image_img01(struct Bitmap* bitmap);
 struct TestData* test_image_imgba(struct Bitmap* bitmap);
-struct TestData* test_image_imgo2(struct Bitmap* bitmap);
-struct TestData* test_image_imgo3(struct Bitmap* bitmap);
-struct TestData* test_image_imgo4(struct Bitmap* bitmap);
+struct TestData* test_image_imgx1(struct Bitmap* bitmap);
+struct TestData* test_image_imgx2(struct Bitmap* bitmap);
+struct TestData* test_image_imgx3(struct Bitmap* bitmap);
+struct TestData* test_image_imgx4(struct Bitmap* bitmap);
+struct TestData* test_image_imgx5(struct Bitmap* bitmap);
+struct TestData* test_image_imgx6(struct Bitmap* bitmap);
+struct TestData* test_image_imgx7(struct Bitmap* bitmap);
+struct TestData* test_image_imgy1(struct Bitmap* bitmap);
+struct TestData* test_image_imgy2(struct Bitmap* bitmap);
+struct TestData* test_image_imgy3(struct Bitmap* bitmap);
+struct TestData* test_image_imgy4(struct Bitmap* bitmap);
+struct TestData* test_image_imgy5(struct Bitmap* bitmap);
+struct TestData* test_image_imgy6(struct Bitmap* bitmap);
+struct TestData* test_image_imgy7(struct Bitmap* bitmap);
 struct TestData* test_text_char1(struct Bitmap* bitmap);
 struct TestData* test_text_char2(struct Bitmap* bitmap);
 struct TestData* test_text_char3(struct Bitmap* bitmap);
@@ -51,11 +61,21 @@ struct TestData* (*tests[])(struct Bitmap*) = {
   test_bitmap_gtst1,
   test_bitmap_gtst2,
   test_bitmap_pnt,
-  test_image_img01,
   test_image_imgba,
-  test_image_imgo2,
-  test_image_imgo3,
-  test_image_imgo4,
+  test_image_imgx1,
+  test_image_imgx2,
+  test_image_imgx3,
+  test_image_imgx4,
+  test_image_imgx5,
+  test_image_imgx6,
+  test_image_imgx7,
+  test_image_imgy1,
+  test_image_imgy2,
+  test_image_imgy3,
+  test_image_imgy4,
+  test_image_imgy5,
+  test_image_imgy6,
+  test_image_imgy7,
   test_text_char1,
   test_text_char2,
   test_text_char3,
