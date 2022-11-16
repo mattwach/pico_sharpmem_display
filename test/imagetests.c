@@ -29,7 +29,7 @@ struct TestData* test_image_imgba(struct Bitmap* bitmap) {
   return &image_imgba_data;
 }
 
-static struct TestData image_imgx1_data = { "imgx1", 12, 0, {} };
+static struct TestData image_imgx1_data = { "imgx1", 0, 0, {} };
 struct TestData* test_image_imgx1(struct Bitmap* bitmap) {
   struct BitmapImages bi;
   image_init(&bi, images, bitmap);
@@ -145,7 +145,7 @@ static struct TestData image_imgy4_data = { "imgy4", 12, 0, {} };
 struct TestData* test_image_imgy4(struct Bitmap* bitmap) {
   struct BitmapImages bi;
   image_init(&bi, images, bitmap);
-  image_draw(&bi, SMALL_IMG, 0, bitmap->height - 6);
+  image_draw(&bi, SMALL_IMG, 0, bitmap->height - 5);
   return &image_imgy4_data;
 }
 
@@ -153,7 +153,7 @@ static struct TestData image_imgy5_data = { "imgy5", 10, 0, {} };
 struct TestData* test_image_imgy5(struct Bitmap* bitmap) {
   struct BitmapImages bi;
   image_init(&bi, images, bitmap);
-  image_draw(&bi, SMALL_IMG, 0, bitmap->height - 5);
+  image_draw(&bi, SMALL_IMG, 0, bitmap->height - 4);
   return &image_imgy5_data;
 }
 
@@ -181,7 +181,7 @@ struct TestData* test_image_tile0(struct Bitmap* bitmap) {
   return &image_tile0_data;
 }
 
-static struct TestData image_tile1_data = { "tile0", 0, 0, {} };
+static struct TestData image_tile1_data = { "tile1", 0, 0, {} };
 struct TestData* test_image_tile1(struct Bitmap* bitmap) {
   struct BitmapImages bi;
   image_init(&bi, images, bitmap);
