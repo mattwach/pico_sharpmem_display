@@ -247,7 +247,7 @@ def dump_sources(
     )))
 
     for i in image_list:
-      i.rle = rle.create_rle_data(i.image.height, i.image)
+      i.rle = rle.create_rle_data(i.image.height, i.image, i.invert)
     generate_offsets(fout, image_list)
 
     fout.write('    // Image data\n')
