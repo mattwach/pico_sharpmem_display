@@ -1,0 +1,5 @@
+output_type: SharpMemoryImage
+
+images:
+  - path: small.png 
+  - path: medium.png 
