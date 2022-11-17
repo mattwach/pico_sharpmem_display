@@ -16,7 +16,6 @@ struct SamplePoint {
 };
 
 struct TestData {
-  const char* name; // 5 characters
   uint16_t on_count;  // number of pixels that should be active
   uint16_t num_samples;
   const struct SamplePoint samples[];

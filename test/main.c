@@ -163,7 +163,6 @@ static uint8_t test_a_sample(struct Bitmap* bitmap, const struct SamplePoint* p)
 
 static uint8_t check_test_data(struct Bitmap* bitmap, struct TestData* test_data) {
   uint8_t errors = 0;
-  printf("%s:\n", test_data->name);
   errors += check_eyecatchers(bitmap_buffer, "start");
   errors += check_eyecatchers(
     bitmap_buffer + sizeof(bitmap_buffer) - sizeof(eyecatcher_bytes), "end");
@@ -178,8 +177,9 @@ static uint8_t run_test(int index) {
   struct Bitmap bitmap;
   prepare_bitmap(&bitmap);
   struct TestData* test_data = tests[index](&bitmap);
+  printf("%s:\n", test_names[index]);
   uint8_t errors = check_test_data(&bitmap, test_data);
-  draw_result(&bitmap, test_data->name, errors);
+  draw_result(&bitmap, test_names[index], errors);
   return errors;
 }
 

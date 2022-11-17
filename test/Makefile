@@ -3,7 +3,7 @@ IMAGES := $(wildcard *.png)
 
 all: tests.inc images.c
 
-tests.inc: $(FILES)
+tests.inc: $(FILES) gen_testnames.py
 	./gen_testnames.py
 
 images.c: images.yaml $(IMAGES)

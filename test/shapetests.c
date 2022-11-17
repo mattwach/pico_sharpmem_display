@@ -3,7 +3,6 @@
 #include "sharpdisp/bitmapshapes.h"
 
 static struct TestData image_hline_data = {
-  "hline",
   19,
   9,
   {

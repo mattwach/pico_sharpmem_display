@@ -29,11 +29,23 @@ def create_signatures(fn_list: List[str]) -> List[str]:
     return f'struct TestData* {name}(struct Bitmap* bitmap);'
   return [make_sig(name) for name in fn_list]
 
-def create_array(fn_list: List[str]) -> List[str]:
+def create_fn_array(fn_list: List[str]) -> List[str]:
   lines = [
       'struct TestData* (*tests[])(struct Bitmap*) = {',
   ]
   lines.extend(f'  {name},' for name in fn_list)
+  lines.append('};')
+  return lines
+
+def create_name_array(fn_list: List[str]) -> List[str]:
+  lines = [
+      'const char* test_names[] = {',
+  ]
+  for fn_name in fn_list:
+    name = fn_name.split('_')[-1]
+    if len(name) > 5:
+      sys.exit(f'{fn_name} name is > 5 chars: {name}')
+    lines.append(f'  "{name}",')
   lines.append('};')
   return lines
 
@@ -45,7 +57,9 @@ def generate_output(fn_list: List[str]) -> None:
   ]
   lines.extend(create_signatures(fn_list))
   lines.append('')
-  lines.extend(create_array(fn_list))
+  lines.extend(create_fn_array(fn_list))
+  lines.append('')
+  lines.extend(create_name_array(fn_list))
   lines.append('')
   with open('tests.inc', 'w') as fout:
     fout.write('\n'.join(lines))

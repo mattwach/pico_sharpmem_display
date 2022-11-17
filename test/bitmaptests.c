@@ -6,7 +6,6 @@ uint8_t buff[BITMAP_SIZE(WIDTH*2, HEIGHT*2)];
 
 // Tests the bitmap_point function (clear to 0xFF)
 static struct TestData bitmap_pnt_data = {
-  "point",
   10,  // 1 pixel count
   10,  // point test count
   // Point Tests
@@ -63,7 +62,6 @@ struct TestData* test_bitmap_pnt(struct Bitmap* bitmap) {
 
 // tests get and apply stripe
 static struct TestData bitmap_apst1_data = {
-  "apst1",
   92,  // 1 pixel count
   39,  // point test count
   // Point Tests
@@ -140,7 +138,6 @@ struct TestData* test_bitmap_apst1(struct Bitmap* bitmap) {
 }
 
 static struct TestData bitmap_apst2_data = {
-  "apst2",
   23,  // 1 pixel count
   39,  // point test count
   // Point Tests
@@ -217,7 +214,6 @@ struct TestData* test_bitmap_apst2(struct Bitmap* bitmap) {
 }
 
 static struct TestData bitmap_gtst1_data = {
-  "gtst1",
   27,  // 1 pixel count
   27,  // point test count
   // Point Tests
@@ -285,7 +281,7 @@ struct TestData* test_bitmap_gtst1(struct Bitmap* bitmap) {
   return &bitmap_gtst1_data;
 }
 
-static struct TestData bitmap_gtst2_data = { "gtst2", 0, 0, {} };
+static struct TestData bitmap_gtst2_data = {0, 0, {}};
 struct TestData* test_bitmap_gtst2(struct Bitmap* bitmap) {
   bitmap->mode = BITMAP_INVERSE;
   for (int i=0; i<100; ++i) {
@@ -300,7 +296,6 @@ struct TestData* test_bitmap_gtst2(struct Bitmap* bitmap) {
 
 // bitmap_blit test
 static struct TestData bitmap_blit0_data = {
-  "blit0",
   8,
   8, 
   {
@@ -337,7 +332,7 @@ struct TestData* test_bitmap_blit0(struct Bitmap* bitmap) {
   return &bitmap_blit0_data;
 }
 
-static struct TestData bitmap_blit1_data = { "blit1", 0, 0, {}};
+static struct TestData bitmap_blit1_data = {0, 0, {}};
 struct TestData* test_bitmap_blit1(struct Bitmap* bitmap) {
   // Create boxes of random points, get them, put them back in XOR mode
   // when all done there should be no lit pixels
@@ -370,7 +365,7 @@ struct TestData* test_bitmap_blit1(struct Bitmap* bitmap) {
 
 
 // Tests the bitmap_clear function (clear to 0x00)
-static struct TestData bitmap_clr0_data = { "clr0", 0, 0, {} };
+static struct TestData bitmap_clr0_data = {0, 0, {}};
 struct TestData* test_bitmap_clr0(struct Bitmap* bitmap) {
   bitmap->clear_byte = 0x00;
   bitmap_clear(bitmap);
@@ -378,7 +373,7 @@ struct TestData* test_bitmap_clr0(struct Bitmap* bitmap) {
 }
 
 // Tests the bitmap_clear function (clear to 0xFF)
-static struct TestData bitmap_clr1_data = { "clr1", WIDTH * HEIGHT, 0, {} };
+static struct TestData bitmap_clr1_data = {WIDTH * HEIGHT, 0, {}};
 struct TestData* test_bitmap_clr1(struct Bitmap* bitmap) {
   bitmap->clear_byte = 0xFF;
   bitmap_clear(bitmap);
@@ -387,7 +382,6 @@ struct TestData* test_bitmap_clr1(struct Bitmap* bitmap) {
 
 // Tests the bitmap_copy function (same height)
 static struct TestData bitmap_copy1_data = {
-  "copy1",
   (WIDTH - 2) * 2 + (HEIGHT - 4) * 2,  // 1 pixel count
   8,  // point test count
   // Point Tests
@@ -413,7 +407,6 @@ struct TestData* test_bitmap_copy1(struct Bitmap* bitmap) {
 
 // Tests the bitmap_copy function (dest is taller)
 static struct TestData bitmap_copy2_data = {
-  "copy2",
   (WIDTH - 2) * 2 + (HEIGHT - 9) * 2,  // 1 pixel count
   8,  // point test count
   // Point Tests
@@ -439,7 +432,6 @@ struct TestData* test_bitmap_copy2(struct Bitmap* bitmap) {
 
 // Tests the bitmap_copy function (dest is shorter)
 static struct TestData bitmap_copy3_data = {
-  "copy3",
   (WIDTH - 2) + (HEIGHT - 2) * 2,  // 1 pixel count
   8,  // point test count
   // Point Tests
@@ -465,7 +457,6 @@ struct TestData* test_bitmap_copy3(struct Bitmap* bitmap) {
 
 // copies a larger bitmap into a smaller one with an offset
 static struct TestData bitmap_cpyr1_data = {
-  "cpyr1",
   (WIDTH - 3) * 2 + (HEIGHT - 4) * 2,  // 1 pixel count
   6,  // point test count
   // Point Tests
@@ -488,7 +479,6 @@ struct TestData* test_bitmap_cpyr1(struct Bitmap* bitmap) {
 }
 
 static struct TestData bitmap_cpyr2_data = {
-  "cpyr2",
   ((WIDTH - 6) * 2) + (HEIGHT - 12) * 2,
   6,  // point test count
   // Point Tests
