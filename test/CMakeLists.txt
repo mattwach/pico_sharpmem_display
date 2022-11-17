@@ -4,6 +4,7 @@ add_executable(sharpdisp_test_alldraw
         common.c
         images.c
         imagetests.c
+        shapetests.c
         texttests.c
         )
 

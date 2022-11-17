@@ -15,6 +15,7 @@ struct TestData* test_bitmap_cpyr2(struct Bitmap* bitmap);
 struct TestData* test_bitmap_gtst1(struct Bitmap* bitmap);
 struct TestData* test_bitmap_gtst2(struct Bitmap* bitmap);
 struct TestData* test_bitmap_pnt(struct Bitmap* bitmap);
+struct TestData* test_image_hline(struct Bitmap* bitmap);
 struct TestData* test_image_imgba(struct Bitmap* bitmap);
 struct TestData* test_image_imgx1(struct Bitmap* bitmap);
 struct TestData* test_image_imgx2(struct Bitmap* bitmap);
@@ -63,6 +64,7 @@ struct TestData* (*tests[])(struct Bitmap*) = {
   test_bitmap_gtst1,
   test_bitmap_gtst2,
   test_bitmap_pnt,
+  test_image_hline,
   test_image_imgba,
   test_image_imgx1,
   test_image_imgx2,
