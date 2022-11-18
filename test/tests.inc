@@ -32,6 +32,16 @@ struct TestData* test_image_imgy6(struct Bitmap* bitmap);
 struct TestData* test_image_imgy7(struct Bitmap* bitmap);
 struct TestData* test_image_tile0(struct Bitmap* bitmap);
 struct TestData* test_image_tile1(struct Bitmap* bitmap);
+struct TestData* test_shapes_circ1(struct Bitmap* bitmap);
+struct TestData* test_shapes_circ2(struct Bitmap* bitmap);
+struct TestData* test_shapes_fcir1(struct Bitmap* bitmap);
+struct TestData* test_shapes_fcir2(struct Bitmap* bitmap);
+struct TestData* test_shapes_fill1(struct Bitmap* bitmap);
+struct TestData* test_shapes_fill2(struct Bitmap* bitmap);
+struct TestData* test_shapes_fill3(struct Bitmap* bitmap);
+struct TestData* test_shapes_fovl1(struct Bitmap* bitmap);
+struct TestData* test_shapes_fovl2(struct Bitmap* bitmap);
+struct TestData* test_shapes_fovl3(struct Bitmap* bitmap);
 struct TestData* test_shapes_frct1(struct Bitmap* bitmap);
 struct TestData* test_shapes_frct2(struct Bitmap* bitmap);
 struct TestData* test_shapes_frct3(struct Bitmap* bitmap);
@@ -43,6 +53,8 @@ struct TestData* test_shapes_hline(struct Bitmap* bitmap);
 struct TestData* test_shapes_line(struct Bitmap* bitmap);
 struct TestData* test_shapes_line2(struct Bitmap* bitmap);
 struct TestData* test_shapes_oval1(struct Bitmap* bitmap);
+struct TestData* test_shapes_oval2(struct Bitmap* bitmap);
+struct TestData* test_shapes_oval3(struct Bitmap* bitmap);
 struct TestData* test_shapes_rect1(struct Bitmap* bitmap);
 struct TestData* test_shapes_rect2(struct Bitmap* bitmap);
 struct TestData* test_shapes_rect3(struct Bitmap* bitmap);
@@ -99,6 +111,16 @@ struct TestData* (*tests[])(struct Bitmap*) = {
   test_image_imgy7,
   test_image_tile0,
   test_image_tile1,
+  test_shapes_circ1,
+  test_shapes_circ2,
+  test_shapes_fcir1,
+  test_shapes_fcir2,
+  test_shapes_fill1,
+  test_shapes_fill2,
+  test_shapes_fill3,
+  test_shapes_fovl1,
+  test_shapes_fovl2,
+  test_shapes_fovl3,
   test_shapes_frct1,
   test_shapes_frct2,
   test_shapes_frct3,
@@ -110,6 +132,8 @@ struct TestData* (*tests[])(struct Bitmap*) = {
   test_shapes_line,
   test_shapes_line2,
   test_shapes_oval1,
+  test_shapes_oval2,
+  test_shapes_oval3,
   test_shapes_rect1,
   test_shapes_rect2,
   test_shapes_rect3,
@@ -167,6 +191,16 @@ const char* test_names[] = {
   "imgy7",
   "tile0",
   "tile1",
+  "circ1",
+  "circ2",
+  "fcir1",
+  "fcir2",
+  "fill1",
+  "fill2",
+  "fill3",
+  "fovl1",
+  "fovl2",
+  "fovl3",
   "frct1",
   "frct2",
   "frct3",
@@ -178,6 +212,8 @@ const char* test_names[] = {
   "line",
   "line2",
   "oval1",
+  "oval2",
+  "oval3",
   "rect1",
   "rect2",
   "rect3",

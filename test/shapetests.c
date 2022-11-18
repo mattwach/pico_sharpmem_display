@@ -2,6 +2,9 @@
 #include "common.h"
 #include "sharpdisp/bitmapshapes.h"
 
+#define FILL_QUEUE_LENGTH 32
+uint32_t fill_queue[FILL_QUEUE_LENGTH];
+
 static struct TestData shapes_hline_data = {
   19,
   19,
@@ -425,4 +428,129 @@ struct TestData* test_shapes_oval1(struct Bitmap* bitmap) {
   bitmap_oval(bitmap, 20, y, 3, ry);
   bitmap_oval(bitmap, 29, y, 5, ry);
   return &shapes_oval1_data;
+}
+
+static struct TestData shapes_oval2_data = {83, 0, {}};
+struct TestData* test_shapes_oval2(struct Bitmap* bitmap) {
+  const int16_t x = WIDTH / 2;
+  const int16_t rx = WIDTH / 5;
+  bitmap_oval(bitmap, x, 1, rx, 0);
+  bitmap_oval(bitmap, x, 2, rx, 1);
+  bitmap_oval(bitmap, x, 5, rx, 2);
+  bitmap_oval(bitmap, x, 10, rx, 3);
+  bitmap_oval(bitmap, x, 20, rx, 4);
+  return &shapes_oval2_data;
+}
+
+static struct TestData shapes_oval3_data = {WIDTH * HEIGHT, 0, {}};
+struct TestData* test_shapes_oval3(struct Bitmap* bitmap) {
+  bitmap_filled_rect(bitmap, 0, 0, WIDTH, HEIGHT);
+  uint16_t iterations = 100;
+  for (uint16_t i=0; i<iterations; ++i) {
+    const int16_t x = rand16(-10, WIDTH+10);
+    const int16_t y = rand16(-10, HEIGHT+10);
+    const uint16_t rx = rand16(0, WIDTH / 2 + 5);
+    const uint16_t ry = rand16(0, HEIGHT / 2 + 5);
+    bitmap_oval(bitmap, x, y, rx, ry);
+  }
+  return &shapes_oval3_data;
+}
+
+static struct TestData shapes_fovl1_data = {83, 0, {}};
+struct TestData* test_shapes_fovl1(struct Bitmap* bitmap) {
+  const int16_t y = HEIGHT / 2;
+  const int16_t ry = HEIGHT / 5;
+  bitmap_filled_oval(bitmap, 5, y, 0, ry);
+  bitmap_filled_oval(bitmap, 10, y, 1, ry);
+  bitmap_filled_oval(bitmap, 15, y, 2, ry);
+  bitmap_filled_oval(bitmap, 20, y, 3, ry);
+  bitmap_filled_oval(bitmap, 29, y, 5, ry);
+  return &shapes_fovl1_data;
+}
+
+static struct TestData shapes_fovl2_data = {83, 0, {}};
+struct TestData* test_shapes_fovl2(struct Bitmap* bitmap) {
+  const int16_t x = WIDTH / 2;
+  const int16_t rx = WIDTH / 5;
+  bitmap_filled_oval(bitmap, x, 1, rx, 0);
+  bitmap_filled_oval(bitmap, x, 2, rx, 1);
+  bitmap_filled_oval(bitmap, x, 5, rx, 2);
+  bitmap_filled_oval(bitmap, x, 10, rx, 3);
+  bitmap_filled_oval(bitmap, x, 20, rx, 4);
+  return &shapes_fovl2_data;
+}
+
+static struct TestData shapes_fovl3_data = {WIDTH * HEIGHT, 0, {}};
+struct TestData* test_shapes_fovl3(struct Bitmap* bitmap) {
+  bitmap_filled_rect(bitmap, 0, 0, WIDTH, HEIGHT);
+  uint16_t iterations = 100;
+  for (uint16_t i=0; i<iterations; ++i) {
+    const int16_t x = rand16(-10, WIDTH+10);
+    const int16_t y = rand16(-10, HEIGHT+10);
+    const uint16_t rx = rand16(0, WIDTH / 2 + 5);
+    const uint16_t ry = rand16(0, HEIGHT / 2 + 5);
+    bitmap_filled_oval(bitmap, x, y, rx, ry);
+  }
+  return &shapes_fovl3_data;
+}
+
+static struct TestData shapes_circ1_data = {83, 0, {}};
+struct TestData* test_shapes_circ1(struct Bitmap* bitmap) {
+  bitmap_circle(bitmap, WIDTH / 2, HEIGHT / 2, HEIGHT / 5);
+  return &shapes_circ1_data;
+}
+
+static struct TestData shapes_circ2_data = {WIDTH * HEIGHT, 0, {}};
+struct TestData* test_shapes_circ2(struct Bitmap* bitmap) {
+  bitmap_filled_rect(bitmap, 0, 0, WIDTH, HEIGHT);
+  uint16_t iterations = 100;
+  for (uint16_t i=0; i<iterations; ++i) {
+    const int16_t x = rand16(-10, WIDTH+10);
+    const int16_t y = rand16(-10, HEIGHT+10);
+    const uint16_t r = rand16(0, WIDTH / 2 + 5);
+    bitmap_circle(bitmap, x, y, r);
+  }
+  return &shapes_circ2_data;
+}
+
+static struct TestData shapes_fcir1_data = {83, 0, {}};
+struct TestData* test_shapes_fcir1(struct Bitmap* bitmap) {
+  bitmap_filled_circle(bitmap, WIDTH / 2, HEIGHT / 2, HEIGHT / 5);
+  return &shapes_fcir1_data;
+}
+
+static struct TestData shapes_fcir2_data = {WIDTH * HEIGHT, 0, {}};
+struct TestData* test_shapes_fcir2(struct Bitmap* bitmap) {
+  bitmap_filled_rect(bitmap, 0, 0, WIDTH, HEIGHT);
+  uint16_t iterations = 100;
+  for (uint16_t i=0; i<iterations; ++i) {
+    const int16_t x = rand16(-10, WIDTH+10);
+    const int16_t y = rand16(-10, HEIGHT+10);
+    const uint16_t r = rand16(0, WIDTH / 2 + 5);
+    bitmap_filled_circle(bitmap, x, y, r);
+  }
+  return &shapes_fcir2_data;
+}
+
+static struct TestData shapes_fill1_data = {83, 0, {}};
+struct TestData* test_shapes_fill1(struct Bitmap* bitmap) {
+  bitmap_line(bitmap, 0, HEIGHT*3/4, WIDTH/2, 0);
+  bitmap_line(bitmap, WIDTH/2, 0, WIDTH-1, HEIGHT-1);
+  bitmap_line(bitmap, WIDTH-1, HEIGHT-1, 0, HEIGHT*3/4);
+  bitmap_flood_fill(bitmap, WIDTH/2, HEIGHT/2, fill_queue, FILL_QUEUE_LENGTH);
+  return &shapes_fill1_data;
+}
+
+static struct TestData shapes_fill2_data = {83, 0, {}};
+struct TestData* test_shapes_fill2(struct Bitmap* bitmap) {
+  bitmap_line(bitmap, 5, 0, WIDTH-1, HEIGHT-5);
+  bitmap_flood_fill(bitmap, WIDTH/2, HEIGHT/2, fill_queue, FILL_QUEUE_LENGTH);
+  return &shapes_fill2_data;
+}
+
+static struct TestData shapes_fill3_data = {83, 0, {}};
+struct TestData* test_shapes_fill3(struct Bitmap* bitmap) {
+  bitmap_line(bitmap, 0, 5, WIDTH-5, HEIGHT-1);
+  bitmap_flood_fill(bitmap, WIDTH/2, HEIGHT/2, fill_queue, FILL_QUEUE_LENGTH);
+  return &shapes_fill3_data;
 }
