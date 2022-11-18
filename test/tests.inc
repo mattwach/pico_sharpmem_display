@@ -34,6 +34,10 @@ struct TestData* test_image_tile0(struct Bitmap* bitmap);
 struct TestData* test_image_tile1(struct Bitmap* bitmap);
 struct TestData* test_shapes_circ1(struct Bitmap* bitmap);
 struct TestData* test_shapes_circ2(struct Bitmap* bitmap);
+struct TestData* test_shapes_cons1(struct Bitmap* bitmap);
+struct TestData* test_shapes_cons2(struct Bitmap* bitmap);
+struct TestData* test_shapes_cons3(struct Bitmap* bitmap);
+struct TestData* test_shapes_cons4(struct Bitmap* bitmap);
 struct TestData* test_shapes_fcir1(struct Bitmap* bitmap);
 struct TestData* test_shapes_fcir2(struct Bitmap* bitmap);
 struct TestData* test_shapes_fill1(struct Bitmap* bitmap);
@@ -113,6 +117,10 @@ struct TestData* (*tests[])(struct Bitmap*) = {
   test_image_tile1,
   test_shapes_circ1,
   test_shapes_circ2,
+  test_shapes_cons1,
+  test_shapes_cons2,
+  test_shapes_cons3,
+  test_shapes_cons4,
   test_shapes_fcir1,
   test_shapes_fcir2,
   test_shapes_fill1,
@@ -193,6 +201,10 @@ const char* test_names[] = {
   "tile1",
   "circ1",
   "circ2",
+  "cons1",
+  "cons2",
+  "cons3",
+  "cons4",
   "fcir1",
   "fcir2",
   "fill1",

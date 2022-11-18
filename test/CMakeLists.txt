@@ -1,6 +1,7 @@
 add_executable(sharpdisp_test_alldraw
         main.c
         bitmaptests.c
+        consoletests.c
         common.c
         images.c
         imagetests.c
@@ -14,6 +15,7 @@ target_link_libraries(sharpdisp_test_alldraw
     pico_stdlib
     SHARPDISP
     SHARPDOUBLEBUFFER
+    BITMAPCONSOLE
     BITMAPIMAGE
     BITMAPSHAPES
     BITMAPTEXT
