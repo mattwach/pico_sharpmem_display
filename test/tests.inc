@@ -15,13 +15,6 @@ struct TestData* test_bitmap_cpyr2(struct Bitmap* bitmap);
 struct TestData* test_bitmap_gtst1(struct Bitmap* bitmap);
 struct TestData* test_bitmap_gtst2(struct Bitmap* bitmap);
 struct TestData* test_bitmap_pnt(struct Bitmap* bitmap);
-struct TestData* test_image_frct1(struct Bitmap* bitmap);
-struct TestData* test_image_frct2(struct Bitmap* bitmap);
-struct TestData* test_image_frct3(struct Bitmap* bitmap);
-struct TestData* test_image_frct4(struct Bitmap* bitmap);
-struct TestData* test_image_frct5(struct Bitmap* bitmap);
-struct TestData* test_image_frct6(struct Bitmap* bitmap);
-struct TestData* test_image_hline(struct Bitmap* bitmap);
 struct TestData* test_image_imgba(struct Bitmap* bitmap);
 struct TestData* test_image_imgx1(struct Bitmap* bitmap);
 struct TestData* test_image_imgx2(struct Bitmap* bitmap);
@@ -37,16 +30,23 @@ struct TestData* test_image_imgy4(struct Bitmap* bitmap);
 struct TestData* test_image_imgy5(struct Bitmap* bitmap);
 struct TestData* test_image_imgy6(struct Bitmap* bitmap);
 struct TestData* test_image_imgy7(struct Bitmap* bitmap);
-struct TestData* test_image_line(struct Bitmap* bitmap);
-struct TestData* test_image_rect1(struct Bitmap* bitmap);
-struct TestData* test_image_rect2(struct Bitmap* bitmap);
-struct TestData* test_image_rect3(struct Bitmap* bitmap);
-struct TestData* test_image_rect4(struct Bitmap* bitmap);
-struct TestData* test_image_rect5(struct Bitmap* bitmap);
-struct TestData* test_image_rect6(struct Bitmap* bitmap);
 struct TestData* test_image_tile0(struct Bitmap* bitmap);
 struct TestData* test_image_tile1(struct Bitmap* bitmap);
-struct TestData* test_image_vline(struct Bitmap* bitmap);
+struct TestData* test_shapes_frct1(struct Bitmap* bitmap);
+struct TestData* test_shapes_frct2(struct Bitmap* bitmap);
+struct TestData* test_shapes_frct3(struct Bitmap* bitmap);
+struct TestData* test_shapes_frct4(struct Bitmap* bitmap);
+struct TestData* test_shapes_frct5(struct Bitmap* bitmap);
+struct TestData* test_shapes_frct6(struct Bitmap* bitmap);
+struct TestData* test_shapes_hline(struct Bitmap* bitmap);
+struct TestData* test_shapes_line(struct Bitmap* bitmap);
+struct TestData* test_shapes_rect1(struct Bitmap* bitmap);
+struct TestData* test_shapes_rect2(struct Bitmap* bitmap);
+struct TestData* test_shapes_rect3(struct Bitmap* bitmap);
+struct TestData* test_shapes_rect4(struct Bitmap* bitmap);
+struct TestData* test_shapes_rect5(struct Bitmap* bitmap);
+struct TestData* test_shapes_rect6(struct Bitmap* bitmap);
+struct TestData* test_shapes_vline(struct Bitmap* bitmap);
 struct TestData* test_text_char1(struct Bitmap* bitmap);
 struct TestData* test_text_char2(struct Bitmap* bitmap);
 struct TestData* test_text_char3(struct Bitmap* bitmap);
@@ -78,13 +78,6 @@ struct TestData* (*tests[])(struct Bitmap*) = {
   test_bitmap_gtst1,
   test_bitmap_gtst2,
   test_bitmap_pnt,
-  test_image_frct1,
-  test_image_frct2,
-  test_image_frct3,
-  test_image_frct4,
-  test_image_frct5,
-  test_image_frct6,
-  test_image_hline,
   test_image_imgba,
   test_image_imgx1,
   test_image_imgx2,
@@ -100,16 +93,23 @@ struct TestData* (*tests[])(struct Bitmap*) = {
   test_image_imgy5,
   test_image_imgy6,
   test_image_imgy7,
-  test_image_line,
-  test_image_rect1,
-  test_image_rect2,
-  test_image_rect3,
-  test_image_rect4,
-  test_image_rect5,
-  test_image_rect6,
   test_image_tile0,
   test_image_tile1,
-  test_image_vline,
+  test_shapes_frct1,
+  test_shapes_frct2,
+  test_shapes_frct3,
+  test_shapes_frct4,
+  test_shapes_frct5,
+  test_shapes_frct6,
+  test_shapes_hline,
+  test_shapes_line,
+  test_shapes_rect1,
+  test_shapes_rect2,
+  test_shapes_rect3,
+  test_shapes_rect4,
+  test_shapes_rect5,
+  test_shapes_rect6,
+  test_shapes_vline,
   test_text_char1,
   test_text_char2,
   test_text_char3,
@@ -142,13 +142,6 @@ const char* test_names[] = {
   "gtst1",
   "gtst2",
   "pnt",
-  "frct1",
-  "frct2",
-  "frct3",
-  "frct4",
-  "frct5",
-  "frct6",
-  "hline",
   "imgba",
   "imgx1",
   "imgx2",
@@ -164,6 +157,15 @@ const char* test_names[] = {
   "imgy5",
   "imgy6",
   "imgy7",
+  "tile0",
+  "tile1",
+  "frct1",
+  "frct2",
+  "frct3",
+  "frct4",
+  "frct5",
+  "frct6",
+  "hline",
   "line",
   "rect1",
   "rect2",
@@ -171,8 +173,6 @@ const char* test_names[] = {
   "rect4",
   "rect5",
   "rect6",
-  "tile0",
-  "tile1",
   "vline",
   "char1",
   "char2",

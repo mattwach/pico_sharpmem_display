@@ -2,7 +2,7 @@
 #include "common.h"
 #include "sharpdisp/bitmapshapes.h"
 
-static struct TestData image_hline_data = {
+static struct TestData shapes_hline_data = {
   19,
   19,
   {
@@ -31,17 +31,17 @@ static struct TestData image_hline_data = {
     {WIDTH-1, 4, 1},
   }
 };
-struct TestData* test_image_hline(struct Bitmap* bitmap) {
+struct TestData* test_shapes_hline(struct Bitmap* bitmap) {
   bitmap_hline(bitmap, 0, 0, 5);  // 5
   bitmap_hline(bitmap, -1, 1, 5);  // 4
   bitmap_hline(bitmap, bitmap->width - 5, 2, 5);  // 5
   bitmap_hline(bitmap, bitmap->width - 4, 3, 5);  // 4
   bitmap_hline(bitmap, bitmap->width - 1, 4, 5);  // 1
   bitmap_hline(bitmap, bitmap->width, 5, 5);  // 0
-  return &image_hline_data;
+  return &shapes_hline_data;
 }
 
-static struct TestData image_vline_data = {
+static struct TestData shapes_vline_data = {
   22,
   22,
   {
@@ -73,7 +73,7 @@ static struct TestData image_vline_data = {
     {WIDTH-1, HEIGHT-1, 1},    
   }
 };
-struct TestData* test_image_vline(struct Bitmap* bitmap) {
+struct TestData* test_shapes_vline(struct Bitmap* bitmap) {
   bitmap_vline(bitmap, -1, 0, 5);  // 0
   bitmap_vline(bitmap, 0, 0, 5);  // 5
   bitmap_vline(bitmap, 1, -1, 5);  // 4
@@ -83,22 +83,30 @@ struct TestData* test_image_vline(struct Bitmap* bitmap) {
   bitmap_vline(bitmap, 0, bitmap->height-4, 5);  // 4
   bitmap_vline(bitmap, bitmap->width-1, bitmap->height-4, 5);  // 4
   bitmap_vline(bitmap, bitmap->width, bitmap->height-4, 5);  // 0
-  return &image_vline_data;
+  return &shapes_vline_data;
 }
 
-static struct TestData image_line_data = {
-  19,
-  1,
+static struct TestData shapes_line_data = {
+  9,
+  9,
   {
     {0, 0, 1},    
+    {1, 0, 1},    
+    {2, 1, 1},    
+    {3, 1, 1},    
+    {4, 2, 1},    
+    {5, 2, 1},    
+    {6, 3, 1},    
+    {7, 3, 1},    
+    {8, 4, 1},    
   }
 };
-struct TestData* test_image_line(struct Bitmap* bitmap) {
+struct TestData* test_shapes_line(struct Bitmap* bitmap) {
   bitmap_line(bitmap, 0, 0, 8, 4);
-  return &image_line_data;
+  return &shapes_line_data;
 }
 
-static struct TestData image_rect1_data = {
+static struct TestData shapes_rect1_data = {
   10,
   10,
   {
@@ -116,12 +124,12 @@ static struct TestData image_rect1_data = {
     {3, 2, 1},    
   }
 };
-struct TestData* test_image_rect1(struct Bitmap* bitmap) {
+struct TestData* test_shapes_rect1(struct Bitmap* bitmap) {
   bitmap_rect(bitmap, 0, 0, 4, 3);
-  return &image_rect1_data;
+  return &shapes_rect1_data;
 }
 
-static struct TestData image_rect2_data = {
+static struct TestData shapes_rect2_data = {
   7,
   7,
   {
@@ -136,12 +144,12 @@ static struct TestData image_rect2_data = {
     {2, 2, 1},    
   }
 };
-struct TestData* test_image_rect2(struct Bitmap* bitmap) {
+struct TestData* test_shapes_rect2(struct Bitmap* bitmap) {
   bitmap_rect(bitmap, -1, 0, 4, 3);
-  return &image_rect2_data;
+  return &shapes_rect2_data;
 }
 
-static struct TestData image_rect3_data = {
+static struct TestData shapes_rect3_data = {
   6,
   6,
   {
@@ -154,12 +162,12 @@ static struct TestData image_rect3_data = {
     {3, 1, 1},    
   }
 };
-struct TestData* test_image_rect3(struct Bitmap* bitmap) {
+struct TestData* test_shapes_rect3(struct Bitmap* bitmap) {
   bitmap_rect(bitmap, 0, -1, 4, 3);
-  return &image_rect3_data;
+  return &shapes_rect3_data;
 }
 
-static struct TestData image_rect4_data = {
+static struct TestData shapes_rect4_data = {
   10,
   10,
   {
@@ -177,12 +185,12 @@ static struct TestData image_rect4_data = {
     {WIDTH-1, HEIGHT-1, 1},    
   }
 };
-struct TestData* test_image_rect4(struct Bitmap* bitmap) {
+struct TestData* test_shapes_rect4(struct Bitmap* bitmap) {
   bitmap_rect(bitmap, WIDTH-4, HEIGHT-3, 4, 3);
-  return &image_rect4_data;
+  return &shapes_rect4_data;
 }
 
-static struct TestData image_rect5_data = {
+static struct TestData shapes_rect5_data = {
   7,
   7,
   {
@@ -197,12 +205,12 @@ static struct TestData image_rect5_data = {
     {WIDTH-1, HEIGHT-1, 1},    
   }
 };
-struct TestData* test_image_rect5(struct Bitmap* bitmap) {
+struct TestData* test_shapes_rect5(struct Bitmap* bitmap) {
   bitmap_rect(bitmap, WIDTH-3, HEIGHT-3, 4, 3);
-  return &image_rect5_data;
+  return &shapes_rect5_data;
 }
 
-static struct TestData image_rect6_data = {
+static struct TestData shapes_rect6_data = {
   6,
   6,
   {
@@ -215,12 +223,12 @@ static struct TestData image_rect6_data = {
     {WIDTH-1, HEIGHT-1, 1},    
   }
 };
-struct TestData* test_image_rect6(struct Bitmap* bitmap) {
+struct TestData* test_shapes_rect6(struct Bitmap* bitmap) {
   bitmap_rect(bitmap, WIDTH-4, HEIGHT-2, 4, 3);
-  return &image_rect6_data;
+  return &shapes_rect6_data;
 }
 
-static struct TestData image_frct1_data = {
+static struct TestData shapes_frct1_data = {
   12,
   12,
   {
@@ -240,12 +248,12 @@ static struct TestData image_frct1_data = {
     {3, 2, 1},    
   }
 };
-struct TestData* test_image_frct1(struct Bitmap* bitmap) {
+struct TestData* test_shapes_frct1(struct Bitmap* bitmap) {
   bitmap_filled_rect(bitmap, 0, 0, 4, 3);
-  return &image_frct1_data;
+  return &shapes_frct1_data;
 }
 
-static struct TestData image_frct2_data = {
+static struct TestData shapes_frct2_data = {
   9,
   9,
   {
@@ -262,12 +270,12 @@ static struct TestData image_frct2_data = {
     {2, 2, 1},    
   }
 };
-struct TestData* test_image_frct2(struct Bitmap* bitmap) {
+struct TestData* test_shapes_frct2(struct Bitmap* bitmap) {
   bitmap_filled_rect(bitmap, -1, 0, 4, 3);
-  return &image_frct2_data;
+  return &shapes_frct2_data;
 }
 
-static struct TestData image_frct3_data = {
+static struct TestData shapes_frct3_data = {
   8,
   8,
   {
@@ -282,14 +290,14 @@ static struct TestData image_frct3_data = {
     {3, 1, 1},    
   }
 };
-struct TestData* test_image_frct3(struct Bitmap* bitmap) {
+struct TestData* test_shapes_frct3(struct Bitmap* bitmap) {
   bitmap_filled_rect(bitmap, 0, -1, 4, 3);
-  return &image_frct3_data;
+  return &shapes_frct3_data;
 }
 
-static struct TestData image_frct4_data = {
-  10,
-  10,
+static struct TestData shapes_frct4_data = {
+  12,
+  12,
   {
     {WIDTH-4, HEIGHT-3, 1},    
     {WIDTH-3, HEIGHT-3, 1},    
@@ -307,12 +315,12 @@ static struct TestData image_frct4_data = {
     {WIDTH-1, HEIGHT-1, 1},    
   }
 };
-struct TestData* test_image_frct4(struct Bitmap* bitmap) {
+struct TestData* test_shapes_frct4(struct Bitmap* bitmap) {
   bitmap_filled_rect(bitmap, WIDTH-4, HEIGHT-3, 4, 3);
-  return &image_frct4_data;
+  return &shapes_frct4_data;
 }
 
-static struct TestData image_frct5_data = {
+static struct TestData shapes_frct5_data = {
   9,
   9,
   {
@@ -329,12 +337,12 @@ static struct TestData image_frct5_data = {
     {WIDTH-1, HEIGHT-1, 1},    
   }
 };
-struct TestData* test_image_frct5(struct Bitmap* bitmap) {
+struct TestData* test_shapes_frct5(struct Bitmap* bitmap) {
   bitmap_filled_rect(bitmap, WIDTH-3, HEIGHT-3, 4, 3);
-  return &image_frct5_data;
+  return &shapes_frct5_data;
 }
 
-static struct TestData image_frct6_data = {
+static struct TestData shapes_frct6_data = {
   8,
   8,
   {
@@ -349,7 +357,7 @@ static struct TestData image_frct6_data = {
     {WIDTH-1, HEIGHT-1, 1},    
   }
 };
-struct TestData* test_image_frct6(struct Bitmap* bitmap) {
+struct TestData* test_shapes_frct6(struct Bitmap* bitmap) {
   bitmap_filled_rect(bitmap, WIDTH-4, HEIGHT-2, 4, 3);
-  return &image_frct6_data;
+  return &shapes_frct6_data;
 }
