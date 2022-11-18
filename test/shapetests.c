@@ -415,7 +415,7 @@ struct TestData* test_shapes_frct7(struct Bitmap* bitmap) {
   return &shapes_frct7_data;
 }
 
-static struct TestData shapes_oval1_data = {10, 0, {}};
+static struct TestData shapes_oval1_data = {83, 0, {}};
 struct TestData* test_shapes_oval1(struct Bitmap* bitmap) {
   const int16_t y = HEIGHT / 2;
   const int16_t ry = HEIGHT / 5;
@@ -423,6 +423,6 @@ struct TestData* test_shapes_oval1(struct Bitmap* bitmap) {
   bitmap_oval(bitmap, 10, y, 1, ry);
   bitmap_oval(bitmap, 15, y, 2, ry);
   bitmap_oval(bitmap, 20, y, 3, ry);
-  bitmap_oval(bitmap, 30, y, 8, ry);
+  bitmap_oval(bitmap, 29, y, 5, ry);
   return &shapes_oval1_data;
 }
