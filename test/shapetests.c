@@ -106,6 +106,31 @@ struct TestData* test_shapes_line(struct Bitmap* bitmap) {
   return &shapes_line_data;
 }
 
+static struct TestData shapes_line2_data = {0, 0, {}};
+struct TestData* test_shapes_line2(struct Bitmap* bitmap) {
+  const uint16_t iterations = 500;
+  bitmap->mode = BITMAP_INVERSE;
+  for (uint16_t i=0; i<iterations; ++i) {
+    int16_t x1 = rand16(-10, bitmap->width + 10);
+    int16_t x2 = rand16(-10, bitmap->width + 10);
+    int16_t y1 = rand16(-10, bitmap->height + 10);
+    int16_t y2 = rand16(-10, bitmap->height + 10);
+    bitmap_line(bitmap, x1, y1, x2, y2);
+    if (rand16(0, 100) > 50) {
+      int16_t tmp = x1;
+      x1 = x2;
+      x2 = tmp;
+    }
+    if (rand16(0, 100) > 50) {
+      int16_t tmp = y1;
+      y1 = y2;
+      y2 = tmp;
+    }
+    bitmap_line(bitmap, x1, y1, x2, y2);
+  }
+  return &shapes_line2_data;
+}
+
 static struct TestData shapes_rect1_data = {
   10,
   10,
@@ -226,6 +251,20 @@ static struct TestData shapes_rect6_data = {
 struct TestData* test_shapes_rect6(struct Bitmap* bitmap) {
   bitmap_rect(bitmap, WIDTH-4, HEIGHT-2, 4, 3);
   return &shapes_rect6_data;
+}
+
+static struct TestData shapes_rect7_data = {WIDTH * HEIGHT, 0, {}};
+struct TestData* test_shapes_rect7(struct Bitmap* bitmap) {
+  bitmap_filled_rect(bitmap, 0, 0, WIDTH, HEIGHT);
+  uint16_t iterations = 100;
+  for (uint16_t i=0; i<iterations; ++i) {
+    const int16_t x = rand16(-10, WIDTH+10);
+    const int16_t y = rand16(-10, HEIGHT+10);
+    const uint16_t width = rand16(0, 100);
+    const uint16_t height = rand16(0, 100);
+    bitmap_rect(bitmap, x, y, width, height);
+  }
+  return &shapes_rect7_data;
 }
 
 static struct TestData shapes_frct1_data = {
@@ -360,4 +399,30 @@ static struct TestData shapes_frct6_data = {
 struct TestData* test_shapes_frct6(struct Bitmap* bitmap) {
   bitmap_filled_rect(bitmap, WIDTH-4, HEIGHT-2, 4, 3);
   return &shapes_frct6_data;
+}
+
+static struct TestData shapes_frct7_data = {WIDTH * HEIGHT, 0, {}};
+struct TestData* test_shapes_frct7(struct Bitmap* bitmap) {
+  bitmap_filled_rect(bitmap, 0, 0, WIDTH, HEIGHT);
+  uint16_t iterations = 100;
+  for (uint16_t i=0; i<iterations; ++i) {
+    const int16_t x = rand16(-10, WIDTH+10);
+    const int16_t y = rand16(-10, HEIGHT+10);
+    const uint16_t width = rand16(0, 100);
+    const uint16_t height = rand16(0, 100);
+    bitmap_filled_rect(bitmap, x, y, width, height);
+  }
+  return &shapes_frct7_data;
+}
+
+static struct TestData shapes_oval1_data = {10, 0, {}};
+struct TestData* test_shapes_oval1(struct Bitmap* bitmap) {
+  const int16_t y = HEIGHT / 2;
+  const int16_t ry = HEIGHT / 5;
+  bitmap_oval(bitmap, 5, y, 0, ry);
+  bitmap_oval(bitmap, 10, y, 1, ry);
+  bitmap_oval(bitmap, 15, y, 2, ry);
+  bitmap_oval(bitmap, 20, y, 3, ry);
+  bitmap_oval(bitmap, 30, y, 8, ry);
+  return &shapes_oval1_data;
 }
