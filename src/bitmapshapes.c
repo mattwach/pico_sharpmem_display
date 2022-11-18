@@ -41,6 +41,9 @@ static void _bitmap_hline_nocheck(
 }
 
 void bitmap_hline(struct Bitmap* bitmap, int16_t x, int16_t y, uint16_t w) {
+  if (w > bitmap->width) {
+    w = bitmap->width;
+  }
   if (x < 0) {
     if ((-x) >= w) {
       return;
@@ -76,6 +79,9 @@ void bitmap_vline(
     int16_t x,
     int16_t y,
     uint16_t h) {
+  if (h > bitmap->height) {
+    h = bitmap->height;
+  }
   if ((x < 0) || (x >= bitmap->width)) {
     return;
   }
@@ -124,6 +130,13 @@ void bitmap_filled_rect(
     int16_t y,
     uint16_t w,
     uint16_t h) {
+  // protect against overflow errors
+  if (w > bitmap->width) {
+    w = bitmap->width;
+  }
+  if (h > bitmap->height) {
+    h = bitmap->height;
+  }
   if (x < 0) {
     if ((-x) >= w) {
       return;
