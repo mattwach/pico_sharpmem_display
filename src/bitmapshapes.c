@@ -1,6 +1,5 @@
 #include "sharpdisp/bitmapshapes.h"
 
-
 static inline void _bitmap_hline_single_byte(
     uint8_t* ptr,
     uint16_t x,
@@ -143,6 +142,8 @@ void bitmap_filled_rect(
     }
     w += x;
     x = 0;
+  } else if (x >= bitmap->width) {
+    return;
   }
   if (y < 0) {
     if ((-y) >= h) {
