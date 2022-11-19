@@ -189,20 +189,11 @@ void bitmap_line(
     }
     return;
   }
-  // Always draw from upper left to lower right for consistency
-  int16_t tmp;
-  if (x0 > x1) {
-    tmp = x0;
-    x0 = x1;
-    x1 = tmp;
-  }
-  if (y0 > y1) {
-    tmp = y0;
-    y0 = y1;
-    y1 = tmp;
-  }
-  const int16_t dx = x1 - x0;
-  const int16_t dy = y1 - y0;
+  const int8_t xdir = x1 > x0 ? 1 : -1;
+  const int8_t ydir = y1 > y0 ? 1 : -1;
+
+  const int16_t dx = (x1 - x0) * xdir;
+  const int16_t dy = (y1 - y0) * ydir;
   const uint16_t width = bitmap->width;
   const uint16_t height = bitmap->height;
 
@@ -216,12 +207,12 @@ void bitmap_line(
 
   while (x != x1 || y != y1) {
     if (D > 0) {
-      ++y;
+      y += ydir;
       D -= 2 * dx;
     } 
     
     if (D <= 0) {
-      ++x;
+      x += xdir;
       D += 2 * dy;
     }
 

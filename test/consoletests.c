@@ -3,7 +3,7 @@
 #include "sharpdisp/bitmaptext.h"
 #include "fonts/liberation_mono_10.h"
 
-static struct TestData shapes_cons1_data = {83, 0, {}};
+static struct TestData shapes_cons1_data = {36, 0, {}};
 struct TestData* test_shapes_cons1(struct Bitmap* bitmap) {
   struct BitmapConsole bc;
   struct BitmapText text;
@@ -15,7 +15,7 @@ struct TestData* test_shapes_cons1(struct Bitmap* bitmap) {
   return &shapes_cons1_data;
 }
 
-static struct TestData shapes_cons2_data = {83, 0, {}};
+static struct TestData shapes_cons2_data = {94, 0, {}};
 struct TestData* test_shapes_cons2(struct Bitmap* bitmap) {
   struct BitmapConsole bc;
   struct BitmapText text;
@@ -26,7 +26,7 @@ struct TestData* test_shapes_cons2(struct Bitmap* bitmap) {
   return &shapes_cons2_data;
 }
 
-static struct TestData shapes_cons3_data = {83, 0, {}};
+static struct TestData shapes_cons3_data = {15, 0, {}};
 struct TestData* test_shapes_cons3(struct Bitmap* bitmap) {
   struct BitmapConsole bc;
   struct BitmapText text;
@@ -37,7 +37,7 @@ struct TestData* test_shapes_cons3(struct Bitmap* bitmap) {
   return &shapes_cons3_data;
 }
 
-static struct TestData shapes_cons4_data = {83, 0, {}};
+static struct TestData shapes_cons4_data = {37, 0, {}};
 struct TestData* test_shapes_cons4(struct Bitmap* bitmap) {
   char printf_buffer[80];
   struct BitmapConsole bc;
