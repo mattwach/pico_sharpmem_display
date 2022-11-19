@@ -430,7 +430,7 @@ struct TestData* test_shapes_oval1(struct Bitmap* bitmap) {
   return &shapes_oval1_data;
 }
 
-static struct TestData shapes_oval2_data = {83, 0, {}};
+static struct TestData shapes_oval2_data = {110, 0, {}};
 struct TestData* test_shapes_oval2(struct Bitmap* bitmap) {
   const int16_t x = WIDTH / 2;
   const int16_t rx = WIDTH / 5;
@@ -456,7 +456,7 @@ struct TestData* test_shapes_oval3(struct Bitmap* bitmap) {
   return &shapes_oval3_data;
 }
 
-static struct TestData shapes_fovl1_data = {83, 0, {}};
+static struct TestData shapes_fovl1_data = {144, 0, {}};
 struct TestData* test_shapes_fovl1(struct Bitmap* bitmap) {
   const int16_t y = HEIGHT / 2;
   const int16_t ry = HEIGHT / 5;
@@ -468,7 +468,7 @@ struct TestData* test_shapes_fovl1(struct Bitmap* bitmap) {
   return &shapes_fovl1_data;
 }
 
-static struct TestData shapes_fovl2_data = {83, 0, {}};
+static struct TestData shapes_fovl2_data = {232, 0, {}};
 struct TestData* test_shapes_fovl2(struct Bitmap* bitmap) {
   const int16_t x = WIDTH / 2;
   const int16_t rx = WIDTH / 5;
@@ -494,7 +494,7 @@ struct TestData* test_shapes_fovl3(struct Bitmap* bitmap) {
   return &shapes_fovl3_data;
 }
 
-static struct TestData shapes_circ1_data = {83, 0, {}};
+static struct TestData shapes_circ1_data = {28, 0, {}};
 struct TestData* test_shapes_circ1(struct Bitmap* bitmap) {
   bitmap_circle(bitmap, WIDTH / 2, HEIGHT / 2, HEIGHT / 5);
   return &shapes_circ1_data;
@@ -513,7 +513,7 @@ struct TestData* test_shapes_circ2(struct Bitmap* bitmap) {
   return &shapes_circ2_data;
 }
 
-static struct TestData shapes_fcir1_data = {83, 0, {}};
+static struct TestData shapes_fcir1_data = {86, 0, {}};
 struct TestData* test_shapes_fcir1(struct Bitmap* bitmap) {
   bitmap_filled_circle(bitmap, WIDTH / 2, HEIGHT / 2, HEIGHT / 5);
   return &shapes_fcir1_data;
@@ -532,7 +532,7 @@ struct TestData* test_shapes_fcir2(struct Bitmap* bitmap) {
   return &shapes_fcir2_data;
 }
 
-static struct TestData shapes_fill1_data = {83, 0, {}};
+static struct TestData shapes_fill1_data = {553, 0, {}};
 struct TestData* test_shapes_fill1(struct Bitmap* bitmap) {
   bitmap_line(bitmap, 0, HEIGHT*3/4, WIDTH/2, 0);
   bitmap_line(bitmap, WIDTH/2, 0, WIDTH-1, HEIGHT-1);
@@ -541,14 +541,14 @@ struct TestData* test_shapes_fill1(struct Bitmap* bitmap) {
   return &shapes_fill1_data;
 }
 
-static struct TestData shapes_fill2_data = {83, 0, {}};
+static struct TestData shapes_fill2_data = {575, 0, {}};
 struct TestData* test_shapes_fill2(struct Bitmap* bitmap) {
   bitmap_line(bitmap, 5, 0, WIDTH-1, HEIGHT-5);
   bitmap_flood_fill(bitmap, WIDTH/2, HEIGHT/2, fill_queue, FILL_QUEUE_LENGTH);
   return &shapes_fill2_data;
 }
 
-static struct TestData shapes_fill3_data = {83, 0, {}};
+static struct TestData shapes_fill3_data = {580, 0, {}};
 struct TestData* test_shapes_fill3(struct Bitmap* bitmap) {
   bitmap_line(bitmap, 0, 5, WIDTH-5, HEIGHT-1);
   bitmap_flood_fill(bitmap, WIDTH/2, HEIGHT/2, fill_queue, FILL_QUEUE_LENGTH);
