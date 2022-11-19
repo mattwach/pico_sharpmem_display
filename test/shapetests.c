@@ -522,7 +522,7 @@ struct TestData* test_shapes_fcir2(struct Bitmap* bitmap) {
   return &shapes_fcir2_data;
 }
 
-static struct TestData shapes_fill1_data = {553, 0, {}};
+static struct TestData shapes_fill1_data = {392, 0, {}};
 struct TestData* test_shapes_fill1(struct Bitmap* bitmap) {
   bitmap_line(bitmap, 0, HEIGHT*3/4, WIDTH/2, 0);
   bitmap_line(bitmap, WIDTH/2, 0, WIDTH-1, HEIGHT-1);
