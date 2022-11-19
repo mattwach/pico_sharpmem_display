@@ -1,8 +1,9 @@
 # pico_sharpmem_display
-The code here is a Raspberry PI Pico library for driving a Sharp Memory Module,
+
+This project is a Raspberry PI Pico library for driving a Sharp Memory Module,
 such as the LS013B4DN04 or LS027B7DH01.  The library includes low, mid and high level functions.
 
-What is a Sharp Memory Display?
+*What is a Sharp Memory Display?*
 
 I consider it an evolution of LCD displays - higher contrast and 60FPS animations
 with very little ghosting.  Due to it's high contrast, it is often compared to
@@ -28,7 +29,7 @@ three conceptual layers:
    * *Low level*: At this level the display is represented as a byte array. 
      You set bytes in the array (each byte represents an 8x1 pixel slice) and
      then call `sharpdisp_refresh()` to see results.  If you are trying to add
-     sharp support to a different graphics library, this is probably the code
+     Sharp LCD support to a different graphics library, this is probably the code
      you want to look at.
    * *Mid Level*: Functions for drawing text and simple shapes.
      Examples include `text_str()` from writing a string (with a choice of fonts)
@@ -39,7 +40,7 @@ three conceptual layers:
      concering yourself with all of the setup code otherwise-needed to get it
      working.
 
-# Project Stibility
+# Project Stability
 
 I would consider this project to be "early beta" at this point.  There is
 testing and examples for every API function  but likely still some corner-case
@@ -54,9 +55,10 @@ pinning to a release branch if this might be a problem.
 
 # Getting Started - Hello World
 
+![hello world](images/hello_world.jpg)
+
 ## Hardware Connections
 
-![hello world](images/hello_world.jpg)
 
 Hardware connections are inline with a standard PI Pico SPI device.  The pin
 assignments are not fixed and can be changed within the limitations of
@@ -81,29 +83,33 @@ is not specific to the Sharp LCD.
 
 From the parent directory:
 
-    ./bootstrap.sh
-    cd build
-    cd examples/midlevel/hello_world
-    make -j
+```bash
+./bootstrap.sh
+cd build
+cd examples/midlevel/hello_world
+make -j
+```
 
 If all goes to plan, you will now have a `sharpdisp_hello_world.uf2` file
 that you can load onto the pico.  You can use the USB drive method or
 this command:
 
-    picotool load sharpdisp_hello_world.uf2
+```bash
+picotool load sharpdisp_hello_world.uf2
+```
 
-of course this only works if the pico is ready to accept code
+of course this only works if the Pico is ready to accept code
 by holding the boot button on reset or power on.
 
 If the code loads but the image doesn't show, one thing to consider
 (along with the usual checking connections) is to lower the SPI
-frequency.  Refer to `include/sharpdisp/sharpdisp.h` for guidance on
+frequency.  Refer to [sharpdisp.h](include/sharpdisp/sharpdisp.h) for guidance on
 how to do this (i.e. use `sharpdisp_init_freq_hz()`).
 
 # In-Depth Hello World Analysis
 
 Lets break down an example that uses the API
-(located at `examples/midlevel/hello_world`):
+(located at [examples/midlevel/hello_world/main.c](examples/midlevel/hello_world/main.c)):
 
 ```c
 #include "pico/stdlib.h"
@@ -146,9 +152,9 @@ int main() {
 }
 ```
 
-## Initialization
+## Hello World - Initialization
 
-## SharpDisp Initialization
+### SharpDisp Initialization
 
 ```c
 uint8_t disp_buffer[BITMAP_SIZE(WIDTH, HEIGHT)];
@@ -166,16 +172,13 @@ with `malloc()` but use of dynamic memory allocation is debatable on a
 resource-limited microcontroller.  Feel free to add a `malloc()` init wrapper
 if that is your preference.
 
-`BITMAP_SIZE` is used to calculate the number of bytes needed.  The calculation
-is generally `(WIDTH / 8) * HEIGHT` but there is a corner case involving
-widths that are not a multiple of 8.  All existing sharp displays *do* have a multiple
-of 8 width but an offscreen buffer you make yourself might not - `BITMAP_SIZE`
-gets the calculation correct in these cases too.
+`BITMAP_SIZE()` is used to calculate the number of bytes needed.  The calculation
+the macro uses is `((WIDTH + 7) / 8) * HEIGHT` where the `+7` handles widths that are
+not a multiple of 8 pixels.
 
 The last parameter represents the background fill byte.  `0x00` will lead to a
 black background while `0xFF` will lead to a white one.  You could use other
-values here to make a striped background but, outside of experimentation, you
-likely will not want to do this.
+values here to make a striped background if you really want to.
 
 Let's look at the `SharpDisp` and `Bitmap` structures a bit:
 
@@ -191,8 +194,9 @@ struct SharpDisp {
 ```
 
 Not much in this structure of interest outside of `bitmap` which you will often
-need to pass to drawing functions (as `bitmap_rect()` is doing above).  On to
-`Bitmap`, which is a field of `SharpDisp` but can also be used separately:
+need to pass to drawing functions (as `bitmap_rect()` is doing in `main.c` above).
+
+On to `Bitmap`, which is a field of `SharpDisp` but can also be used separately:
 
 ```c
 sharpdisp/bitmap.h
@@ -208,11 +212,11 @@ struct Bitmap {
 ```
 
 The `mode` field is used by higher-level drawing functions such as `text_str()`
-and `bitmap_rect()` to decide how to draw pixels (`BITMAP_BLACK`, `BITMAP_WHITE` and `BITMAP_INVERSE` are the options).
+and `bitmap_rect()` to decide how to draw pixels.  The `clear_byte` field
+defines the background "color" to `0x00` (black) `0xFF` (white) or some other
+value (for vertical stripes). 
 
-The `clear_byte` field defines the background "color" to `0x00` (black) `0xFF` (white) or some other value (for vertical stripes). 
-
-## Text Initialization
+## Hello World - Text Initialization
 
 ```c
 int main() {
@@ -232,30 +236,36 @@ sharpdisp/bitmaptext.h
 struct BitmapText {
     const uint8_t* font;    // Pointer to some font data
     struct Bitmap* bitmap;  // Pointer to the bitmap to update
-    uint16_t x;             // Left edge of next drawn character
-    uint16_t y;             // Top edge of next drawn character
+    int16_t x;  i           // Left edge of next drawn character
+    int16_t y;              // Top edge of next drawn character
     uint8_t error;          // Non-zero if any errors happen
 };
 ```
 
-The `font` pointer points to a compiled object in the `fonts/` directory.  It
+The `font` pointer points to a header declared in the [fonts/](fonts) directory.  It
 is purposefully left typeless so that different font formats can be supported
 without requiring the use of compile-casting.
 
-The `bitmap` pointer is usually set to `SharpDisp.bitmap` but you might choose a
-different bitmap if you want to do double buffering or other special techniques.
+The `bitmap` pointer is usually set to `SharpDisp.bitmap` but you can draw to
+other bitmaps if you need to.
 
-After a character is drawn, `x` is automatically incremented by that
-character's width.  `y` is not incremented, thus your mid-level code will
-need to manage the `y` coordinate (if you use an API like `bitmapconsole.h`
-or `console.h`, then `y` is updated for you in the manner that those
-libraries deem appropriate.)
+`x` and `y` represent the top-left location of the next drawn character.  These
+values can be negative which is useful if you want to scroll in text from the top
+or left edge of the screen.  The values can also exceed the dimensions of the
+bitmap but you do need to be mindful of exceeding the `int16_t` limits.
+
+After a character is drawn, `x` is automatically incremented by that character's
+width.  `y` is not incremented, thus your mid-level code will need to manage the
+`y` coordinate (if you use an API like
+[bitmapconsole.h](include/sharpdisp/bitmapconsole.h) or
+[console.h](include/sharpdisp/console.h), then `y` is updated for you in the
+manner that those libraries deem appropriate.)
 
 The `error` field can be ignored unless text is not drawing and you need to
 investigate. Non-zero values represent an error an can be referenced in
-`bitmaptext.h`.
+[bitmaptext.h](include/sharpdisp/bitmaptext.h).
 
-## Drawing "Hello World!"
+## Hello World - Drawing the string
 
 ```c
 int main() {
@@ -271,12 +281,14 @@ int main() {
 Most of the complexity here comes from centering the text on the display, you could
 go a simple route and just say:
 
-      text_str(&text, "Hello World!");
+```c
+  text_str(&text, "Hello World!");
+```
 
-but then the text would display in the upper-left corner (`text_init()` sets `x` and `y`
-to zero).
+but then the text would display in the upper-left corner (`text_init()` sets `x`
+and `y` to zero).
 
-## Draw a rectangle
+## Hello World - Draw a rectangle
 
 ```c
 int main() {
@@ -295,17 +307,18 @@ sharpdisp/bitmapshapes.h
 
 void bitmap_rect(
     struct Bitmap* bitmap,
-    uint16_t x,
-    uint16_t y,
+    int16_t x,
+    int16_t y,
     uint16_t w,
     uint16_t h);
 ```
 
-The same header file provides functions for drawing lines, ovals, and flood
-fills.  The base `bitmap.h` file contains functions for setting/getting
-individual pixels (`bitmap_point()` and `bitmap_get_point()`).
+[bitmapshapes.h](include/sharpdisp/bitmapshapes.h) provides functions for
+drawing lines, ovals, and flood fills.  The base
+[bitmap.h](include/sharpdisp/bitmap.h) file contains functions for
+setting/getting individual pixels (`bitmap_point()` and `bitmap_get_point()`).
 
-## Refresh the Sharp LCD
+## Hello World - Refresh the Sharp LCD
 
 ```c
 int main() {
@@ -320,9 +333,12 @@ memory.  The `sharpdisp_refresh()` function is what sends this buffer to the
 hardware.  At the default SPI speed of 10Mhz (which you can change), it will
 take about 14 ms to do the send and the code will be blocked during the
 operation.  This time can be offloaded to the Pico's second CPU using the
-`doublebuffer.h` library that is explained in an upcoming section. 
+[doublebuffer.h](include/sharpdisp/doublebuffer.h) library that is explained in
+an upcoming section. 
 
 # High Level API - The Console Interface
+
+![console](images/console.jpg)
 
 High level APIs here are ones that hide as much boilerplate as possible to allow
 specific usecases to be streamlined.  The usecase in question is a scrolling
@@ -334,10 +350,12 @@ Pico USB hardware for something else.
 
 Building:
 
-    ./bootstrap.sh
-    cd build
-    cd examples/highlevel/console_count
-    make -j
+```bash
+./bootstrap.sh
+cd build
+cd examples/highlevel/console_count
+make -j
+```
 
 
 Code:
@@ -379,18 +397,23 @@ Another trick the console uses for speed is that it calls
 `sharpdisp_refresh_vscroll()` instead of `sharpdisp_refresh()`.  The extended
 form allows you to change where the `y=0` point in the bitmap is.  Having this
 ability means that the console needs to update/move much less data for a scroll
-event which boosts scrolling performance.  I suppose these are details you don't
-*need* to know - just know that the console code is using tricks to be faster
-than a naive implementation would likely be able to achieve.
+event which boosts scrolling performance.
+
+> It could go even faster if double buffering were used (in trade for using
+> CPU1) but that is not yet implemented.
 
 # Low Level API - Direct Array Manipulation
 
+![low level](images/low_level.jpg)
+
 Building:
 
-    ./bootstrap.sh
-    cd build
-    cd examples/lowlevel/buffer_direct
-    make -j
+```bash
+./bootstrap.sh
+cd build
+cd examples/lowlevel/buffer_direct
+make -j
+```
 
 Code:
 
@@ -420,14 +443,17 @@ int main() {
 }
 ```
 
-For lowlevel, the only files you need to look at are `sharpdisp.c` and `bitmap.c`.
-Very little code overall.
+For lowlevel, the only files you need to look at are
+[sharpdisp.c](src/sharpdisp.c) and [bitmap.c](src/bitmap.c).  Very little code
+overall.
 
 The main usecase here you be if you already have a graphics library you are
 using and want some example code you can use or port to make the
 Sharp LCD a target.
 
 # Double Buffering
+
+![ball bounce](images/ball_bounce.jpg)
 
 As said earlier, at 10Mhz, the Pico is taking around 14 ms to update the screen.
 If you are targeting a 60 FPS animation, you'll need to complete each frame in
@@ -450,13 +476,13 @@ on how the sharing works.  To summarize here:
      to the display.
    * and the flip-flop cycle continues.
 
-This *may* sound complicated but actually using the `doublebuffer.h` library is
-nearly as simple as not using it.  Let's take a simple example and convert it
-for demonstration.
+This *may* sound complicated but actually using the
+[doublebuffer.h](include/sharpdisp/doublebuffer.h) library is nearly as simple
+as not using it.  Let's take a simple example and convert it for demonstration.
 
 Without double buffering
 ```c
-struct SharpDisp display;
+struct SharpDisp sd;
 uint8_t disp_buffer[BITMAP_SIZE(WIDTH, HEIGHT)];
 #define SLEEP_MS 1   // Account for the 14ms drawing time
 
@@ -464,9 +490,9 @@ int main() {
   sharpdisp_init_default(&sd, disp_buffer, WIDTH, HEIGHT, 0x00);
 
   while (1) {
-    bitmap_clear(&display.bitmap);
-    draw_things(&display.bitmap);
-    sharpdisp_refresh(&display); 
+    bitmap_clear(&sd.bitmap);
+    draw_things(&sd.bitmap);
+    sharpdisp_refresh(&sd); 
     sleep_ms(SLEEP_MS);
   }
 }
@@ -474,23 +500,23 @@ int main() {
 
 This example will get around 60 FPS assuming draw_things() completes in 1ms. 
 
-With double buffering
+With double buffering (comment indicate changed lines)
 
 ```c
-struct SharpDisp display;
-struct DoubleBuffer dub_buff;
+struct SharpDisp sd;
+struct DoubleBuffer db;
 uint8_t disp_buffer[BITMAP_SIZE(WIDTH, HEIGHT)];
 uint8_t disp_buffer2[BITMAP_SIZE(WIDTH, HEIGHT)];
 #define SLEEP_MS 16   // 62 FPS
 
 int main() {
   sharpdisp_init_default(&sd, disp_buffer, WIDTH, HEIGHT, 0x00);
-  doublebuffer_init(&db, &display, disp_buffer2, SLEEP_MS);
+  doublebuffer_init(&db, &display, disp_buffer2, SLEEP_MS);  // Setup
 
   while (1) {
-    bitmap_clear(&dub_buff.bitmap);
-    draw_things(&dub_buff.bitmap);
-    doublebuffer_swap(&dub_buff);  // This instead of sharpdisp_refresh()
+    bitmap_clear(&db.bitmap); // db.bitmap instead of sd.bitmap
+    draw_things(&db.bitmap);
+    doublebuffer_swap(&db);  // This instead of sharpdisp_refresh() and sleep_ms()
   }
 }
 
@@ -501,25 +527,25 @@ is now rendering to the double buffer bitmap while the Sharp hardware is
 updated in parallel.  Under this setup, `draw_things()` can take up to 16 ms
 and we will still see >60 FPS.  We may also see a more consistent framerate
 in this example as `doublebuffer_swap()` contains the needed logic to
-keep the FPS even so long as `draw_things()` does not take longer to complete
-than `SLEEP_MS`.  If `draw_things()` does take too long, things will still
+keep the FPS even.  If `draw_things()` does takes > 16ms, things will still
 work but the framerate will not hold > 60 FPS.
 
-`examples/midlevel/doublebuffer` and `examples/midlevel/mapscroll` provide
+[examples/midlevel/doublebuffer](examples/midlevel/doublebuffer/main.c) and
+[examples/midlevel/mapscroll](examples/midlevel/mapscroll/main.c) provide
 additional examples.
 
 # Metrics
 
 If you want to know what framerates you are actually getting, the internal
 pico timers can help gather the data.  All of this is already wrapped up
-in the `metrics.h` library that you can use directly or a starting point
+in the [metrics.h](include/sharpdisp/metrics.h) library that you can use directly or a starting point
 for your own system.
 
-`examples/midlevel/metrics` provides an example.
+[examples/midlevel/metrics](examples/midlevel/metrics/main.c) provides an example.
 
 # Custom Fonts
 
-The `font/` directory has a set of fonts you can choose from without doing
+The [fonts/](fonts) directory has a set of fonts you can choose from without doing
 any additional steps.
 
 It's also easy to create your own fonts.  To do so, you'll need the following installed:
@@ -535,9 +561,9 @@ Then you:
    2. Edit your new `.yaml` file
    3. Run `make` in the `fonts/` directory.
 
-The make command calls `tools/make_var_font.py` for every font that needs
-updating.  You could of course just call `make_var_font.py` yourself if
-that suits you.
+The make command calls [tools/make_var_font.py](tools/make_var_font.py) for
+every font that needs updating.  You could of course just call
+[make_var_font.py](tools/make_var_font.py) yourself if that suits you.
 
 Here is an example `.yaml` file:
 
@@ -554,9 +580,9 @@ sections:
 
 Most parameters should be clear except for possibly `right_trim` and `y_offset`.  These are used to help fit characters into a smaller bounding box.
 
-There are more parameters listed in `make_var_font.py`.  I suggest reviweing them
-before undergoing any serious font conversion efforts as the same effect
-might be a simple setting away.
+There are more parameters listed in [make_var_font.py](tools/make_var_font.py).
+I suggest reviweing them before undergoing any serious font conversion efforts
+as the same effect might be a simple setting away.
 
 Another paramter worth mentioning and not shown above is `chars`.  Let's 
 demonstrate:
@@ -603,19 +629,21 @@ widths that are not a multiple of 8, the `0x00` byte is a NOOP byte and thus
 repeating sequences of `0x00` can be skipped over efficiently.  Again, larger
 fonts will generally see larger relative improvements.
 
-See `include/sharpdisp/bitmaptext.h` and `include/sharpdisp/bitmapimage.h` for
-additional details.
+See [bitmaptext.h](include/sharpdisp/bitmaptext.h) and
+[bitmapimage.h](include/sharpdisp/bitmapimage.h) for additional details.
 
 # Custom Images
+
+![rose](images/rose.jpg)
 
 "Custom images" in this section refers to prerendered images such as `.jpg` and
 `.png` files that you want to use.  It does not refer images you dynamically
 create at runtime inside the Pico.
 
-The `bitmapimages.h` library supports the use of these images encoded as
+The [bitmapimage.h](include/sharpdisp/bitmapimage.h) library supports the use of these images encoded as
 RLE and embedded into the firmware as compiled `.c` objects.
 
-The `make_var_font.py` utility creates the data.  Here is an example:
+The [make_images.py](tools/make_images.py) utility creates the data.  Here is an example:
 
 ```yaml
 output_type: SharpMemoryImage
@@ -628,11 +656,11 @@ images:
 
 To process the yaml above:
 
-```
-tools/make_var_font.py images.yaml
+```bash
+tools/make_images.py images.yaml
 ```
 
-*The yaml file supports further options.  See `make_images.py` for details*
+*The yaml file supports further options.  See [make_images.py](tools/make_images.py) for details*
 
 Using the recipe above, `images.h` and `images.c` files will be generated with 
 RLE image data and header definitions that look like this:
