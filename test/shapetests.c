@@ -119,16 +119,6 @@ struct TestData* test_shapes_line2(struct Bitmap* bitmap) {
     int16_t y1 = rand16(-10, bitmap->height + 10);
     int16_t y2 = rand16(-10, bitmap->height + 10);
     bitmap_line(bitmap, x1, y1, x2, y2);
-    if (rand16(0, 100) > 50) {
-      int16_t tmp = x1;
-      x1 = x2;
-      x2 = tmp;
-    }
-    if (rand16(0, 100) > 50) {
-      int16_t tmp = y1;
-      y1 = y2;
-      y2 = tmp;
-    }
     bitmap_line(bitmap, x1, y1, x2, y2);
   }
   return &shapes_line2_data;
