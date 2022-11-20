@@ -1,7 +1,9 @@
 # pico_sharpmem_display
 
 This project is a Raspberry PI Pico library for driving a Sharp Memory Module,
-such as the LS013B4DN04 or LS027B7DH01.  The library includes low, mid and high level functions.
+such as the [LS013B4DN04](https://www.adafruit.com/product/3502) or
+[LS027B7DH01](https://www.adafruit.com/product/4694).  The library includes low,
+mid and high level functions.
 
 *What is a Sharp Memory Display?*
 
@@ -11,7 +13,7 @@ e-paper (or eink) displays.  Here is a quick comparison:
 
 EPaper Advantages
 
-  * Zero power needed to display a static image (around 80 uA for the Sharp)
+  * Zero power needed to display a static image (vs around 80 uA for the Sharp)
   * Available in more sizes
   * Color versions are available
   * Potentially cheaper
@@ -81,7 +83,9 @@ is not specific to the Sharp LCD.
 
 ## Building Firmware
 
-From the parent directory:
+Here, I assume you are using a Raspberry PI or Linux distro for development and
+have already gotten some "blinking light" demo working. From the parent
+directory:
 
 ```bash
 ./bootstrap.sh
@@ -89,6 +93,10 @@ cd build
 cd examples/midlevel/hello_world
 make -j
 ```
+
+> You can also build and run this from Windows or Mac as the build is
+> just using the standard PI Pico CMake infrastructure.  Refer to official
+> documentation for more details on how to set it up
 
 If all goes to plan, you will now have a `sharpdisp_hello_world.uf2` file
 that you can load onto the pico.  You can use the USB drive method or
@@ -172,9 +180,9 @@ with `malloc()` but use of dynamic memory allocation is debatable on a
 resource-limited microcontroller.  Feel free to add a `malloc()` init wrapper
 if that is your preference.
 
-`BITMAP_SIZE()` is used to calculate the number of bytes needed.  The calculation
-the macro uses is `((WIDTH + 7) / 8) * HEIGHT` where the `+7` handles widths that are
-not a multiple of 8 pixels.
+`BITMAP_SIZE()` is used to calculate the number of bytes needed.  The
+calculation the macro uses is `((WIDTH + 7) / 8) * HEIGHT` where the `+7`
+accounts for widths that are not a multiple of 8 pixels.
 
 The last parameter represents the background fill byte.  `0x00` will lead to a
 black background while `0xFF` will lead to a white one.  You could use other
@@ -265,7 +273,7 @@ The `error` field can be ignored unless text is not drawing and you need to
 investigate. Non-zero values represent an error an can be referenced in
 [bitmaptext.h](include/sharpdisp/bitmaptext.h).
 
-## Hello World - Drawing the string
+## Hello World - Drawing the String
 
 ```c
 int main() {
@@ -288,7 +296,7 @@ go a simple route and just say:
 but then the text would display in the upper-left corner (`text_init()` sets `x`
 and `y` to zero).
 
-## Hello World - Draw a rectangle
+## Hello World - Draw a Rectangle
 
 ```c
 int main() {
@@ -504,9 +512,9 @@ With double buffering (comment indicate changed lines)
 
 ```c
 struct SharpDisp sd;
-struct DoubleBuffer db;
+struct DoubleBuffer db; // Need this object
 uint8_t disp_buffer[BITMAP_SIZE(WIDTH, HEIGHT)];
-uint8_t disp_buffer2[BITMAP_SIZE(WIDTH, HEIGHT)];
+uint8_t disp_buffer2[BITMAP_SIZE(WIDTH, HEIGHT)];  // Need a 2nd buffer
 #define SLEEP_MS 16   // 62 FPS
 
 int main() {
