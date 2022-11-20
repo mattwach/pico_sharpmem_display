@@ -638,7 +638,7 @@ See [bitmaptext.h](include/sharpdisp/bitmaptext.h) and
 
 "Custom images" in this section refers to prerendered images such as `.jpg` and
 `.png` files that you want to use.  It does not refer images you dynamically
-create at runtime inside the Pico.
+create at runtime.
 
 The [bitmapimage.h](include/sharpdisp/bitmapimage.h) library supports the use of these images encoded as
 RLE and embedded into the firmware as compiled `.c` objects.
@@ -675,7 +675,11 @@ RLE image data and header definitions that look like this:
 Here is an example showing basic usage:
 
 ```c
+#include "images.h"
+
 int main() {
+  struct SharpDisp sd;
+  struct BitmapImages bi;
   sharpdisp_init_default(&sd, disp_buffer, WIDTH, HEIGHT, 0xFF);
   image_init(&bi, images, &sd.bitmap);
   image_draw(&bi, FILE_SEARCH_IMG, 10, 10);
@@ -686,11 +690,13 @@ int main() {
 
 ## Large Images
 
+![map scroll](images/map_scroll.jpg)
+
 One of the downsides of RLE is that, due to compression, it's inefficient (or
 non-trivial, if you prefer) to extract a rectangular selection from within the
 data.  This can come up when you are working with an image that is much larger
 than the screen and you want to scroll around in it (see
-`examples/midlevel/mapscroll` for a case of this).  You *can* just draw the
+[examples/midlevel/mapscroll](examples/midlevel/mapscroll/main.c) for a case of this).  You *can* just draw the
 image with a negative offset like this:
 
 ```c
@@ -701,7 +707,7 @@ and the output will be correct but performance will not be optimal.
 
 Like all problems in computer science, there are many solutions possible.
 One that is popular (and implemented) is to break the image into tiles and
-restrict rendering to only the tiles that actually appear in the image.
+restrict rendering to only the tiles that actually appear on the screen.
 To do this, you add additional annotations to the `.yaml` file:
 
 ```yaml
@@ -717,17 +723,19 @@ and call an alternate drawing function:
 image_draw_tiled(bitmap, MAP_IMG_0_0, MAP_IMG_COLUMNS, MAP_IMG_ROWS, x, y);
 ```
 
-For the map `mapscroll` example, using tiles resulted in around a 5x rendering
-performance improvement and thus achieved glitch-free 60 FPS scrolling.  The
-larger the source image, the larger potential for improvement.  Images that
-(mostly) fit within the screen boundaries will see no improvement with this
-method.
+For the map [mapscroll](examples/midlevel/mapscroll/main.c) example, using tiles
+resulted in around a 5x rendering performance improvement and thus achieved
+glitch-free 60 FPS scrolling.  The larger the source image, the larger potential
+for improvement.  Images that (mostly) fit within the screen boundaries will see
+no improvement by using tiling.
 
 An alternate approach is to use bitmaps instead.  This will use more memory
 but offers runtime flexibility that is sometimes needed.  See the next
 section for details.
 
 ## Bitmap copy and blitting
+
+![rose blit](images/rose_blit.jpg)
 
 The `bitmap.h` library supports three functions for copying and blitting one 
 bitmap onto the other:
@@ -763,15 +771,18 @@ A quick rundown:
      shape or using a special bitmap that is intended to be used as a masking 
      image.
 
-Most bitmap copy/overlay operations can be implemented by combining the
-above methods in the proper sequence.  See `bitmap.h` and
-`examples/midlevel/bitmapblit` for more details.
+Most bitmap copy/overlay operations can be implemented by combining the above
+methods in the proper sequence.  See [bitmap.h](include/sharpdisp/bitmap.h) and
+[examples/midlevel/bitmapblit](examples/midlevel/bitmapblit/main.c) for more
+details.
 
-# Testing
+# Library Testing
 
-There is a `test/` directory that builds a binary file that can be loaded onto
-a Pico with a connected display for testing and connected to a PC for logging
-messages. 
+![test](images/test.jpg)
+
+There is a [test/](test) directory that builds a binary file.  This binary file
+can be loaded onto a Pico with a connected display for testing and connected to
+a PC for logging messages. 
 
 The test runs through most of the API functions, drawing on bitmaps and
 asserting that the output conforms to certain properties (such as 1's pixel
