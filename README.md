@@ -608,7 +608,7 @@ character.  Also demonstrated here is the use of sections to apply different
 settings to different characters.  In this example, it was used to apply
 different trim settings to just the `:` character.
 
-## Storage
+## Font Data Format
 
 Fonts are stored using a
 [RLE](https://en.wikipedia.org/wiki/Run-length_encoding) compression variant.
