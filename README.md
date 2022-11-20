@@ -244,15 +244,15 @@ sharpdisp/bitmaptext.h
 struct BitmapText {
     const uint8_t* font;    // Pointer to some font data
     struct Bitmap* bitmap;  // Pointer to the bitmap to update
-    int16_t x;  i           // Left edge of next drawn character
+    int16_t x;              // Left edge of next drawn character
     int16_t y;              // Top edge of next drawn character
     uint8_t error;          // Non-zero if any errors happen
 };
 ```
 
-The `font` pointer points to a header declared in the [fonts/](fonts) directory.  It
-is purposefully left typeless so that different font formats can be supported
-without requiring the use of compile-casting.
+The `font` pointer points to a header declared in the [fonts/](fonts) directory.
+It is purposefully left as a generic `uint8_t*` type so that different font
+formats can be supported without requiring the use of type casting.
 
 The `bitmap` pointer is usually set to `SharpDisp.bitmap` but you can draw to
 other bitmaps if you need to.
@@ -263,8 +263,8 @@ or left edge of the screen.  The values can also exceed the dimensions of the
 bitmap but you do need to be mindful of exceeding the `int16_t` limits.
 
 After a character is drawn, `x` is automatically incremented by that character's
-width.  `y` is not incremented, thus your mid-level code will need to manage the
-`y` coordinate (if you use an API like
+width (if the character was drawn onscreen).  `y` is not incremented, thus your
+mid-level code will need to manage the `y` coordinate (if you use an API like
 [bitmapconsole.h](include/sharpdisp/bitmapconsole.h) or
 [console.h](include/sharpdisp/console.h), then `y` is updated for you in the
 manner that those libraries deem appropriate.)
@@ -471,17 +471,18 @@ One way to resolve the problem is to move the Sharp hardware update to CPU1
 on the Pico.  Under this scheme CPU0 and CPU1 work in parallel, thus the 14 ms
 overhead effectively disappears.
 
-The `doublebuffer.h` library provides functions to do this as well as details
-on how the sharing works.  To summarize here:
+The [doublebuffer.h](include/sharpdisp/doublebuffer.h) library provides
+functions to do this as well as details on how the sharing works.  To summarize
+here:
 
    * Instead of allocating one display buffer, you allocate two.  Lets
      call these `b1` and `b2` for this example.
    * CPU0 prepares an image on `b1` while CPU1 is sending `b2` to the
-     Sharp hardware.
+     Sharp LCD.
    * `doublebuffer_swap()` is called.  It handles syncronization and,
      when the time is right, swaps internal pointers for `b2` and `b1`
    * Now CPU0 can render the next image on `b2` while CPU1 sends `b1`
-     to the display.
+     to the Sharp LCD.
    * and the flip-flop cycle continues.
 
 This *may* sound complicated but actually using the
@@ -530,8 +531,8 @@ int main() {
 
 ```
 
-With these couple of lines changed (and the additional memory), `draw_things()`
-is now rendering to the double buffer bitmap while the Sharp hardware is
+With these handful of lines changed (and the additional memory), `draw_things()`
+is now rendering to the double buffer bitmap while the Sharp LCD is
 updated in parallel.  Under this setup, `draw_things()` can take up to 16 ms
 and we will still see >60 FPS.  We may also see a more consistent framerate
 in this example as `doublebuffer_swap()` contains the needed logic to
