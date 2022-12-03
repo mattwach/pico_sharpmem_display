@@ -4,25 +4,19 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-static char printf_buffer[PRINTF_BUFFER_SIZE];
-
 static inline uint32_t uptime_ms() {
   return to_ms_since_boot(get_absolute_time());
 }
 
 void console_init(
     struct Console* c,
-    uint8_t* buff,
-    uint16_t width,
-    uint16_t height,
-    uint8_t clear_byte,
+    struct SharpDisp* display,
     const void* font,
-    uint32_t refresh_period_ms,
-    uint32_t spi_freq_hz) {
-  sharpdisp_init_freq_hz(&(c->display), buff, width, height, clear_byte, spi_freq_hz);
-  text_init(&(c->text), font, &(c->display.bitmap));
+    uint32_t refresh_period_ms) {
+  c->display = display;
+  text_init(&(c->text), font, &(c->display->bitmap));
   bitmap_console_init(&(c->console), &(c->text));
-  c->text.printf_buffer = printf_buffer;
+  c->text.printf_buffer = c->printf_buffer;
   c->refresh_period_ms = refresh_period_ms;
   c->next_refresh_ms = 0;
   console_flush(c);
@@ -33,15 +27,13 @@ void console_init_default(
     uint8_t* buff,
     uint16_t width,
     uint16_t height) {
+  static struct SharpDisp display;
+  sharpdisp_init_default(&display, buff, width, height, 0xFF);
   console_init(
       c,
-      buff,
-      width,
-      height,
-      0xFF,
+      &display,
       liberation_mono_12,
-      32,
-      8000000);
+      32);
 }
 
 void console_clear(struct Console* c) {
@@ -52,7 +44,7 @@ void console_clear(struct Console* c) {
 static void console_refresh(struct Console* c) {
   const uint32_t timestamp_ms = uptime_ms();
   if (timestamp_ms >= c->next_refresh_ms) {
-    sharpdisp_refresh_vscroll(&(c->display), c->console.vscroll); 
+    sharpdisp_refresh_vscroll(c->display, c->console.vscroll); 
     c->next_refresh_ms = timestamp_ms + c->refresh_period_ms;
   }
 }
@@ -79,7 +71,7 @@ void console_char(struct Console* c, char ch) {
 void console_printf(struct Console* c, const char* fmt, ...) {
   va_list args;
   va_start(args, fmt);
-  vsnprintf(printf_buffer, PRINTF_BUFFER_SIZE - 1, fmt, args);
+  vsnprintf(c->printf_buffer, PRINTF_BUFFER_SIZE - 1, fmt, args);
   va_end(args);
-  console_str(c, printf_buffer);
+  console_str(c, c->printf_buffer);
 }

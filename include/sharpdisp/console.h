@@ -36,7 +36,7 @@
 #endif
 
 struct Console {
-  struct SharpDisp display;
+  struct SharpDisp* display;
   struct BitmapText text;
   struct BitmapConsole console;
   // How often to refresh the display.  Refreshing the display takes
@@ -44,17 +44,14 @@ struct Console {
   uint32_t refresh_period_ms;
   // The next timestamp to refresh
   uint32_t next_refresh_ms;
+  char printf_buffer[PRINTF_BUFFER_SIZE];
 };
 
 void console_init(
     struct Console* c,
-    uint8_t* buff,
-    uint16_t width,
-    uint16_t height,
-    uint8_t clear_byte,
+    struct SharpDisp* display,
     const void* font,
-    uint32_t refresh_period_ms,
-    uint32_t spi_freq_hz);
+    uint32_t refresh_period_ms);
 
 void console_init_default(
     struct Console* c,

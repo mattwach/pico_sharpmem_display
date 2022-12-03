@@ -1,2 +1,3 @@
 add_subdirectory(console_count)
+add_subdirectory(console_advanced_setup)
 
