@@ -47,11 +47,11 @@ target_sources(SHARPDISP  INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/sharpdisp.c
 )
 
-add_library(CONSOLE INTERFACE)
-target_include_directories(CONSOLE  INTERFACE ${CMAKE_CURRENT_LIST_DIR}/../include)
-target_link_libraries(CONSOLE  INTERFACE BITMAPCONSOLE SHARPDISP)
-target_sources(CONSOLE  INTERFACE
-    ${CMAKE_CURRENT_LIST_DIR}/console.c
+add_library(SHARPCONSOLE INTERFACE)
+target_include_directories(SHARPCONSOLE  INTERFACE ${CMAKE_CURRENT_LIST_DIR}/../include)
+target_link_libraries(SHARPCONSOLE  INTERFACE BITMAPCONSOLE SHARPDISP)
+target_sources(SHARPCONSOLE  INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/sharpconsole.c
 )
 
 add_library(SHARPDOUBLEBUFFER INTERFACE)

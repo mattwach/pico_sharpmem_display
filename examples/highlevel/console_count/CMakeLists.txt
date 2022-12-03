@@ -6,8 +6,8 @@ add_executable(sharpdisp_console_count
 # pull in common dependencies
 target_link_libraries(sharpdisp_console_count
     pico_stdlib
-    CONSOLE
-    CONSOLE_DEFAULT_FONT
+    SHARPCONSOLE
+    SHARPCONSOLE_DEFAULT_FONT
 )
 
 # enable usb output, disable uart output

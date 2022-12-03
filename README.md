@@ -37,7 +37,7 @@ three conceptual layers:
      Examples include `text_str()` from writing a string (with a choice of fonts)
      and `bitmap_circle()` for drawing a circle.
    * *High Level*: At this level, the sharp display is no longer directly
-     visible but used lower down.  The one existing example is the `console.h`
+     visible but used lower down.  The one existing example is the `sharpconsole.h`
      library which lets you create and print text to a scrolling console without
      concering yourself with all of the setup code otherwise-needed to get it
      working.
@@ -266,7 +266,7 @@ After a character is drawn, `x` is automatically incremented by that character's
 width (if the character was drawn onscreen).  `y` is not incremented, thus your
 mid-level code will need to manage the `y` coordinate (if you use an API like
 [bitmapconsole.h](include/sharpdisp/bitmapconsole.h) or
-[console.h](include/sharpdisp/console.h), then `y` is updated for you in the
+[sharpconsole.h](include/sharpdisp/sharpconsole.h), then `y` is updated for you in the
 manner that those libraries deem appropriate.)
 
 The `error` field can be ignored unless text is not drawing and you need to
@@ -370,7 +370,7 @@ Code:
 
 ```c
 #include "pico/stdlib.h"
-#include <sharpdisp/console.h>
+#include <sharpdisp/sharpconsole.h>
 
 #define WIDTH 400
 #define HEIGHT 240
@@ -380,19 +380,19 @@ uint8_t disp_buffer[BITMAP_SIZE(WIDTH, HEIGHT)];
 int main() {
   sleep_ms(100);  // allow voltage to stabilize
   struct Console c;
-  console_init_default(&c, disp_buffer, WIDTH, HEIGHT);
+  sharpconsole_init_default(&c, disp_buffer, WIDTH, HEIGHT);
   uint32_t i=0;
   while (1) {
     for (uint8_t j=0; j<6; ++j,++i) {
-      console_printf(&c, "%d  ", i);
+      sharpconsole_printf(&c, "%d  ", i);
     }
-    console_char(&c, '\n');
+    sharpconsole_char(&c, '\n');
   }
 }
 ```
 
-The `console_init_default()` function makes many decisions for you.  There is
-also a `console_init()` alternative that takes many additional parameters,
+The `sharpconsole_init_default()` function makes many decisions for you.  There is
+also a `sharpconsole_init()` alternative that takes many additional parameters,
 allowing you to choose a different font, background color, and refresh
 rate.  The default refresh rate is 30 Hz.  The LCD does not update with
 every write to the console but instead updates at the refresh rate.  At 30

@@ -1,7 +1,7 @@
 #include "pico/stdlib.h"
 #include <sharpdisp/sharpdisp.h>
 #include <fonts/liberation_sans_18.h>
-#include <sharpdisp/console.h>
+#include <sharpdisp/sharpconsole.h>
 #include "hardware/spi.h"
 
 // This shows how to setup a consle using a more advanced setup
@@ -32,8 +32,8 @@ int main() {
       10000000
   );
   struct Console c;
-  console_init(&c, &sd, liberation_sans_18, 32);
+  sharpconsole_init(&c, &sd, liberation_sans_18, 32);
   for (uint32_t i=0;; ++i) {
-    console_printf(&c, "%d\n", i);
+    sharpconsole_printf(&c, "%d\n", i);
   }
 }

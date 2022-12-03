@@ -6,8 +6,7 @@ add_executable(sharpdisp_console_advanced_setup
 # pull in common dependencies
 target_link_libraries(sharpdisp_console_advanced_setup
     pico_stdlib
-    CONSOLE
-    CONSOLE_DEFAULT_FONT
+    SHARPCONSOLE
     SHARPDISP
     LIBERATION_SANS_18
 )

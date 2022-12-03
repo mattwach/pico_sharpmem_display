@@ -19,10 +19,10 @@
 //
 // int main() {
 //   struct Console console;
-//   console_init(&console, disp_buffer, WIDTH, HEIGHT, terminal_font, 50);
+//   sharpconsole_init(&console, disp_buffer, WIDTH, HEIGHT, terminal_font, 50);
 //   while (1) {
-//     console_str(&console, "Hello World!\n");
-//     console_sleep_ms(1000);  // ensures that the console is updated
+//     sharpconsole_str(&console, "Hello World!\n");
+//     sharpconsole_sleep_ms(1000);  // ensures that the console is updated
 //   }
 // }
 
@@ -47,48 +47,48 @@ struct Console {
   char printf_buffer[PRINTF_BUFFER_SIZE];
 };
 
-void console_init(
+void sharpconsole_init(
     struct Console* c,
     struct SharpDisp* display,
     const void* font,
     uint32_t refresh_period_ms);
 
-void console_init_default(
+void sharpconsole_init_default(
     struct Console* c,
     uint8_t* buff,
     uint16_t width,
     uint16_t height);
 
-void console_clear(struct Console* c);
+void sharpconsole_clear(struct Console* c);
 
-// If your app has long pauses, you should call console_flush()
+// If your app has long pauses, you should call sharpconsole_flush()
 // ahead of the pause unless you are fine with characters not being
 // displayed until after the pause is finished and something else
 // is printed.
-void console_flush(struct Console* c);
+void sharpconsole_flush(struct Console* c);
 
-// convienence method that combines sleep_ms with console_flush
+// convienence method that combines sleep_ms with sharpconsole_flush
 // also accounts for the flush time in the sleeping
-void console_sleep_ms(struct Console* c, uint32_t ms);
+void sharpconsole_sleep_ms(struct Console* c, uint32_t ms);
 
 // Outputs a single character to the console
-void console_char(struct Console* c, char ch);
+void sharpconsole_char(struct Console* c, char ch);
 
-static inline void console_strlen(struct Console* c, const char* str, uint16_t length) {
+static inline void sharpconsole_strlen(struct Console* c, const char* str, uint16_t length) {
   for (uint16_t i=0; i<length; ++i) {
-    console_char(c, str[i]);
+    sharpconsole_char(c, str[i]);
   }
 }
 
-static inline void console_str(struct Console* c, const char* str) {
+static inline void sharpconsole_str(struct Console* c, const char* str) {
   for (; *str; ++str) {
-    console_char(c, *str);
+    sharpconsole_char(c, *str);
   }
 }
 
 // Used to support printf-style calling.  Max length is
 // PRINTF_BUFFER_SIZE - 1 chars.  Longer string will be trimmed.
-void console_printf(struct Console* c, const char* fmt, ...);
+void sharpconsole_printf(struct Console* c, const char* fmt, ...);
 
 #endif
 
